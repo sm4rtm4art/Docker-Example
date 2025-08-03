@@ -1,0 +1,45 @@
+# Markdown Linting Configuration for Docker Learning Path
+# =============================================================================
+# Educational content has different requirements than typical documentation
+
+# Line length - allow longer lines for code examples and tables
+MD013:
+  line_length: 120
+  # Allow long lines in code blocks and tables
+  code_blocks: false
+  tables: false
+
+# Headers - allow duplicate headers (common in educational modules)
+MD024:
+  allow_different_nesting: true
+
+# Ordered list item prefix - allow any number (1. 1. 1. is fine for steps)
+MD029:
+  style: "any"
+
+# Inline HTML - allow for educational formatting
+MD033:
+  allowed_elements: ["br", "details", "summary", "kbd", "sub", "sup"]
+
+# Emphasis used instead of header - allow for visual separation in exercises
+MD036: false
+
+# Spaces after list markers - be flexible for nested content
+MD030:
+  ul_single: 1
+  ol_single: 1
+  ul_multi: 1
+  ol_multi: 1
+
+# Trailing punctuation in headers - allow for questions and exclamations
+MD026:
+  punctuation: ".,;:"
+
+# Multiple top-level headers - allow for module structure
+MD025: false
+
+# First line in file should be top-level header - allow for intro text
+MD041: false
+
+# Link fragments should be valid - disabled for educational examples
+MD051: false

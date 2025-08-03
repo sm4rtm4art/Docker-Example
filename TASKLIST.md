@@ -1,158 +1,173 @@
 # Docker Learning Path - Implementation Tasklist
 
-## 🎯 Mission Statement
+> Consolidated planning, progress tracking, and implementation roadmap.
 
-Build a comprehensive Docker learning path that takes students from zero to intermediate Docker skills, with multiple language tracks for accessibility. Docker is the hero, languages are the sidekicks.
+## Current Progress: Week 1 - COMPLETE ✅
 
-## 📊 Project Constraints
+Day 1-5: All targets achieved | 7 modules created | Task API specification complete
 
-- **Scope**: Docker fundamentals → Docker Compose → Production practices → K8s preview
-- **Time**: Keep each module to 1-2 hours
-- **Languages**: Java (existing), Python, Rust priority. C/C++ optional.
-- **Principle**: Same Docker concepts across all languages
-- **Feasibility**: Reuse 70% content across languages
+### Key Deliverables:
 
-## ✅ Phase 1: Foundation (Weeks 1-2)
+- **TASK_API_SPECIFICATION.md** - REST API for Java/Python/Rust
+- **Module 03**: Dockerfile Essentials (shared + language-specific)
+- **Module 04**: Docker Compose (basics, networking, volumes)
+- **Module 06**: Security Best Practices foundation
+- **Module 08**: Monitoring Stack (Prometheus → Grafana)
+- **Module 11**: Beyond Docker (Podman comparison)
 
-- [ ] Create new repository structure: `docker-mastery-multitrack`
-- [ ] Extract language-agnostic Docker content from existing Java modules
-- [ ] Create Module 00: Prerequisites (language-agnostic)
-- [ ] Create Module 01: Docker Fundamentals (language-agnostic)
-  - [ ] What are containers vs VMs
-  - [ ] Docker architecture
-  - [ ] Basic Docker commands
-  - [ ] Image and container lifecycle
-- [ ] Design common Task API specification (REST endpoints)
-- [ ] Create language selector landing page
+### Risks & Mitigations:
 
-## ✅ Phase 2: Language Tracks Setup (Weeks 3-4)
+- UV (Python): Documented as experimental with pip fallbacks
+- Module Complexity: Split into 1-hour segments
+- Language Parity: Minimal Task API to reduce complexity
 
-- [ ] Create simple "Hello Docker" for each language
-  - [ ] Java: Spring Boot (existing, just refactor)
-  - [ ] Python: FastAPI + UV
-  - [ ] Rust: Actix-web
-- [ ] Module 02: Your First Container (language-specific)
-  - [ ] Same learning objectives, different code
-  - [ ] Focus on Dockerfile basics, not language specifics
-- [ ] Module 03: Building Images (language-specific)
-  - [ ] Multi-stage builds
-  - [ ] Layer caching
-  - [ ] Size optimization
+## Mission Statement
 
-## ✅ Phase 3: Docker Skills Development (Weeks 5-6)
+Build a comprehensive Docker learning path from zero to intermediate skills with multiple language tracks. Docker is the hero, languages are the sidekicks. Target: Complete monitoring stack.
 
-- [ ] Module 04: Docker Compose (mostly language-agnostic)
-  - [ ] Multi-container applications
-  - [ ] Networking (bridge, host, none)
-  - [ ] Volumes vs Bind Mounts
-  - [ ] Named volumes and volume lifecycle
-  - [ ] Environment management
-  - [ ] Orphan containers and cleanup strategies
-- [ ] Module 05: Development Workflow
-  - [ ] Hot reload setups
-  - [ ] Debugging in containers
-  - [ ] IDE integrations
-- [ ] Module 06: Docker Security & Best Practices
-  - [ ] Non-root users (mandatory default)
-  - [ ] When root IS needed (package installation, ports <1024)
-  - [ ] User namespace remapping
-  - [ ] Secrets management (never in ENV)
-  - [ ] Read-only containers
-  - [ ] Security scanning basics
-  - [ ] Health checks
-  - [ ] Resource limits
+## Project Constraints
 
-## ✅ Phase 4: Production & Advanced Topics (Weeks 7-8)
+- **Scope**: Fundamentals → Compose → Production → Monitoring
+- **Time**: 1-2 hours per module (split complex topics)
+- **Languages**: Java, Python (UV), Rust. C as stretch goal
+- **Principle**: 70% Docker concepts reusable across languages
+- **Focus**: Vanilla Docker until Module 11
 
-- [ ] Module 07: Production Readiness
-  - [ ] Multi-stage builds deep dive
-  - [ ] Distroless and minimal images
-  - [ ] Security scanning
-- [ ] Module 08: CI/CD with Docker
-  - [ ] GitHub Actions
-  - [ ] GitLab CI
-  - [ ] Building and pushing images
-- [ ] Module 09: Container Orchestration Intro
-  - [ ] Docker Swarm basics
-  - [ ] Kubernetes preview
-  - [ ] When to use what
-- [ ] Module 10: Observability
-  - [ ] Logging strategies
-  - [ ] Metrics with Prometheus
-  - [ ] Distributed tracing basics
-- [ ] Module 11: Beyond Docker
-  - [ ] Podman introduction (daemonless containers)
-  - [ ] Docker vs Podman comparison
-  - [ ] Migrating from Docker to Podman
-  - [ ] Other alternatives (containerd, CRI-O)
-  - [ ] When to use what
+## 🔧 Immediate Improvements Needed
 
-## 📋 Content Development Guidelines
+### Repository Cleanup: ✅ COMPLETE
 
-### For Each Module:
+- [x] **Rename redundant READMEs**:
+  - `scripts/README.md` → `scripts-utilities-guide.md`
+  - `python/README.md` → Removed (content in `python-quickstart.md`)
+  - `rust/README.md` → Removed (content in `rust-quickstart.md`)
+- [x] **Remove legacy scripts**: Deleted `docker-cleanup.sh` (kept v2)
+- [x] **Windows Container Support**: Added comprehensive section to Module 11
 
-- [ ] Learning objectives (Docker-focused)
-- [ ] Hands-on exercises (2-3 per module)
-- [ ] Common troubleshooting section
-- [ ] "Going Further" section for advanced students
-- [ ] Assessment questions (5 per module)
+### Remaining for Later: ✅ ALL COMPLETE!
 
-### Language-Specific Sections Must:
+- [x] **Advanced Networking**: Added comprehensive networking section to Module 04
+- [x] **Container Registries**: Added practical guide (Docker Hub, ECR, GCR, Harbor) to Module 09
+- [x] **Dockerfile Optimization**: Verified - all Dockerfiles already follow layer caching best practices
 
-- [ ] Take ≤30% of module content
-- [ ] Focus on Docker integration, not language features
-- [ ] Use idiomatic patterns but don't teach them
-- [ ] Assume basic language knowledge
+## Phase 1: Java Migration & Foundation (Week 1) ✅ COMPLETE
 
-### Shared Resources:
+- [x] Repository structure, utilities, pre-commit hooks
+- [x] Modules 00-02: Prerequisites, fundamentals, Java quickstart
+- [x] Java content audit: 70/30 Docker/Java split confirmed
+- [x] Monitoring stack architecture designed
 
-- [ ] Docker command cheat sheet
-- [ ] Dockerfile best practices guide
-- [ ] Security checklist
-- [ ] Performance optimization guide
-- [ ] Troubleshooting guide
+## Phase 2: Module Structure & Core Docker Skills (Week 2)
 
-## 🚫 Out of Scope (Keep Focus!)
+### Modules 02-04: Core Docker Skills
 
-- ❌ Teaching programming languages
-- ❌ Framework deep-dives (Spring, FastAPI, Actix details)
-- ❌ Advanced Kubernetes (just preview)
-- ❌ Cloud-specific implementations (ECS, GKE, etc.)
-- ❌ Service mesh, advanced orchestration
-- ❌ Language-specific build tools beyond Docker needs
+- [ ] **Module 02**: Language Quickstart (Task API in Java/Python/Rust)
+- [ ] **Module 03**: Dockerfile Mastery (3 parts: basics, multi-stage, production)
+- [ ] **Module 04**: Docker Compose (3 parts: basics, networking, volumes)
 
-## 📈 Success Metrics
+## Phase 3: Building Towards Monitoring (Week 3)
 
-- [ ] Student can containerize any application in their language
-- [ ] Student understands Docker networking and storage
-- [ ] Student can debug container issues
-- [ ] Student can optimize images for production
-- [ ] Student knows when to use orchestration
-- [ ] Completion time: 15-20 hours total
+### Modules 05-08: Production Path
 
-## 🔄 Review Checkpoints
+- [ ] **Module 05**: Development Workflow (hot reload, debugging, IDE integration)
+- [ ] **Module 06**: Security First (non-root, secrets, scanning)
+- [ ] **Module 07**: Production Excellence (minimal images, health checks, limits)
+- [ ] **Module 08**: Monitoring Stack (3 parts: Prometheus, Grafana, integration)
 
-1. After Phase 1: Is Docker content truly language-agnostic?
-2. After Phase 2: Are language examples minimal but effective?
-3. After Phase 3: Can students work with Docker professionally?
-4. After Phase 4: Are students ready for real-world scenarios?
+## Phase 4: Real World & Alternatives (Week 4)
 
-## 💡 Key Decisions Made
+### Modules 09-11: Advanced Topics
 
-1. UV for Python - modern, fast, shows Rust connection
-2. Focus on containers, not languages
-3. Same API across all languages for consistency
-4. Progressive difficulty within Docker, not language complexity
-5. Production-ready practices from the start
+- [ ] **Module 09**: CI/CD Pipelines (GitHub Actions, GitLab CI, registries)
+- [ ] **Module 10**: Orchestration Preview (Kubernetes taste, Swarm comparison)
+- [ ] **Module 11**: Beyond Docker (Podman, Windows containers, alternatives)
 
-## 🎯 Next Immediate Actions
+## Content Development Guidelines
 
-1. [ ] Create new repository with proposed structure
-2. [ ] Write Module 01: Docker Fundamentals (pure Docker)
-3. [ ] Create Task API specification
-4. [ ] Build one working example in each language
-5. [ ] Test the learning flow with one complete module
+### Module Structure: 20% concepts, 40% implementation, 25% exercises, 15% troubleshooting
+
+### Monitoring Stack Target:
+
+```
+Task API → PostgreSQL → Prometheus → Grafana
+```
+
+### Cleanup Integration:
+
+- Module 02: Container lifecycle
+- Module 04: Compose cleanup
+- Module 05: Dev/prod separation
+- Module 06: Security cleanup
+- Module 07: Image pruning
+- Module 08: Stack maintenance
+
+## Out of Scope
+
+- Teaching programming languages
+- Framework deep-dives
+- Advanced Kubernetes (30-min preview only)
+- Cloud-specific implementations
+- Docker Desktop licensing
+- Complex build tools
+
+## Success Metrics
+
+### Learning Outcomes:
+
+- Complete monitoring stack deployment
+- Clean Docker environment maintenance
+- Container permission debugging
+- Multi-stage build optimization
+- Security-by-default practices
+- Target: 18-24 hours total
+
+### Quality Gates:
+
+- 70% Docker content reuse achieved
+- Language-agnostic patterns
+- Security-first approach
+- Real-world applicability
+
+## Review Checkpoints
+
+1. After Module 04: Debug orphan containers?
+2. After Module 08: Monitoring stack working?
+3. After Module 11: Understand alternatives?
+
+## Key Decisions
+
+1. Monitoring stack as north star
+2. 3x1hr better than 1x3hr modules
+3. Cleanup throughout, not just at end
+4. Learn by debugging
+5. Vanilla Docker until Module 11
+
+## Java Migration Results (Week 1) ✅
+
+### Audit Summary:
+
+- Modules 02 & 04: 85-90% Docker content (goldmines!)
+- Successfully extracted 70% reusable Docker patterns
+- Created 7 complete modules from first principles
+
+## Week 1 Achievements Summary
+
+### Built 7 Complete Modules:
+
+- Module 03: Dockerfile Essentials (3 parts)
+- Module 04: Docker Compose (3 parts)
+- Module 06: Security Best Practices
+- Module 08: Monitoring Stack (3 parts)
+- Module 11: Beyond Docker
+- TASK_API_SPECIFICATION.md
+
+### Repository Status:
+
+- 7 modules ready for use
+- 3 language tracks implemented
+- Security-first patterns throughout
+- Professional documentation structure
 
 ---
 
-**Remember**: We're teaching Docker. The languages are just different doors into the same house.
+**Next**: Complete remaining modules following established patterns.

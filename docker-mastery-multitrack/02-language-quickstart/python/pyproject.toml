@@ -1,0 +1,38 @@
+[project]
+name = "task-api"
+version = "1.0.0"
+description = "Task Management API - Python Docker Learning Track"
+authors = [
+    {name = "Docker Learning Path"}
+]
+# readme = "README.md"  # Not needed for local development
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.104.1",
+    "uvicorn[standard]==0.24.0",
+    "pydantic==2.5.0",
+    "psycopg2-binary==2.9.9",
+    "prometheus-client==0.19.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "httpx>=0.24.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
+
+[tool.isort]
+profile = "black"
+line_length = 88
