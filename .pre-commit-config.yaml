@@ -1,0 +1,99 @@
+# Docker Learning Path - Simple & Reliable Pre-commit Configuration
+# =============================================================================
+# Focus: Educational quality and basic code hygiene
+
+repos:
+  # =============================================================================
+  # Basic File Quality (Always Works)
+  # =============================================================================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      # Essential file quality
+      - id: check-yaml                  # Valid YAML syntax
+      - id: check-json                  # Valid JSON syntax
+      - id: check-merge-conflict        # No merge conflict markers
+      - id: trailing-whitespace         # Clean whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer          # Consistent file endings
+      - id: mixed-line-ending          # Consistent line endings
+
+      # Prevent common mistakes
+      - id: check-added-large-files     # No huge files (>500KB)
+        args: [--maxkb=500]
+      - id: check-case-conflict         # Case-sensitive filesystems
+      - id: check-executables-have-shebangs  # Scripts are executable
+
+  # =============================================================================
+  # Python Quality (When Present)
+  # =============================================================================
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        files: \.py$
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [--profile, black]
+        files: \.py$
+
+  # =============================================================================
+  # Educational Content Standards
+  # =============================================================================
+  - repo: local
+    hooks:
+      # Ensure module READMEs are educational
+      - id: check-educational-readme
+        name: Educational README Check
+        description: Ensure module READMEs have learning objectives
+        entry: python3
+        language: system
+        files: docker-mastery-multitrack/.*/README\.md$
+        args:
+          - -c
+          - |
+            import sys, re
+            content = open(sys.argv[1]).read()
+
+            # Required for educational modules
+            required = ['Learning Objectives', 'Time Investment']
+            missing = [r for r in required if not re.search(r, content, re.IGNORECASE)]
+
+            if missing:
+                print(f'\n📚 Educational content issue in {sys.argv[1]}')
+                print(f'   Missing sections: {", ".join(missing)}')
+                print(f'   Educational modules need: Learning Objectives, Time Investment')
+                sys.exit(1)
+
+      # Basic Dockerfile hygiene (no external dependencies)
+      - id: check-dockerfile-basics
+        name: Basic Dockerfile Check
+        description: Check for common Dockerfile issues
+        entry: python3
+        language: system
+        files: Dockerfile
+        args:
+          - -c
+          - |
+            import sys
+            content = open(sys.argv[1]).read()
+            issues = []
+
+            # Check for USER instruction (security)
+            if not any(line.strip().startswith('USER ') for line in content.split('\n')):
+                issues.append('Missing USER instruction (containers should not run as root)')
+
+            # Check for EXPOSE instruction (documentation)
+            if 'FROM' in content and not any(line.strip().startswith('EXPOSE ') for line in content.split('\n')):
+                issues.append('Consider adding EXPOSE instruction for documentation')
+
+            if issues:
+                print(f'\n🐳 Dockerfile suggestions for {sys.argv[1]}:')
+                for issue in issues:
+                    print(f'   • {issue}')
+                # Don't fail, just warn for educational purposes
+
+default_install_hook_types: [pre-commit]

@@ -30,13 +30,13 @@ show_usage() {
 # Function to clean orphan containers
 clean_orphans() {
     echo -e "\n${YELLOW}Cleaning orphan containers...${NC}"
-    
+
     # Show exited containers
     EXITED_CONTAINERS=$(docker ps -a -q --filter "status=exited")
     if [ -n "$EXITED_CONTAINERS" ]; then
         echo "Found exited containers:"
         docker ps -a --filter "status=exited" --format "table {{.Names}}\t{{.Status}}\t{{.Size}}"
-        
+
         read -p "Remove these containers? (y/N) " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -51,12 +51,12 @@ clean_orphans() {
 # Function to clean unused volumes
 clean_volumes() {
     echo -e "\n${YELLOW}Cleaning unused volumes...${NC}"
-    
+
     UNUSED_VOLUMES=$(docker volume ls -q --filter "dangling=true")
     if [ -n "$UNUSED_VOLUMES" ]; then
         echo "Found unused volumes:"
         docker volume ls --filter "dangling=true"
-        
+
         read -p "Remove these volumes? (y/N) " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -71,23 +71,23 @@ clean_volumes() {
 # Function to clean unused networks
 clean_networks() {
     echo -e "\n${YELLOW}Cleaning unused networks...${NC}"
-    
+
     # Get custom networks (not default ones)
     UNUSED_NETWORKS=$(docker network ls -q --filter "driver=bridge" | while read net; do
-        if [ "$(docker network inspect $net -f '{{len .Containers}}')" == "0" ] && 
+        if [ "$(docker network inspect $net -f '{{len .Containers}}')" == "0" ] &&
            [ "$(docker network inspect $net -f '{{.Name}}')" != "bridge" ] &&
            [ "$(docker network inspect $net -f '{{.Name}}')" != "host" ] &&
            [ "$(docker network inspect $net -f '{{.Name}}')" != "none" ]; then
             echo $net
         fi
     done)
-    
+
     if [ -n "$UNUSED_NETWORKS" ]; then
         echo "Found unused networks:"
         echo "$UNUSED_NETWORKS" | while read net; do
             docker network inspect $net -f '{{.Name}}'
         done
-        
+
         read -p "Remove these networks? (y/N) " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -102,7 +102,7 @@ clean_networks() {
 # Function to clean docker-compose orphans
 clean_compose_orphans() {
     echo -e "\n${YELLOW}Cleaning docker-compose orphans...${NC}"
-    
+
     if [ -f "docker-compose.yml" ] || [ -f "docker-compose.yaml" ]; then
         read -p "Remove orphan containers for this docker-compose project? (y/N) " -n 1 -r
         echo
@@ -123,7 +123,7 @@ aggressive_cleanup() {
     echo "- All unused volumes"
     echo "- All unused networks"
     echo "- All build cache"
-    
+
     read -p "Are you SURE you want to proceed? (y/N) " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -135,7 +135,7 @@ aggressive_cleanup() {
 # Main menu
 main() {
     check_docker
-    
+
     echo -e "\nWhat would you like to clean?"
     echo "1) Orphan containers only"
     echo "2) Unused volumes only"
@@ -145,15 +145,15 @@ main() {
     echo "6) AGGRESSIVE cleanup (removes everything unused)"
     echo "7) Show current usage only"
     echo "0) Exit"
-    
+
     read -p "Select option: " choice
-    
+
     case $choice in
         1) clean_orphans ;;
         2) clean_volumes ;;
         3) clean_networks ;;
         4) clean_compose_orphans ;;
-        5) 
+        5)
             clean_orphans
             clean_volumes
             clean_networks
@@ -163,7 +163,7 @@ main() {
         0) exit 0 ;;
         *) echo -e "${RED}Invalid option${NC}" ;;
     esac
-    
+
     echo -e "\n${YELLOW}Final Docker Usage:${NC}"
     docker system df
 }
