@@ -1,0 +1,69 @@
+# Exclude files not needed for Docker build context
+# This optimizes build performance and security
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# IDE files
+.idea/
+.vscode/
+.eclipse/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.metadata/
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Documentation (not needed for build)
+*.md
+docs/
+README*
+
+# Maven files (except pom.xml and src/)
+target/classes/
+target/test-classes/
+target/maven-status/
+target/maven-archiver/
+target/surefire-reports/
+.mvn/wrapper/maven-wrapper.jar
+
+# Keep the final JAR
+!target/*.jar
+
+# Node modules (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Build artifacts from other modules
+../*/target/
+
+# Docker files (we copy specific ones as needed)
+Dockerfile*
+
+# Scripts (we copy specific ones as needed)
+*.sh
+
+# Test files (not needed in production build)
+src/test/

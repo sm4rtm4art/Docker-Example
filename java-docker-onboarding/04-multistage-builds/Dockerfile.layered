@@ -1,0 +1,66 @@
+# 🚀 ADVANCED: SPRING BOOT LAYERED JARS
+# This uses Spring Boot's layered JAR feature for optimal layer caching
+# Best rebuild performance - only changed layers are rebuilt
+
+# ==========================================
+# Stage 1: Build Environment
+# ==========================================
+FROM maven:3.8.6-openjdk-17-slim AS builder
+
+LABEL stage=builder
+LABEL description="Build stage with layered JAR extraction"
+
+WORKDIR /build
+
+# Copy POM for dependency caching
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy source and build
+COPY src ./src
+RUN mvn clean package -DskipTests -B
+
+# Extract JAR layers for optimal Docker layering
+RUN java -Djarmode=layertools -jar target/*.jar extract
+
+# ==========================================
+# Stage 2: Runtime with Layered Approach
+# ==========================================
+FROM openjdk:17-jre-slim AS runtime
+
+LABEL maintainer="your-email@example.com"
+LABEL description="Spring Boot with layered JARs - Ultra-optimized"
+LABEL version="1.0-layered"
+LABEL optimization="Maximum - layered JAR approach"
+
+# Install minimal dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN groupadd -r spring && useradd -r -g spring spring
+
+WORKDIR /app
+
+# Copy layers in optimal order (most stable first)
+# Dependencies change rarely
+COPY --from=builder --chown=spring:spring /build/dependencies/ ./
+
+# Spring Boot loader
+COPY --from=builder --chown=spring:spring /build/spring-boot-loader/ ./
+
+# Snapshot dependencies (libraries under development)
+COPY --from=builder --chown=spring:spring /build/snapshot-dependencies/ ./
+
+# Application code (changes most frequently - copied last)
+COPY --from=builder --chown=spring:spring /build/application/ ./
+
+USER spring:spring
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8080/actuator/health || exit 1
+
+# Use Spring Boot's layered launcher
+ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]

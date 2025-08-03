@@ -1,0 +1,45 @@
+# 🔒 ULTRA-SECURE: DISTROLESS IMAGE
+# Uses Google's Distroless images for maximum security
+# No shell, no package manager, minimal attack surface
+# Size: ~180-200MB
+
+# ==========================================
+# Stage 1: Build Environment
+# ==========================================
+FROM maven:3.8.6-openjdk-17-slim AS builder
+
+LABEL stage=builder
+LABEL description="Build stage for distroless deployment"
+
+WORKDIR /build
+
+# Dependency caching
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Build application
+COPY src ./src
+RUN mvn clean package -DskipTests -B
+
+# ==========================================
+# Stage 2: Distroless Runtime (Ultra-minimal)
+# ==========================================
+FROM gcr.io/distroless/java17-debian11 AS runtime
+
+LABEL maintainer="your-email@example.com"
+LABEL description="Ultra-secure Spring Boot - Distroless"
+LABEL version="1.0-distroless"
+LABEL security="Maximum - no shell, no package manager"
+LABEL size="~180-200MB"
+
+# Copy JAR (note: distroless runs as non-root by default)
+COPY --from=builder /build/target/*.jar app.jar
+
+# Expose port (metadata only)
+EXPOSE 8080
+
+# Note: No health check possible - no curl in distroless
+# Health checks must be done externally (e.g., Kubernetes)
+
+# Run application (distroless doesn't have shell)
+ENTRYPOINT ["java", "-jar", "app.jar"]

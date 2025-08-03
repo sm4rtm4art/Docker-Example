@@ -1,0 +1,96 @@
+# Docker Volume Patterns - Examples for Module 4
+
+version: '3.8'
+
+services:
+  # Example 1: Development with bind mounts
+  dev-app:
+    image: node:18-alpine
+    user: node  # Non-root user!
+    working_dir: /app
+    volumes:
+      # Bind mount for hot-reload development
+      - ./src:/app/src:ro  # Read-only for security
+      - ./package.json:/app/package.json:ro
+      # Named volume for node_modules (performance)
+      - node_modules:/app/node_modules
+    command: npm run dev
+
+  # Example 2: Database with named volume
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: myapp
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      # Named volume for data persistence
+      - postgres_data:/var/lib/postgresql/data
+      # Bind mount for initialization scripts
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    # Run as postgres user (non-root)
+    user: postgres
+
+  # Example 3: Application with proper permissions
+  web-app:
+    build: 
+      context: .
+      dockerfile: Dockerfile.secure
+    user: "1000:1000"  # Specific UID:GID
+    volumes:
+      # Named volume with proper ownership
+      - app_uploads:/app/uploads
+      # Temporary volume (cleaned on container removal)
+      - /app/tmp
+    depends_on:
+      - postgres
+
+  # Example 4: Backup service with volume access
+  backup:
+    image: alpine:3.19
+    user: "1000:1000"
+    volumes:
+      # Access multiple volumes for backup
+      - postgres_data:/backup/postgres:ro
+      - app_uploads:/backup/uploads:ro
+      - ./backups:/output
+    command: |
+      sh -c "tar -czf /output/backup-$$(date +%Y%m%d-%H%M%S).tar.gz /backup"
+    profiles:
+      - tools  # Only run when explicitly requested
+
+# Named volumes declaration
+volumes:
+  postgres_data:
+    # External volume (must exist)
+    # external: true
+    
+  app_uploads:
+    # Volume with specific driver options
+    # driver: local
+    # driver_opts:
+    #   type: none
+    #   device: /mnt/uploads
+    #   o: bind
+    
+  node_modules:
+    # Internal volume for dependencies
+
+# Secrets management
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+
+# Networks (for completeness)
+networks:
+  default:
+    name: myapp_network
+
+# Cleanup commands for this stack:
+# docker-compose down                    # Stop and remove containers
+# docker-compose down -v                 # Also remove volumes
+# docker-compose down --remove-orphans   # Also remove orphan containers
+# docker volume ls -q -f name=myapp      # List volumes for this project
+# docker volume prune -f                 # Remove all unused volumes
