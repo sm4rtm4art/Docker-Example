@@ -504,6 +504,61 @@ $CONTAINER_ENGINE build -t myapp .
 $CONTAINER_ENGINE run myapp
 ```
 
+## 🪟 Windows Containers: The Windows Alternative
+
+### When to Use Windows Containers
+
+While most containers run Linux, Windows containers provide native Windows application support:
+
+**Use Windows containers when:**
+
+- ✅ Running legacy .NET Framework applications
+- ✅ Windows-specific services (IIS, Windows Services)
+- ✅ Active Directory integration required
+- ✅ Windows-only dependencies (WMI, Registry, etc.)
+
+### Windows Container Types
+
+```powershell
+# Windows Server Core (smaller, most compatible)
+docker run mcr.microsoft.com/windows/servercore:ltsc2022
+
+# Nano Server (minimal, .NET Core ready)
+docker run mcr.microsoft.com/windows/nanoserver:ltsc2022
+
+# Windows (full Windows experience)
+docker run mcr.microsoft.com/windows:ltsc2022
+```
+
+### Key Differences from Linux Containers
+
+| Aspect            | Linux Containers    | Windows Containers                |
+| ----------------- | ------------------- | --------------------------------- |
+| **Isolation**     | Process + namespace | Process + Hyper-V                 |
+| **Base Images**   | ~5MB (Alpine)       | ~100MB+ (Nano Server)             |
+| **Compatibility** | Any Linux distro    | Windows version matching required |
+| **Performance**   | Native Linux kernel | Windows kernel overhead           |
+
+### Practical Example
+
+```dockerfile
+# Windows .NET Framework app
+FROM mcr.microsoft.com/dotnet/framework/aspnet:4.8-windowsservercore-ltsc2022
+
+WORKDIR /inetpub/wwwroot
+COPY . .
+
+EXPOSE 80
+```
+
+**Trade-offs:**
+
+- ➕ Native Windows app support
+- ➕ Full Windows API access
+- ➖ Larger image sizes
+- ➖ Windows host required
+- ➖ More complex licensing
+
 ## ✅ Beyond Docker Mastery Checklist
 
 Congratulations on expanding your container runtime knowledge!

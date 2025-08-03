@@ -29,6 +29,7 @@ networks:
 ```
 
 **Problems with single network:**
+
 - No isolation between database and external services
 - Monitoring services can access database directly
 - Security risk if container is compromised
@@ -40,16 +41,16 @@ networks:
 services:
   task-api:
     networks:
-      - frontend    # Public-facing
-      - backend     # Database access
+      - frontend # Public-facing
+      - backend # Database access
 
   postgres:
     networks:
-      - backend     # Database only
+      - backend # Database only
 
   nginx:
     networks:
-      - frontend    # Load balancer
+      - frontend # Load balancer
 
 networks:
   frontend:
@@ -93,8 +94,8 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - frontend  # Receives requests from nginx
-      - backend   # Connects to database
+      - frontend # Receives requests from nginx
+      - backend # Connects to database
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
@@ -113,7 +114,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./db-init:/docker-entrypoint-initdb.d
     networks:
-      - backend   # Isolated from frontend
+      - backend # Isolated from frontend
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U taskuser -d taskdb"]
       interval: 10s
@@ -129,7 +130,7 @@ networks:
     driver: bridge
   backend:
     driver: bridge
-    internal: true  # No external internet access
+    internal: true # No external internet access
 ```
 
 ### Step 2: Nginx Configuration
@@ -321,21 +322,21 @@ docker-compose exec task-api tcpdump -i eth0 port 5432
 ```yaml
 # What we'll add in Module 08
 networks:
-  frontend:     # Public traffic
-  backend:      # Database access
-  monitoring:   # Prometheus, Grafana
+  frontend: # Public traffic
+  backend: # Database access
+  monitoring: # Prometheus, Grafana
     internal: true
 
 services:
   prometheus:
     networks:
       - monitoring
-      - backend    # To scrape API metrics
+      - backend # To scrape API metrics
 
   grafana:
     networks:
       - monitoring
-      - frontend   # For dashboard access
+      - frontend # For dashboard access
 ```
 
 ### Metrics Endpoints Preparation
@@ -346,7 +347,7 @@ Add metrics endpoint to your Task API:
 # In your compose file, expose metrics port
 task-api:
   ports:
-    - "9090:9090"  # Metrics port for Prometheus
+    - "9090:9090" # Metrics port for Prometheus
   environment:
     - METRICS_PORT=9090
 ```
@@ -370,11 +371,11 @@ docker inspect task-management_task-api_1 | grep -A 10 NetworkSettings
 # Both services must be on the same network to communicate
 task-api:
   networks:
-    - backend  # ✅ Can reach postgres
+    - backend # ✅ Can reach postgres
 
 postgres:
   networks:
-    - backend  # ✅ Can be reached by task-api
+    - backend # ✅ Can be reached by task-api
 ```
 
 ### Issue 2: "Nginx 502 Bad Gateway"
@@ -414,6 +415,7 @@ task-api:
 ### Challenge: Implement Network Security
 
 1. **Convert to multi-network**:
+
    ```bash
    # Update your compose file with frontend/backend separation
    # Add nginx load balancer
@@ -421,6 +423,7 @@ task-api:
    ```
 
 2. **Security validation**:
+
    ```bash
    # Verify nginx cannot reach database directly
    docker-compose exec nginx curl postgres:5432 && echo "❌ Security breach!" || echo "✅ Properly isolated"
@@ -430,6 +433,7 @@ task-api:
    ```
 
 3. **Load balancing test**:
+
    ```bash
    # Scale your API
    docker-compose up -d --scale task-api=3
@@ -446,6 +450,72 @@ task-api:
    # Client → Nginx → Task API → PostgreSQL
    # Document which networks each hop uses
    ```
+
+## 🔧 Advanced Docker Networking (Beyond Compose)
+
+### Custom Bridge Networks
+
+```bash
+# Create custom bridge networks
+docker network create --driver bridge \
+  --subnet=172.20.0.0/16 \
+  --ip-range=172.20.240.0/20 \
+  custom-bridge
+
+# Connect containers to custom networks
+docker run -d --name db --network custom-bridge postgres:13
+docker run -d --name app --network custom-bridge task-api
+```
+
+### Overlay Networks (Docker Swarm Preview)
+
+```bash
+# Overlay networks span multiple Docker hosts
+docker network create --driver overlay \
+  --subnet=10.0.0.0/24 \
+  --attachable \
+  multi-host-network
+
+# Use in swarm mode for service discovery across hosts
+docker service create --network multi-host-network nginx
+```
+
+### Network Drivers Comparison
+
+| Driver      | Use Case                     | Scope | Example                  |
+| ----------- | ---------------------------- | ----- | ------------------------ |
+| **bridge**  | Single host containers       | Local | Default Docker networks  |
+| **host**    | Network performance critical | Local | `--network host`         |
+| **overlay** | Multi-host clustering        | Swarm | Kubernetes, Docker Swarm |
+| **macvlan** | Legacy app integration       | Local | Physical network access  |
+| **none**    | Network isolation            | Local | Security containers      |
+
+### Advanced Network Configuration
+
+```yaml
+# docker-compose.yml with custom networks
+networks:
+  frontend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+  backend:
+    driver: bridge
+    internal: true # No external access
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
+```
+
+### Network Security Best Practices
+
+- ✅ Use internal networks for backend services
+- ✅ Limit container capabilities with `--cap-drop ALL`
+- ✅ Implement network segmentation by function
+- ✅ Monitor network traffic for anomalies
+- ❌ Never use host networking in production
+- ❌ Avoid exposing internal services directly
 
 ## ✅ Network Mastery Checklist
 

@@ -222,6 +222,143 @@ ARG TARGETARCH
 ADD https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_linux_${TARGETARCH}.zip
 ```
 
+## 🏗️ Container Registry Management
+
+### Registry Options Comparison
+
+| Registry            | Best For                  | Pros                                | Cons                               |
+| ------------------- | ------------------------- | ----------------------------------- | ---------------------------------- |
+| **Docker Hub**      | Public projects, learning | Free, simple, integrated            | Limited private repos, rate limits |
+| **AWS ECR**         | AWS deployments           | AWS integration, IAM                | AWS-specific, complexity           |
+| **Google GCR**      | GCP deployments           | Google integration, security        | GCP-specific                       |
+| **Harbor**          | Self-hosted, enterprise   | Open source, vulnerability scanning | Self-managed                       |
+| **GitHub Packages** | GitHub repos              | CI integration, free for public     | GitHub dependency                  |
+
+### Docker Hub Setup
+
+```bash
+# Login to Docker Hub
+docker login
+
+# Tag and push
+docker tag myapp:latest username/myapp:latest
+docker push username/myapp:latest
+
+# CI/CD with Docker Hub
+# Set secrets: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN
+```
+
+### AWS ECR (Elastic Container Registry)
+
+```bash
+# Login to ECR
+aws ecr get-login-password --region us-west-2 | \
+  docker login --username AWS --password-stdin \
+  123456789012.dkr.ecr.us-west-2.amazonaws.com
+
+# Create repository
+aws ecr create-repository --repository-name myapp
+
+# Push to ECR
+docker tag myapp:latest 123456789012.dkr.ecr.us-west-2.amazonaws.com/myapp:latest
+docker push 123456789012.dkr.ecr.us-west-2.amazonaws.com/myapp:latest
+```
+
+### Google Container Registry (GCR)
+
+```bash
+# Configure authentication
+gcloud auth configure-docker
+
+# Tag and push to GCR
+docker tag myapp:latest gcr.io/my-project/myapp:latest
+docker push gcr.io/my-project/myapp:latest
+
+# Alternative: Artifact Registry (newer)
+docker tag myapp:latest us-central1-docker.pkg.dev/my-project/my-repo/myapp:latest
+```
+
+### Harbor (Self-Hosted)
+
+```yaml
+# docker-compose.yml for Harbor
+version: "3.8"
+services:
+  harbor-core:
+    image: goharbor/harbor-core:v2.8.0
+    # Harbor provides:
+    # - Vulnerability scanning
+    # - RBAC (Role-Based Access Control)
+    # - Image signing
+    # - Replication between registries
+```
+
+### Registry Security Best Practices
+
+```bash
+# Use service accounts, not personal credentials
+# AWS ECR: Use IAM roles
+aws sts get-caller-identity
+
+# Docker Hub: Use access tokens (not passwords)
+docker login -u username -p dckr_pat_xxxxx
+
+# GitHub: Use GitHub tokens
+echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
+
+# Registry scanning in CI
+docker scout cves myapp:latest
+```
+
+### Multi-Registry CI/CD Strategy
+
+```yaml
+# .github/workflows/multi-registry.yml
+name: Multi-Registry Push
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build image
+        run: docker build -t myapp:${{ github.sha }} .
+
+      # Push to multiple registries
+      - name: Push to Docker Hub
+        run: |
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker tag myapp:${{ github.sha }} username/myapp:latest
+          docker push username/myapp:latest
+
+      - name: Push to ECR
+        run: |
+          aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REGISTRY
+          docker tag myapp:${{ github.sha }} $ECR_REGISTRY/myapp:latest
+          docker push $ECR_REGISTRY/myapp:latest
+```
+
+### Registry Cleanup & Lifecycle
+
+```bash
+# Docker Hub: Use retention policies
+# ECR: Lifecycle policies
+{
+  "rules": [{
+    "selection": {
+      "tagStatus": "untagged",
+      "countType": "sinceImagePushed",
+      "countUnit": "days",
+      "countNumber": 7
+    },
+    "action": { "type": "expire" }
+  }]
+}
+
+# Clean up local images
+docker image prune -f
+docker system prune -a -f
+```
+
 ## 📝 Note
 
 This module provides essential multi-architecture patterns for modern deployments. The CI/CD automation content complements the existing monitoring and security modules.
