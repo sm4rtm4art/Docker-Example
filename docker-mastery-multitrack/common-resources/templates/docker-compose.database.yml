@@ -1,0 +1,55 @@
+# Template: Database Integration
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.database.yml up
+
+services:
+  # Add to your existing task-api service
+  task-api:
+    environment:
+      - DATABASE_URL=postgresql://taskuser:taskpass@postgres:5432/tasks
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=tasks
+      - POSTGRES_USER=taskuser
+      - POSTGRES_PASSWORD=taskpass
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskuser -d tasks"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - backend
+
+  # pgAdmin - Database management (optional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - backend
+    profiles:
+      - tools # Only start with: docker-compose --profile tools up
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  backend:

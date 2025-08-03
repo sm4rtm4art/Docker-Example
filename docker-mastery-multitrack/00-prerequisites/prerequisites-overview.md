@@ -85,7 +85,46 @@ docker --version
 docker run hello-world
 ```
 
-### 2. Git Version Control
+### 2. Docker Compose
+
+**Why Docker Compose?** Multi-container application orchestration.
+
+**IMPORTANT**: Modern Docker installations include Docker Compose V2 by default!
+
+```bash
+# Test which version you have
+docker compose version  # V2 (modern - recommended)
+docker-compose --version  # V1 (legacy)
+
+# If you see "command not found" for both:
+# Docker Compose is missing - reinstall Docker Desktop
+```
+
+**Throughout this course:**
+
+- **Documentation shows**: `docker-compose` (for compatibility)
+- **You should use**: `docker compose` (modern V2 syntax)
+- **Both work identically**, just different commands!
+
+**Common Issues:**
+
+```bash
+# Issue: "Cannot connect to Docker daemon"
+# Solution: Start Docker Desktop (macOS/Windows) or Docker service (Linux)
+
+# macOS/Windows: Start Docker Desktop app
+open /Applications/Docker.app  # macOS
+# Windows: Start Docker Desktop from Start menu
+
+# Linux: Start Docker service
+sudo systemctl start docker
+sudo systemctl enable docker  # Auto-start on boot
+
+# Verify Docker is running
+docker info  # Should show system info, not connection errors
+```
+
+### 3. Git Version Control
 
 **Why Git?** Source code management and accessing example repositories.
 
@@ -99,7 +138,7 @@ git --version
 # Linux: sudo apt install git (Ubuntu/Debian)
 ```
 
-### 3. Code Editor
+### 4. Code Editor
 
 **Why?** Writing Dockerfiles and application code.
 

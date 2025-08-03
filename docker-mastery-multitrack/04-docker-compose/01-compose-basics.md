@@ -32,7 +32,7 @@ docker-compose up
 ```yaml
 version: "3.8"
 
-services:          # Define your containers
+services: # Define your containers
   api:
     build: .
     ports:
@@ -43,11 +43,11 @@ services:          # Define your containers
     environment:
       POSTGRES_DB: tasks
 
-networks:          # Define networks (optional)
+networks: # Define networks (optional)
   frontend:
   backend:
 
-volumes:           # Define named volumes (optional)
+volumes: # Define named volumes (optional)
   postgres_data:
 ```
 
@@ -146,6 +146,7 @@ INSERT INTO tasks (title, description, completed) VALUES
 Update your application to connect to PostgreSQL:
 
 #### Java (Spring Boot)
+
 ```properties
 # application.properties
 spring.datasource.url=${DATABASE_URL:jdbc:postgresql://localhost:5432/taskdb}
@@ -156,6 +157,7 @@ spring.jpa.show-sql=true
 ```
 
 #### Python (FastAPI)
+
 ```python
 # database.py
 import os
@@ -169,6 +171,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 ```
 
 #### Rust (sqlx)
+
 ```rust
 // main.rs
 use sqlx::postgres::PgPoolOptions;
@@ -259,7 +262,7 @@ docker-compose up --remove-orphans
 cd /path/to/project
 docker-compose up  # Project name: "project"
 
-cd /different/path/to/project  
+cd /different/path/to/project
 docker-compose up  # Project name: "project" (different path)
 
 # Solution: Explicit project naming
@@ -298,14 +301,14 @@ echo "✅ Cleanup complete!"
 ```yaml
 # 1. Use consistent service names
 services:
-  task-api:          # Don't change to 'api' or 'web'
+  task-api: # Don't change to 'api' or 'web'
     build: .
 
-  postgres:          # Don't change to 'db' or 'database'
+  postgres: # Don't change to 'db' or 'database'
     image: postgres:16
 
 # 2. Use project name in compose file
-name: task-management  # Compose v2 feature
+name: task-management # Compose v2 feature
 
 # 3. Document your service names
 # README.md: Service names are stable, don't change them!
@@ -359,7 +362,7 @@ ERROR: connection to server at "postgres" (172.20.0.2), port 5432 failed
 task-api:
   depends_on:
     postgres:
-      condition: service_healthy  # Wait for health check to pass
+      condition: service_healthy # Wait for health check to pass
 ```
 
 ### Issue 2: "Port already in use"
@@ -404,6 +407,7 @@ USER postgres
 ### Challenge: Create a Working Task Management System
 
 1. **Set up the stack**:
+
    ```bash
    # Create compose file with API + PostgreSQL
    # Include health checks and proper dependencies
@@ -411,6 +415,7 @@ USER postgres
    ```
 
 2. **Test functionality**:
+
    ```bash
    # Verify API health endpoint
    curl http://localhost:8080/health
@@ -425,6 +430,7 @@ USER postgres
    ```
 
 3. **Test orphan cleanup**:
+
    ```bash
    # Start stack
    docker-compose up -d
@@ -435,6 +441,7 @@ USER postgres
    ```
 
 4. **Test data persistence**:
+
    ```bash
    # Stop stack
    docker-compose down
@@ -464,12 +471,268 @@ docker-compose ps
 # Check networks
 docker network ls | grep task
 
-# Check volumes  
+# Check volumes
 docker volume ls | grep task
 
 # View resource usage
 docker-compose top
 ```
+
+## 🔧 Break & Fix Exercises
+
+Time to get your hands dirty! These exercises simulate real problems you'll encounter in production.
+
+### Exercise 1: The Mysterious Orphan Container
+
+**The Problem**: A developer changed service names and now has orphan containers eating resources.
+
+```yaml
+# broken-compose/docker-compose.yml
+services:
+  # Was called 'api', now called 'task-api'
+  task-api:
+    image: myapp
+
+  # Was called 'db', now called 'database'
+  database:
+    image: postgres:16
+```
+
+**Your Mission**:
+
+1. Run `docker compose up -d`
+2. Change service names as shown above
+3. Run `docker compose up -d` again
+4. Notice the old containers are still running! 😱
+
+**Questions**:
+
+- How many containers are running?
+- How much memory are you wasting?
+- How do you clean up the orphans?
+
+**Solution Commands**:
+
+```bash
+# Identify the problem
+docker ps  # See all running containers
+
+# Clean up orphans
+docker compose down --remove-orphans
+
+# Alternative: Nuclear option
+docker container prune
+```
+
+### Exercise 2: The Volume Permission Mystery
+
+**The Problem**: Database won't start due to permission issues.
+
+```yaml
+# broken-volumes/docker-compose.yml
+services:
+  database:
+    image: postgres:16
+    volumes:
+      - ./data:/var/lib/postgresql/data # This will break!
+    environment:
+      POSTGRES_PASSWORD: secret
+```
+
+**Your Mission**:
+
+1. Create this compose file
+2. Run `docker compose up`
+3. Watch it fail with permission errors
+
+**Expected Error**:
+
+```
+database_1  | initdb: error: could not change permissions of directory "/var/lib/postgresql/data": Operation not permitted
+```
+
+**Debug Commands**:
+
+```bash
+# Check volume ownership
+docker compose exec database ls -la /var/lib/postgresql/
+
+# Check what user postgres runs as
+docker compose exec database id
+
+# Fix with named volume instead
+volumes:
+  postgres_data:  # Let Docker manage it
+
+services:
+  database:
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+```
+
+### Exercise 3: The Exit Code 137 Mystery
+
+**The Problem**: Container keeps getting killed with exit code 137.
+
+```yaml
+# oom-killer/docker-compose.yml
+services:
+  memory-hog:
+    image: python:3.12-slim
+    command: python -c "data=[]; [data.append('x'*1024*1024) for i in range(1000)]"
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+```
+
+**Your Mission**:
+
+1. Run this container
+2. Watch it get killed
+3. Debug why it died
+
+**Debug Process**:
+
+```bash
+# Check exit code
+docker compose ps
+
+# Check if it was OOM killed
+docker inspect container_name | grep -i oom
+
+# Monitor memory usage
+docker stats
+
+# Fix by increasing memory limit or optimizing code
+```
+
+### Exercise 4: The V1 vs V2 Trap
+
+**The Problem**: Commands that worked yesterday don't work today.
+
+```bash
+# This fails on newer systems
+docker-compose up
+# zsh: command not found: docker-compose
+```
+
+**Your Mission**:
+
+1. Understand why this happens
+2. Learn the modern alternative
+3. Update your muscle memory
+
+**Solution**:
+
+```bash
+# Old way (Docker Compose V1)
+docker-compose up
+docker-compose down
+
+# New way (Docker Compose V2)
+docker compose up
+docker compose down
+
+# Check your version
+docker compose version
+```
+
+### Exercise 5: The Case of the Missing Logs
+
+**The Problem**: Container starts but application isn't working, and you can't see what's wrong.
+
+```dockerfile
+# silent-fail/Dockerfile
+FROM python:3.12-slim
+COPY app.py .
+CMD ["python", "app.py"]
+```
+
+```python
+# silent-fail/app.py
+import sys
+print("Starting app...", file=sys.stderr)  # Goes to stderr
+raise Exception("Secret error!")  # App crashes silently
+```
+
+**Your Mission**:
+
+1. Build and run this container
+2. Figure out why it's not working
+3. Learn proper debugging techniques
+
+**Debug Commands**:
+
+```bash
+# Check if container is actually running
+docker compose ps
+
+# View ALL logs (stdout + stderr)
+docker compose logs api
+
+# Follow logs in real-time
+docker compose logs -f api
+
+# Exec into running container
+docker compose exec api /bin/bash
+
+# Check exit codes
+docker compose ps --format "table {{.Names}}\t{{.Status}}"
+```
+
+## 🎓 Key Debugging Takeaways
+
+1. **Always check `docker compose ps`** - running doesn't mean working
+2. **Use `--remove-orphans`** when changing service names
+3. **Named volumes** are safer than bind mounts for databases
+4. **Exit code 137** = killed by system (usually OOM)
+5. **Use `docker compose` not `docker-compose`** (V2 vs V1)
+6. **Check both stdout AND stderr** with `docker compose logs`
+
+## ✅ Skills Check: Can You...?
+
+Test your Docker Compose mastery with these practical challenges:
+
+### Basic Compose Skills
+
+- [ ] **Create a multi-service app** from scratch (API + Database)
+- [ ] **Connect services** using service discovery (container names)
+- [ ] **Use environment variables** to configure services
+- [ ] **Mount volumes** for data persistence
+
+### Debugging & Troubleshooting
+
+- [ ] **Debug a failing container** using logs and exec
+- [ ] **Fix orphan container issues** when service names change
+- [ ] **Resolve volume permission problems**
+- [ ] **Identify and fix OOM-killed containers** (exit code 137)
+
+### Production Readiness
+
+- [ ] **Add health checks** to services
+- [ ] **Set resource limits** to prevent resource exhaustion
+- [ ] **Use named volumes** instead of bind mounts for databases
+- [ ] **Clean up unused resources** (containers, volumes, networks)
+
+### Real-World Scenarios
+
+- [ ] **Start services in correct order** using depends_on
+- [ ] **Handle service failures** gracefully
+- [ ] **Scale services** up and down
+- [ ] **Use different compose files** for dev/staging/prod
+
+### Command Mastery
+
+Can you explain what these commands do?
+
+- [ ] `docker compose up -d --build`
+- [ ] `docker compose down --remove-orphans --volumes`
+- [ ] `docker compose logs -f api`
+- [ ] `docker compose exec api /bin/bash`
+- [ ] `docker compose ps --format "table {{.Names}}\t{{.Status}}"`
+
+**If you can confidently do all of these, you're ready for networking!** 🚀
 
 ## 🚀 Next Steps
 

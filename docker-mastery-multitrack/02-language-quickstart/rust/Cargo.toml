@@ -1,0 +1,26 @@
+[package]
+name = "task-api"
+version = "1.0.0"
+edition = "2021"
+authors = ["Docker Learning Path"]
+description = "Task Management API - Rust Edition"
+
+[dependencies]
+actix-web = "4.4"
+tokio = { version = "1.35", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.6", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+env_logger = "0.10"
+log = "0.4"
+
+[profile.dev]
+debug = true
+opt-level = 0
+
+[profile.release]
+debug = false
+opt-level = 3
+lto = true
+panic = "abort"

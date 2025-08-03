@@ -1,0 +1,46 @@
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache
+.coverage
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env
+
+# Keep these files for Docker builds:
+# pyproject.toml (UV dependencies)
+# requirements.txt (pip fallback)
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documentation
+*.md
+README*
+
+# Logs
+*.log
+logs/

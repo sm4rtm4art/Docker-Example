@@ -378,6 +378,43 @@ Before proceeding to multi-stage builds:
 
 Ready for production optimization? Continue to [Part B: Multi-stage Builds](./02-multistage-builds.md) to learn how to create small, secure, production-ready images!
 
+## ✅ Skills Check: Dockerfile Fundamentals
+
+Test your Dockerfile mastery with these challenges:
+
+### Core Instructions
+- [ ] **Write a Dockerfile from scratch** without looking at examples
+- [ ] **Use all basic instructions**: FROM, WORKDIR, COPY, RUN, CMD, EXPOSE
+- [ ] **Explain the difference** between CMD and ENTRYPOINT
+- [ ] **Create a non-root user** and switch to it
+
+### Layer Optimization
+- [ ] **Minimize layers** by combining RUN commands properly
+- [ ] **Order instructions** for optimal caching (least → most changing)
+- [ ] **Use .dockerignore** to exclude unnecessary files
+- [ ] **Debug layer sizes** with `docker history`
+
+### Best Practices
+- [ ] **Pin base image versions** (not just `:latest`)
+- [ ] **Clean up after installs** (remove package caches)
+- [ ] **Use COPY instead of ADD** (unless you need ADD's features)
+- [ ] **Set proper file ownership** with `--chown`
+
+### Debugging Skills
+- [ ] **Diagnose build failures** from error messages
+- [ ] **Use build stages** for debugging (`docker build --target`)
+- [ ] **Inspect image contents** without running
+- [ ] **Understand build context** and its impact
+
+### Real Scenarios
+Can you create Dockerfiles for:
+- [ ] **A Python web app** with requirements.txt
+- [ ] **A Node.js app** with package.json
+- [ ] **A static website** with nginx
+- [ ] **A compiled language** (Go, Rust, Java)
+
+**If you can do all these confidently, you're ready for multi-stage builds!** 🚀
+
 ---
 
 **Remember**: These patterns work for ANY programming language. The Docker concepts are universal - only the specific commands inside change!

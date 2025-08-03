@@ -1,0 +1,40 @@
+# Development Dockerfile for Python Task API
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
+
+# Install system dependencies + dev tools
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN groupadd -r fastapi && useradd -r -g fastapi -u 1000 fastapi
+
+WORKDIR /app
+
+# Install dependencies - UV first (modern), pip fallback
+COPY pyproject.toml requirements.txt ./
+
+# Install UV and dependencies with dev packages
+RUN pip install uv || echo "UV unavailable, falling back to pip" && \
+    if command -v uv >/dev/null 2>&1; then \
+        echo "📦 Using UV with dev dependencies" && \
+        uv pip install --system --no-cache -r requirements.txt && \
+        uv pip install --system --no-cache pytest pytest-asyncio httpx black isort flake8; \
+    else \
+        echo "📦 Using pip with manual dev dependencies" && \
+        pip install --no-cache-dir -r requirements.txt && \
+        pip install --no-cache-dir pytest pytest-asyncio httpx black isort flake8; \
+    fi
+
+# Switch to non-root user
+USER fastapi:fastapi
+
+EXPOSE 8080
+
+# Development server with hot reload
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]

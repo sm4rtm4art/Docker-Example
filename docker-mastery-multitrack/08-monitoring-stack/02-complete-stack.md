@@ -716,6 +716,58 @@ You've built a **world-class monitoring stack** that includes:
 - **Alerting**: Proactive notifications for issues
 - **Dashboards**: Beautiful, actionable visualizations
 
+## ✅ Skills Check: Monitoring Stack Mastery
+
+Test your monitoring skills with these challenges:
+
+### Prometheus Fundamentals
+
+- [ ] **Write PromQL queries** to analyze metrics
+- [ ] **Create custom metrics** in your application
+- [ ] **Configure scrape targets** for service discovery
+- [ ] **Use metric types correctly** (Counter, Gauge, Histogram, Summary)
+
+### Grafana Dashboards
+
+- [ ] **Create a dashboard from scratch** with multiple panels
+- [ ] **Use variables** for dynamic dashboards
+- [ ] **Configure different visualizations** (graphs, gauges, tables)
+- [ ] **Set up dashboard alerts** with thresholds
+
+### Docker Integration
+
+- [ ] **Monitor container metrics** with cAdvisor
+- [ ] **Track compose services** across restarts
+- [ ] **Set resource alerts** for memory/CPU limits
+- [ ] **Debug performance issues** using metrics
+
+### Production Skills
+
+- [ ] **Configure data retention** policies
+- [ ] **Set up alert routing** with severity levels
+- [ ] **Create SLI/SLO dashboards** for reliability
+- [ ] **Implement backup strategies** for metrics data
+
+### Troubleshooting Scenarios
+
+Can you diagnose:
+
+- [ ] **Why containers are getting OOM-killed** using metrics
+- [ ] **Performance bottlenecks** in multi-service apps
+- [ ] **Network latency issues** between services
+- [ ] **Database connection pool exhaustion**
+
+### Advanced Queries
+
+Write PromQL queries to find:
+
+- [ ] **95th percentile response times** over 5 minutes
+- [ ] **Rate of 5xx errors** per service
+- [ ] **Container restart frequency**
+- [ ] **Memory usage trends** with predictions
+
+**If you can handle all these, you're ready to monitor production systems!** 📊
+
 ## 🚀 Next Steps
 
 Ready for production best practices? Continue to [Part C: Production Patterns](./03-production-patterns.md) where we'll cover high availability, data retention, and scaling strategies!

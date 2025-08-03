@@ -1,0 +1,24 @@
+# Development Dockerfile for Rust Task API
+FROM rust:alpine
+
+# Install development tools
+RUN apk add --no-cache musl-dev curl
+RUN cargo install cargo-watch
+
+# Create non-root user
+RUN addgroup -g 1000 rust && adduser -D -s /bin/sh -u 1000 -G rust rust
+
+WORKDIR /app
+RUN chown rust:rust /app
+
+# Fix cargo registry permissions before switching user
+RUN mkdir -p /usr/local/cargo/registry && \
+    chown -R rust:rust /usr/local/cargo
+
+USER rust:rust
+
+# Expose port
+EXPOSE 8080
+
+# Development command with hot reload
+CMD ["cargo", "watch", "-x", "run"]
