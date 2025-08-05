@@ -205,6 +205,156 @@ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 # 3. VS Code opens in container context!
 ```
 
+## 🌟 Eclipse IDE: Traditional Java Development
+
+### Step 1: Install Docker Tooling
+
+**Option A: Eclipse Marketplace (Recommended)**
+
+1. **Help → Eclipse Marketplace**
+2. **Search "Docker"** → Find "Eclipse Docker Tooling"
+3. **Install** and restart Eclipse
+
+**Option B: Update Site**
+
+1. **Help → Install New Software**
+2. **Add Site**: `https://download.eclipse.org/linuxtools/updates-docker-nightly/`
+3. **Select**: Docker Tooling → Docker Core, Docker UI
+
+### Step 2: Configure Docker Connection
+
+**Add Docker Connection**:
+
+1. **Window → Show View → Other → Docker → Docker Explorer**
+2. **Right-click in Docker Explorer → Enable Connection**
+3. **Connection settings**:
+   - **Unix socket**: `unix:///var/run/docker.sock` (Linux/macOS)
+   - **TCP**: `tcp://localhost:2376` (Windows with TLS)
+4. **Test Connection** - should show green indicator
+
+### Step 3: Import Containerized Java Project
+
+**Method 1: Import Existing Docker Project**
+
+1. **File → Import → General → Existing Projects into Workspace**
+2. **Browse** to your `java/` directory
+3. **Select project** and click **Finish**
+
+**Method 2: Create New Docker-Enabled Project**
+
+1. **File → New → Other → Docker → Dockerfile**
+2. **Choose parent directory** (your Java project root)
+3. **Eclipse auto-detects** Java project structure
+
+### Step 4: Configure Docker Compose Integration
+
+**Create Eclipse-specific Compose Override**:
+
+Create `docker-compose.eclipse.yml`:
+
+```yaml
+version: "3.8"
+services:
+  task-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:8080"
+      - "5005:5005" # Eclipse debug port
+      - "8000:8000" # Alternative debug port
+    volumes:
+      - .:/app:cached
+      - ~/.m2:/home/devuser/.m2:cached # Maven cache
+    environment:
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      - ECLIPSE_WORKSPACE=/app
+    # Keep running for Eclipse attachment
+    stdin_open: true
+    tty: true
+    # Increase memory for Eclipse debugging
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+```
+
+### Step 5: Set Up Remote Debugging
+
+**Create Debug Configuration**:
+
+1. **Run → Debug Configurations**
+2. **Right-click "Remote Java Application" → New Configuration**
+3. **Configure**:
+   - **Name**: `Task API Container Debug`
+   - **Project**: Select your Java project
+   - **Connection Type**: `Standard (Socket Attach)`
+   - **Host**: `localhost`
+   - **Port**: `5005`
+4. **Apply** and **Debug**
+
+### Step 6: Eclipse Run Configuration
+
+**Create Docker Compose Run Configuration**:
+
+1. **Run → Run Configurations**
+2. **Right-click "Java Application" → New Configuration**
+3. **Main tab**:
+   - **Name**: `Task API - Docker Start`
+   - **Project**: Your project
+   - **Main class**: `com.example.dockerdemo.DockerDemoApplication`
+4. **Arguments tab**:
+   - **Program arguments**: `--spring.profiles.active=docker`
+5. **Environment tab**:
+   - **Add**: `DOCKER_COMPOSE_FILES=docker-compose.yml:docker-compose.eclipse.yml`
+
+### Step 7: Eclipse Docker View Integration
+
+**Using Docker Explorer in Eclipse**:
+
+1. **Docker Explorer** shows running containers
+2. **Right-click container**:
+   - **Display Log** - View container logs in Eclipse
+   - **Exec Shell** - Open terminal in Eclipse
+   - **Inspect** - View container details
+3. **Dockerfile editor** with syntax highlighting
+
+### Step 8: Troubleshooting Eclipse + Docker
+
+**Common Issues & Solutions**:
+
+**Issue 1: Debug Connection Refused**
+
+```bash
+# Check if debug port is exposed
+docker port <container-name> 5005
+
+# Ensure JAVA_TOOL_OPTIONS is set
+docker exec <container-name> env | grep JAVA_TOOL_OPTIONS
+```
+
+**Issue 2: Slow Eclipse Performance**
+
+```yaml
+# Optimize docker-compose.eclipse.yml
+services:
+  task-api:
+    volumes:
+      - .:/app:cached # Use cached for better performance
+      - maven-cache:/home/devuser/.m2 # Separate volume for Maven cache
+volumes:
+  maven-cache:
+```
+
+**Eclipse-Specific Tips**:
+
+- **Ctrl+Shift+R**: Quick file search across containers
+- **Ctrl+Shift+T**: Quick Java type search
+- **F11**: Debug last configuration (attach to container)
+- **Ctrl+F11**: Run last configuration
+
 ## 🧠 IntelliJ IDEA: Enterprise Development
 
 ### Step 1: Enable Docker Plugin
