@@ -15,10 +15,29 @@ Build your first containerized Python application using FastAPI! Learn Docker fu
 We'll build a **Task Management REST API** that demonstrates essential Docker concepts:
 
 - **Base images**: Python official vs Alpine variants
-- **Package management**: UV (modern) vs pip (traditional)
+- **Package management**: UV (modern, Rust-based) vs pip (traditional)
 - **Non-root security**: Python user patterns
 - **Health checks**: FastAPI integration
 - **Development workflow**: Hot reload in containers
+
+### 🤔 Why These Technology Choices?
+
+**FastAPI**: We chose FastAPI over Flask or Django because:
+
+- Modern async support (perfect for containerized microservices)
+- Automatic API documentation (great for learning)
+- Type hints and validation (catches errors early)
+- High performance (comparable to Node.js)
+
+**UV Package Manager**: We prefer UV over pip/conda/poetry because:
+
+- **10-100x faster** than pip for dependency resolution
+- Written in Rust (performance and reliability)
+- Drop-in pip replacement (easy migration)
+- Excellent for Docker layer caching (faster builds)
+- Represents the future of Python packaging
+
+**Python 3.11+**: Modern Python features and performance improvements that work excellently in containers.
 
 ### API Endpoints (Task API Specification)
 
