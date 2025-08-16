@@ -16,6 +16,7 @@ if [[ -t 1 ]]; then  # Only use colors if output is to terminal
     export PURPLE='\033[0;35m'
     export CYAN='\033[0;36m'
     export WHITE='\033[1;37m'
+    export GRAY='\033[0;90m'
     export BOLD='\033[1m'
     export NC='\033[0m' # No Color
 else
@@ -26,6 +27,7 @@ else
     export PURPLE=''
     export CYAN=''
     export WHITE=''
+    export GRAY=''
     export BOLD=''
     export NC=''
 fi

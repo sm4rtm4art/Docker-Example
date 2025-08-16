@@ -100,6 +100,26 @@ By the end of this module:
 - [ ] Can debug permission issues confidently
 - [ ] Understand when root access IS necessary
 
+## 📝 Knowledge Check
+
+Before moving to production deployment, verify you can:
+
+1. **Non-root containers**: All your containers run as non-root users (check with `docker exec container id`)
+2. **Read-only filesystems**: Understand when and how to use `--read-only` flag
+3. **Secrets management**: Never put secrets in Dockerfiles or environment variables
+4. **Minimal images**: Choose appropriate base images (Alpine, distroless, or scratch)
+5. **Security scanning**: Use `docker scout` or similar tools to check for vulnerabilities
+
+**Quick Self-Test**: Rebuild your Task API container to run as a non-root user, scan it for vulnerabilities, and ensure it still works correctly. If successful, you're security-ready!
+
+## 🆘 Having Issues?
+
+**Permission denied errors?** **Container running as root?** **Security scan failures?**
+
+➡️ Check our [**Docker Emergency Guide**](../common-resources/DOCKER_EMERGENCY_GUIDE.md) - especially the security and permissions troubleshooting sections.
+
+**Need help with non-root containers?** The emergency guide has step-by-step fixes for user permission issues.
+
 ---
 
 **Next**: Start with [Security Fundamentals](./01-security-fundamentals.md) to build your security foundation!

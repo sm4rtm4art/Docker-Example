@@ -552,6 +552,26 @@ docker run --env-file .env alpine env
 
 **Next Step**: Choose your language track in [Module 02: Language Quickstart](../02-language-quickstart/) and start building real applications with containers!
 
+## 📝 Knowledge Check
+
+Before moving to the next module, make sure you can:
+
+1. **Run a container**: `docker run nginx` and access it in your browser
+2. **List containers**: Use `docker ps` and explain what each column means
+3. **Stop cleanly**: Stop a container with `docker stop` (not `docker kill`)
+4. **Manage images**: Pull, list, and remove images confidently
+5. **Debug issues**: Check logs with `docker logs` when something breaks
+
+**Quick Self-Test**: Can you run a web server container, access it from your browser, view its logs, and then stop and remove both the container and image? If yes, you're ready for Module 02!
+
+## 🆘 Having Issues?
+
+**Container won't start?** **Permission errors?** **Build taking forever?**
+
+➡️ Check our [**Docker Emergency Guide**](../common-resources/DOCKER_EMERGENCY_GUIDE.md) for instant solutions to common problems.
+
+**Need a clean slate?** Run our [cleanup script](../../scripts/docker-cleanup-v2.sh) to reset your Docker environment.
+
 ---
 
 _"Understanding containers at this level will serve you in any technology stack. The concepts you've learned apply to Kubernetes, cloud platforms, and any containerization technology."_

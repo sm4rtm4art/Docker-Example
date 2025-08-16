@@ -16,7 +16,7 @@
 
 ## 📚 Complete Learning Path
 
-### 🏗️ Foundation Modules
+### 🏃 Core Foundation (Essential for All Students)
 
 | Module | Focus                                                                           | Time    | Description                          |
 | ------ | ------------------------------------------------------------------------------- | ------- | ------------------------------------ |
@@ -24,7 +24,7 @@
 | **01** | [Docker Fundamentals](./01-docker-fundamentals/docker-fundamentals-overview.md) | 2 hours | Images, containers, CLI mastery      |
 | **02** | [Language Quickstart](./02-language-quickstart/)                                | 2 hours | Task API in Java/Python/Rust         |
 
-### 🐳 Core Docker Skills
+### 🏃 Core Docker Skills (Production-Ready Fundamentals)
 
 | Module | Focus                                                                                 | Time    | Description                                |
 | ------ | ------------------------------------------------------------------------------------- | ------- | ------------------------------------------ |
@@ -32,15 +32,22 @@
 | **04** | [Docker Compose](./04-docker-compose/compose-overview.md)                             | 3 hours | Multi-service apps, networking, volumes    |
 | **05** | Development Workflow                                                                  | 2 hours | Hot reload, debugging, IDE integration     |
 
-### 🛡️ Production Ready
+### 🏃 Core Production (Security & Deployment)
 
 | Module | Focus                                                                        | Time    | Description                                       |
 | ------ | ---------------------------------------------------------------------------- | ------- | ------------------------------------------------- |
 | **06** | [Security Best Practices](./06-security-best-practices/security-overview.md) | 2 hours | Non-root, secrets, read-only systems              |
 | **07** | Production Excellence                                                        | 2 hours | Health checks, resource limits, graceful shutdown |
-| **08** | [Complete Monitoring Stack](./08-monitoring-stack/monitoring-overview.md)    | 3 hours | Prometheus + Grafana observability                |
 
-### 🚀 Beyond Basics
+**🏃 Core Path Total**: 15.5 hours - Complete production Docker mastery
+
+### 🚀 Advanced Monitoring & Observability
+
+| Module | Focus                                                                     | Time    | Description                        |
+| ------ | ------------------------------------------------------------------------- | ------- | ---------------------------------- |
+| **08** | [Complete Monitoring Stack](./08-monitoring-stack/monitoring-overview.md) | 3 hours | Prometheus + Grafana observability |
+
+### 🚀 Advanced Ecosystem & Automation
 
 | Module | Focus                                                                           | Time    | Description                          |
 | ------ | ------------------------------------------------------------------------------- | ------- | ------------------------------------ |
@@ -48,7 +55,46 @@
 | **10** | Orchestration Preview                                                           | 1 hour  | Kubernetes concepts, migration paths |
 | **11** | [Container Alternatives](./11-beyond-docker/container-alternatives-overview.md) | 1 hour  | Docker vs Podman, future ecosystem   |
 
+**🚀 Advanced Path Total**: +7 hours - Monitoring, CI/CD, and ecosystem expertise
+
 **Total Learning Time**: 20-24 hours
+
+## 🔀 Language Track Differences
+
+While 70% of content is shared across all tracks, each language has specific optimizations:
+
+### Python Track (FastAPI + UV [[memory:5222621]])
+
+- **Package Manager**: UV (experimental, with pip fallback provided)
+- **Framework**: FastAPI with async/await patterns
+- **Docker Optimizations**: Multi-stage builds for smaller images
+- **Special Features**: Hot reload with volume mounts for development
+
+### Java Track (Spring Boot + Maven)
+
+- **Build System**: Maven with Spring Boot 3.2+
+- **Java Version**: Java 17 LTS for compatibility
+- **Docker Optimizations**: JVM memory tuning, fat JAR patterns
+- **Special Features**: Spring Boot DevTools integration, Actuator endpoints
+
+### Rust Track (Actix-web + Cargo)
+
+- **Build System**: Cargo with cross-compilation support
+- **Docker Optimizations**: Static binary builds, minimal scratch/distroless images
+- **Special Features**: Multi-architecture builds (ARM64 + AMD64)
+- **Performance**: Sub-millisecond response times, minimal memory usage
+
+### Shared Task API Implementation
+
+All tracks implement the same REST API specification:
+
+- `GET /health` - Health check endpoint
+- `GET /api/tasks` - List all tasks
+- `POST /api/tasks` - Create new task
+- `GET /api/tasks/{id}` - Get specific task
+- `PUT /api/tasks/{id}` - Update task
+- `DELETE /api/tasks/{id}` - Delete task
+- `GET /metrics` - Prometheus metrics (Module 08)
 
 ## 🎯 What You'll Build
 

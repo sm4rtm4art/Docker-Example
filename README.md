@@ -17,13 +17,16 @@ A comprehensive, production-ready Docker learning path that teaches Docker conce
 
 ## 📚 Learning Path
 
-| Phase           | Duration  | Focus                                        | Outcome               |
-| --------------- | --------- | -------------------------------------------- | --------------------- |
-| **Foundation**  | 4.5 hours | Docker fundamentals + language quickstart    | Container confidence  |
-| **Core Skills** | 8 hours   | Dockerfiles, Compose, development workflow   | Multi-service mastery |
-| **Production**  | 7 hours   | Security, monitoring, operational excellence | Production deployment |
-| **Advanced**    | 4 hours   | CI/CD, orchestration, alternatives           | Ecosystem expertise   |
+| Phase                      | Duration  | Modules | Focus                                          | Outcome               |
+| -------------------------- | --------- | ------- | ---------------------------------------------- | --------------------- |
+| **🏃 Core Foundation**     | 4.5 hours | 00-02   | Docker fundamentals + language quickstart      | Container confidence  |
+| **🏃 Core Skills**         | 8 hours   | 03-05   | Dockerfiles, Compose, development workflow     | Multi-service mastery |
+| **🏃 Core Production**     | 3 hours   | 06-07   | Security, production operational excellence    | Secure deployment     |
+| **🚀 Advanced Monitoring** | 4 hours   | 08      | Complete monitoring stack (Prometheus/Grafana) | Production monitoring |
+| **🚀 Advanced Ecosystem**  | 4 hours   | 09-11   | CI/CD, orchestration, alternatives             | Ecosystem expertise   |
 
+**Core Path**: 15.5 hours (Modules 00-07) - Everything needed for production Docker  
+**Advanced Path**: +8 hours (Modules 08-11) - Monitoring, CI/CD, and ecosystem mastery  
 **Total**: 18-24 hours of hands-on learning
 
 ## 🏗️ What You'll Build
@@ -73,6 +76,17 @@ cd 00-prerequisites
 
 No prior Docker experience required!
 
+## ⚙️ Tested With
+
+This curriculum is actively tested and maintained with:
+
+- **Docker Desktop**: 4.25+ (or Docker Engine 24.0+)
+- **Docker Compose**: v2.23+ (included in Docker Desktop)
+- **BuildKit**: 0.12+ (enabled by default in modern Docker)
+- **Operating Systems**: Windows 10/11, macOS 10.14+, Ubuntu 20.04+
+
+**Update Policy**: We test with the latest stable Docker versions quarterly and update examples as needed. If you encounter issues with newer versions, please check our [troubleshooting guide](./docker-mastery-multitrack/common-resources/DOCKER_EMERGENCY_GUIDE.md).
+
 ## 🎓 Learning Features
 
 ### 🔧 Hands-On Exercises
@@ -111,21 +125,54 @@ The complete curriculum is located in [`docker-mastery-multitrack/`](./docker-ma
 - **[Development Setup](./DEVELOPMENT_SETUP.md)** - Environment configuration
 - **[Implementation Progress](./TASKLIST.md)** - Development roadmap
 
-## 🔗 Additional Resources
+## 📚 Learning Resources
 
-### Helper Scripts
+### By Module
+
+**Foundation (Modules 00-03)**
+
+- [Docker Official Documentation](https://docs.docker.com/) - Comprehensive reference
+- [Docker Best Practices](https://docs.docker.com/develop/best-practices/) - Production patterns
+
+**Dockerfiles & Images (Module 03)**
+
+- [Dockerfile Reference](https://docs.docker.com/engine/reference/builder/) - Complete syntax guide
+- [hadolint](https://github.com/hadolint/hadolint) - Dockerfile linter for best practices
+
+**Multi-Container Apps (Module 04)**
+
+- [Compose Specification](https://compose-spec.io/) - Official format reference
+- [Awesome Compose](https://github.com/docker/awesome-compose) - Real-world examples
+
+**Security (Module 06)**
+
+- [Docker Security](https://docs.docker.com/engine/security/) - Official security guide
+- [OWASP Container Security](https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html) - Security checklist
+
+**Monitoring (Module 08)**
+
+- [Prometheus Documentation](https://prometheus.io/docs/) - Metrics collection
+- [Grafana Tutorials](https://grafana.com/tutorials/) - Visualization guides
+
+### 🔗 Additional Resources
+
+**Helper Scripts**
 
 - [`scripts/`](./scripts/) - Cross-platform utilities (Windows + Unix)
 - Docker cleanup automation
 - Development environment setup
 - Health check utilities
 
-### Examples
+**Examples**
 
 - [`examples/`](./examples/) - Reference implementations
 - Security-focused Dockerfiles
 - Volume management patterns
 - Container networking examples
+
+**Emergency Help**
+
+- [`DOCKER_EMERGENCY_GUIDE.md`](./docker-mastery-multitrack/common-resources/DOCKER_EMERGENCY_GUIDE.md) - Troubleshooting guide
 
 ## 🌟 Why This Curriculum?
 
