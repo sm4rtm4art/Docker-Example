@@ -1,5 +1,9 @@
 # Module 08: Complete Monitoring Stack - Production Observability 📊
 
+> **⏱️ Time**: 4 hours (3 hands-on parts + 1 hour integration)  
+> **🚀 Level**: Advanced  
+> **Prerequisites**: Modules 00-07 completed (Core path)
+
 Transform your Task API into a production-grade, observable system! Build the complete monitoring foundation with Prometheus metrics and Grafana dashboards.
 
 ## 🎯 Learning Outcomes

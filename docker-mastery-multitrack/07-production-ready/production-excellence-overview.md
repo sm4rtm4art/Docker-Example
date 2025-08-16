@@ -1,8 +1,8 @@
 # Module 07: Production Excellence
 
-> **Duration**: 3 hours (3 x 1-hour segments)  
-> **Level**: Intermediate  
-> **Prerequisites**: Modules 1-6 completed
+> **⏱️ Time**: 3 hours (3 x 1-hour segments)  
+> **🏃 Level**: Core  
+> **Prerequisites**: Modules 00-06 completed
 
 ## 🎯 Learning Outcomes
 

@@ -1,5 +1,9 @@
 # Module 03: Dockerfile Essentials 🐳
 
+> **⏱️ Time**: 3 hours (2.5 hours core + 30 min language-specific)  
+> **🏃 Level**: Core  
+> **Prerequisites**: Module 02 completed
+
 Transform your applications into portable, secure containers! This module teaches you to write production-ready Dockerfiles using patterns that work across all programming languages.
 
 ## 🎯 Learning Outcomes

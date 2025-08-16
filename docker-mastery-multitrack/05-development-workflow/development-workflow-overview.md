@@ -1,5 +1,9 @@
 # Module 05: Development Workflow - Productive Docker Development 🛠️
 
+> **⏱️ Time**: 2 hours (3 x 45-min parts)  
+> **🏃 Level**: Core  
+> **Prerequisites**: Module 04 completed
+
 Transform your Docker development experience from painful to productive! Master hot reload patterns, debugging techniques, and IDE integrations that make developing in containers feel natural.
 
 ## 🎯 Learning Outcomes
