@@ -466,6 +466,26 @@ pub async fn health_check() -> Result<HttpResponse> {
 }
 ```
 
+## ⚠️ Important: Permission Issues Warning
+
+**Before building**: Our Dockerfile creates a user with UID 1000, but your host user might be different!
+
+```bash
+# Check your UID (might not be 1000!)
+id -u
+# Mac users: often 501
+# Enterprise Linux: often 10000+
+```
+
+**If you plan to use bind mounts**, build with your actual UID:
+
+```bash
+# Build with your host UID/GID to avoid permission issues
+docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t task-api-rust .
+```
+
+📖 **See**: [Complete Volumes & Permissions Guide](../../common-resources/VOLUMES_AND_PERMISSIONS_GUIDE.md) for details.
+
 ## 🐳 Rust Docker Patterns
 
 ### Production Dockerfile (Multi-stage)

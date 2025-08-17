@@ -11,8 +11,12 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user
-RUN groupadd -r fastapi && useradd -r -g fastapi -u 1000 fastapi
+# Create non-root user with configurable UID/GID
+# Default to 1000 but allow override for different systems
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -r -g ${GID} fastapi && \
+    useradd -r -g fastapi -u ${UID} fastapi
 
 # Create app directory
 WORKDIR /app

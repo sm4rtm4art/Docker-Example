@@ -48,7 +48,71 @@ networks: # Define networks (optional)
   backend:
 
 volumes: # Define named volumes (optional)
-  postgres_data:
+  postgres_data: # Docker-managed storage that persists data
+```
+
+## 💾 Understanding Volumes (Critical!)
+
+### What Are Volumes?
+
+**Volumes** are Docker's way to persist data beyond container lifecycle. Without volumes, ALL data inside a container is lost when the container stops!
+
+### Three Types of Storage:
+
+1. **Named Volumes** (Recommended for databases)
+
+```yaml
+volumes:
+  postgres_data: # Docker manages this, survives container removal
+services:
+  postgres:
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+```
+
+2. **Bind Mounts** (For development, but permission nightmares!)
+
+```yaml
+services:
+  api:
+    volumes:
+      - ./src:/app/src # Maps host directory to container
+      # WARNING: UID/GID must match or you get permission errors!
+```
+
+3. **Anonymous Volumes** (Temporary, avoid these)
+
+```yaml
+volumes:
+  - /tmp/cache # Dies with container, not useful
+```
+
+### The UID/GID Permission Problem 🔥
+
+**Critical Issue**: Container users have UIDs that might not match your host!
+
+```bash
+# On your Mac (UID might be 501)
+$ id -u
+501
+
+# In container (hardcoded to 1000)
+RUN useradd -u 1000 appuser  # WRONG! Assumes everyone has UID 1000
+
+# Result: Permission denied when using bind mounts!
+```
+
+**Better Solution**: Dynamic UID mapping
+
+```dockerfile
+# Accept UID/GID as build arguments
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g ${GID} appuser && \
+    useradd -u ${UID} -g ${GID} appuser
+
+# Build with your actual UID
+docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) .
 ```
 
 ## 🏗️ Building Your Task Stack

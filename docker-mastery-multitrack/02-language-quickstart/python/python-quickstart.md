@@ -512,6 +512,31 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8080"]
 ```
 
+## ⚠️ Important: Permission Issues Warning
+
+**Before building**: Our Dockerfile creates a user with UID 1000, but your host user might be different!
+
+```bash
+# Check your UID (might not be 1000!)
+id -u
+# Mac users: often 501
+# Enterprise Linux: often 10000+
+```
+
+**If you plan to use bind mounts** (mounting host directories), build with your actual UID:
+
+```bash
+# Build with your host UID/GID to avoid permission issues
+docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t task-api-python .
+
+# Or with docker-compose
+UID=$(id -u) GID=$(id -g) docker-compose up
+```
+
+**For production**: Use named volumes instead of bind mounts to avoid permission issues entirely.
+
+📖 **See**: [Complete Volumes & Permissions Guide](../../common-resources/VOLUMES_AND_PERMISSIONS_GUIDE.md) for details.
+
 ## 🧪 Testing Your Python Container
 
 ### Build and Test
@@ -519,6 +544,9 @@ CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8080"]
 ```bash
 # Build production image
 docker build -t task-api-python .
+
+# IMPORTANT: If you get permission errors with volumes, build with your UID/GID:
+# docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t task-api-python .
 
 # Run container
 docker run -d --name python-api -p 8080:8080 task-api-python
@@ -540,6 +568,8 @@ curl http://localhost:8080/metrics
 # Verify non-root user
 docker exec python-api id
 # Should show: uid=1000(fastapi) gid=1000(fastapi)
+# NOTE: UID 1000 is default, but might not match your host user!
+# See our Volumes & Permissions Guide if you have issues.
 ```
 
 ### Performance Testing

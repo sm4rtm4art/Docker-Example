@@ -29,8 +29,10 @@ FROM alpine:3.18
 # Install runtime dependencies
 RUN apk add --no-cache ca-certificates curl
 
-# Create non-root user
-RUN addgroup -g 1000 rust && adduser -D -s /bin/sh -u 1000 -G rust rust
+# Create non-root user with configurable UID/GID
+ARG UID=1000
+ARG GID=1000
+RUN addgroup -g ${GID} rust && adduser -D -s /bin/sh -u ${UID} -G rust rust
 
 # Create app directory
 WORKDIR /app
