@@ -46,8 +46,6 @@ volumes:
 ### Complete Data-Persistent Compose File
 
 ```yaml
-version: "3.8"
-
 services:
   # Task API with logging
   task-api:
@@ -159,16 +157,16 @@ networks:
 
 ```bash
 # Create immediate backup
-docker-compose exec postgres pg_dump -U taskuser -d taskdb > backup_$(date +%Y%m%d).sql
+docker compose exec postgres pg_dump -U taskuser -d taskdb > backup_$(date +%Y%m%d).sql
 
 # Restore from backup
-docker-compose exec -T postgres psql -U taskuser -d taskdb < backup_20240101.sql
+docker compose exec -T postgres psql -U taskuser -d taskdb < backup_20240101.sql
 
 # Create compressed backup
-docker-compose exec postgres pg_dump -U taskuser -d taskdb | gzip > backup_$(date +%Y%m%d).sql.gz
+docker compose exec postgres pg_dump -U taskuser -d taskdb | gzip > backup_$(date +%Y%m%d).sql.gz
 
 # Copy backup out of container
-docker-compose exec postgres pg_dump -U taskuser -d taskdb > /backups/manual_backup.sql
+docker compose exec postgres pg_dump -U taskuser -d taskdb > /backups/manual_backup.sql
 docker cp postgres_container:/backups/manual_backup.sql ./backups/
 ```
 
@@ -194,7 +192,7 @@ echo "🗄️ Starting backup at $(date)"
 
 # Database backup
 echo "📊 Backing up PostgreSQL database..."
-docker-compose exec -T postgres pg_dump -U taskuser -d taskdb | gzip > "$BACKUP_DIR/postgres_$TIMESTAMP.sql.gz"
+docker compose exec -T postgres pg_dump -U taskuser -d taskdb | gzip > "$BACKUP_DIR/postgres_$TIMESTAMP.sql.gz"
 
 # Volume backup (for named volumes)
 echo "📦 Backing up volumes..."
@@ -239,13 +237,13 @@ echo
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "🔄 Stopping services..."
-    docker-compose stop task-api
+    docker compose stop task-api
 
     echo "🗄️ Restoring database..."
-    zcat "$BACKUP_DIR/$BACKUP_FILE" | docker-compose exec -T postgres psql -U taskuser -d taskdb
+    zcat "$BACKUP_DIR/$BACKUP_FILE" | docker compose exec -T postgres psql -U taskuser -d taskdb
 
     echo "🚀 Restarting services..."
-    docker-compose start task-api
+    docker compose start task-api
 
     echo "✅ Restore completed!"
 else
@@ -259,7 +257,6 @@ fi
 
 ```yaml
 # docker-compose.dev.yml
-version: "3.8"
 
 services:
   task-api:
@@ -297,7 +294,6 @@ volumes:
 
 ```yaml
 # docker-compose.prod.yml
-version: "3.8"
 
 services:
   task-api:
@@ -342,13 +338,13 @@ volumes:
 
 ```bash
 # Development workflow
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 
 # Production workflow
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 # Testing workflow
-docker-compose -f docker-compose.yml -f docker-compose.test.yml run --rm tests
+docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm tests
 ```
 
 ## 🧹 Volume Cleanup Mastery
@@ -378,7 +374,7 @@ PROJECT_NAME="task-management"
 echo "🧹 Cleaning up $PROJECT_NAME volumes..."
 
 # Stop and remove containers
-docker-compose down --remove-orphans
+docker compose down --remove-orphans
 
 # Remove project-specific volumes (careful!)
 docker volume ls -q --filter name=${PROJECT_NAME} | xargs -r docker volume rm

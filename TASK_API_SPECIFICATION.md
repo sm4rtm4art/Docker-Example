@@ -406,8 +406,8 @@ docker run --rm --network docker-mastery_backend \
   curl http://api:8080/health
 
 # Test volume persistence
-docker-compose down
-docker-compose up -d
+docker compose down
+docker compose up -d
 curl http://localhost:8080/tasks  # Should still have data
 ```
 

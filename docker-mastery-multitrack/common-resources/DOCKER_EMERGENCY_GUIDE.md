@@ -83,10 +83,10 @@ docker exec container1 ping container2
 docker exec container1 nc -zv container2 5432
 
 # 4. Is service actually listening?
-docker exec container2 netstat -tlnp
+docker exec container2 netstat -tlnp || docker exec container2 ss -tln
 
 # 5. Check compose networking
-docker-compose exec service1 ping service2
+docker compose exec service1 ping service2
 ```
 
 ### Common Network Fixes
@@ -346,10 +346,10 @@ ERROR: Version in "docker-compose.yml" is unsupported
 → Fix: Remove version line (Docker Compose V2)
 
 ERROR: network not found
-→ Fix: docker-compose down && docker-compose up
+→ Fix: docker compose down && docker compose up
 
 ERROR: orphan containers
-→ Fix: docker-compose down --remove-orphans
+→ Fix: docker compose down --remove-orphans
 ```
 
 ## 🎯 Pro Tips

@@ -188,7 +188,7 @@ ps aux | grep task-api
 
 ```bash
 # Traditional Docker Compose
-docker-compose up -d
+docker compose up -d
 
 # Podman Compose (newer feature)
 podman-compose up -d

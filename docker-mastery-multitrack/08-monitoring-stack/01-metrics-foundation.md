@@ -450,10 +450,10 @@ scrape_configs:
 
 ```bash
 # Build and start services
-docker-compose up -d
+docker compose up -d
 
 # Check services are running
-docker-compose ps
+docker compose ps
 
 # Expected output:
 # task-api     Up      0.0.0.0:8080->8080/tcp
@@ -566,14 +566,14 @@ curl http://localhost:8080/metrics
 curl http://localhost:9090/api/v1/targets
 
 # Check Prometheus logs
-docker-compose logs prometheus
+docker compose logs prometheus
 ```
 
 #### 2. "Task API not reachable from Prometheus"
 
 ```bash
 # Test network connectivity
-docker-compose exec prometheus wget -qO- http://task-api:8080/metrics
+docker compose exec prometheus wget -qO- http://task-api:8080/metrics
 
 # Check docker networks
 docker network ls

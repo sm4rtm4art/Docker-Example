@@ -73,7 +73,7 @@ podman pod create --name mypod -p 8080:80
 podman run --pod mypod nginx
 podman run --pod mypod redis
 
-# Docker - use docker-compose instead
+# Docker - use docker compose instead
 ```
 
 ## Building Images
@@ -93,7 +93,7 @@ buildah bud -t myapp .
 
 ```bash
 # Docker
-docker-compose up
+docker compose up
 
 # Podman (with podman-compose)
 pip install podman-compose

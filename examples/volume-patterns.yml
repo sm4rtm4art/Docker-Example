@@ -89,8 +89,8 @@ networks:
     name: myapp_network
 
 # Cleanup commands for this stack:
-# docker-compose down                    # Stop and remove containers
-# docker-compose down -v                 # Also remove volumes
-# docker-compose down --remove-orphans   # Also remove orphan containers
+# docker compose down                    # Stop and remove containers
+# docker compose down -v                 # Also remove volumes
+# docker compose down --remove-orphans   # Also remove orphan containers
 # docker volume ls -q -f name=myapp      # List volumes for this project
 # docker volume prune -f                 # Remove all unused volumes
