@@ -197,7 +197,7 @@ services:
 
 ```bash
 # Start development environment
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 
 # In VS Code:
 # 1. Ctrl+Shift+P → "Remote-Containers: Attach to Running Container"
@@ -459,8 +459,8 @@ git config --global user.email "dev@example.com"
 
 # Create useful aliases
 echo "alias ll='ls -la'" >> ~/.bashrc
-echo "alias logs='docker-compose logs -f'" >> ~/.bashrc
-echo "alias restart='docker-compose restart'" >> ~/.bashrc
+echo "alias logs='docker compose logs -f'" >> ~/.bashrc
+echo "alias restart='docker compose restart'" >> ~/.bashrc
 
 echo "Development environment ready!"
 ```
@@ -526,7 +526,7 @@ task-api/
     {
       "label": "Start Development Environment",
       "type": "shell",
-      "command": "docker-compose",
+      "command": "docker compose",
       "args": [
         "-f",
         "docker-compose.yml",
@@ -546,14 +546,14 @@ task-api/
     {
       "label": "Stop Development Environment",
       "type": "shell",
-      "command": "docker-compose",
+      "command": "docker compose",
       "args": ["down"],
       "group": "build"
     },
     {
       "label": "View Logs",
       "type": "shell",
-      "command": "docker-compose",
+      "command": "docker compose",
       "args": ["logs", "-f", "task-api"],
       "group": "test"
     }

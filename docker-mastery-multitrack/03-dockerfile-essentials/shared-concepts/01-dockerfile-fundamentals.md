@@ -99,7 +99,7 @@ FROM python:3.12-slim  # Debian-based
 - Compatibility is critical
 - Team familiarity
 
-### Alpine Linux: Size Optimized
+### Alpine Linux: Size Optimized (musl vs glibc caveat)
 
 ```dockerfile
 FROM alpine:3.19
@@ -117,9 +117,9 @@ FROM python:3.12-alpine
 **Cons:**
 
 - 🐚 ash shell (not bash)
-- 📚 musl libc (not glibc)
+- 📚 musl libc (not glibc) — some binaries/wheels expect glibc
 - 🔧 Fewer packages available
-- 🚫 Some compatibility issues
+- 🚫 Compatibility issues with certain Python wheels/JVM native libs
 
 **Use When:**
 
@@ -127,6 +127,8 @@ FROM python:3.12-alpine
 - Size matters
 - Simple applications
 - Performance critical
+
+Tip: If musl compatibility bites (e.g., missing wheels), prefer `-slim` Debian images or install `gcompat`/use `manylinux` wheels.
 
 ### Practical Example: Same App, Different Bases
 

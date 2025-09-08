@@ -86,7 +86,7 @@ Stage 3: Add Monitoring (Module 08 preview)
 
 **Every lesson includes cleanup!**
 
-- Part A: `docker-compose down --remove-orphans`
+- Part A: `docker compose down --remove-orphans`
 - Part B: Network isolation and cleanup
 - Part C: Volume lifecycle management
 - Bonus: Automated cleanup scripts
@@ -105,11 +105,11 @@ By the end of this module:
 
 Before moving to the next module, verify you can:
 
-1. **Multi-service apps**: Run your Task API + PostgreSQL stack with `docker-compose up`
+1. **Multi-service apps**: Run your Task API + PostgreSQL stack with `docker compose up`
 2. **Service communication**: Your API connects to the database using service names (not localhost)
-3. **Clean shutdown**: Use `docker-compose down --remove-orphans` to clean up completely
+3. **Clean shutdown**: Use `docker compose down --remove-orphans` to clean up completely
 4. **Volume management**: Understand the difference between named volumes and bind mounts
-5. **Network debugging**: Use `docker-compose exec` to test connectivity between services
+5. **Network debugging**: Use `docker compose exec` to test connectivity between services
 
 **Quick Self-Test**: Start your stack, create a task via the API, stop everything cleanly, restart, and verify your task persisted. If it works, you've mastered Compose!
 
@@ -120,6 +120,12 @@ Before moving to the next module, verify you can:
 ➡️ Check our [**Docker Emergency Guide**](../common-resources/DOCKER_EMERGENCY_GUIDE.md) - especially the networking and Compose troubleshooting sections.
 
 **Need to reset everything?** Run our [cleanup script](../../scripts/docker-cleanup-v2.sh) to remove all containers, volumes, and networks.
+
+Compose secrets and deploy fields:
+- `deploy:` is Swarm-only and ignored by `docker compose up`. Use it with `docker stack deploy`.
+- `secrets:` works reliably in Swarm; for local Compose, simulate with bind-mounted files or external secret managers.
+
+Note: Compose v2 deprecates the standalone `docker-compose` binary. Use `docker compose` for all commands.
 
 ---
 

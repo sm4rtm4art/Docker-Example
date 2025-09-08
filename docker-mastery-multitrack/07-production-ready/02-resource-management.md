@@ -26,7 +26,7 @@ hungry-app  834.2%   31.4GB / 32GB       # 😱
 ### 1. Memory Limits
 
 ```yaml
-# docker-compose.yml
+# Swarm (docker stack deploy):
 services:
   api:
     image: myapp
@@ -36,6 +36,14 @@ services:
           memory: 512M
         reservations:
           memory: 256M # Guaranteed minimum
+
+# Local Compose alternatives:
+# - Use engine flags with docker run: `-m 512m --memory-reservation 256m`
+# - Or Compose service options (supported by engine):
+# services:
+#   api:
+#     mem_limit: 512m
+#     cpus: 0.5
 ```
 
 ```dockerfile
@@ -46,6 +54,7 @@ docker run -m 512m --memory-reservation 256m myapp
 ### 2. CPU Limits
 
 ```yaml
+# Swarm-only deploy section (use docker stack):
 services:
   api:
     deploy:
@@ -54,6 +63,11 @@ services:
           cpus: '0.5'  # 50% of one CPU
           # or
           cpus: '2.0'  # 2 full CPUs
+
+# Local Compose alternative (engine options):
+# services:
+#   api:
+#     cpus: 0.5
 ```
 
 ### 3. Understanding OOM Killer
@@ -122,6 +136,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    # Optional: use a central log shipper container (fluent-bit/vector)
+    # and switch to a different driver like 'fluentd'
 ```
 
 Or globally in `/etc/docker/daemon.json`:

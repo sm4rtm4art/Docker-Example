@@ -34,7 +34,7 @@ By completing this module, you will be able to:
 This learning path works on:
 
 - **Windows 10/11** (with WSL2 recommended)
-- **macOS 10.14+**
+- **macOS 12+**
 - **Linux** (Ubuntu, Debian, CentOS, Fedora, Arch)
 
 ## 🐳 Core Requirements (All Students)
@@ -260,7 +260,7 @@ docker run hello-world
 git --version
 
 # System resources
-docker system info | grep -E "CPUs|Memory"
+docker info | grep -E "CPUs|Memory"
 ```
 
 ### Language-Specific Verification:

@@ -92,10 +92,10 @@ services:
 
 ```bash
 # Development mode
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 
 # Production mode
-docker-compose up
+docker compose up
 ```
 
 ## 🐍 Python: FastAPI Hot Reload
@@ -160,7 +160,7 @@ services:
 
 ```bash
 # Start development environment
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 
 # In another terminal, test the API
 curl http://localhost:8080/health
@@ -288,13 +288,13 @@ services:
 
 ```bash
 # Check if volumes are mounted correctly
-docker-compose exec task-api ls -la /app/src
+docker compose exec task-api ls -la /app/src
 
 # Verify file ownership
-docker-compose exec task-api ls -la /app/src/main.py
+docker compose exec task-api ls -la /app/src/main.py
 
 # Check container logs for file watcher errors
-docker-compose logs -f task-api
+docker compose logs -f task-api
 ```
 
 ### Issue 2: Permission Denied Errors

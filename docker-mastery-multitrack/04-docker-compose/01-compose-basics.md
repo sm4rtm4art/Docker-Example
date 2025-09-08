@@ -24,14 +24,12 @@ docker run -d --name postgres --network myapp-network -v postgres-data:/var/lib/
 docker run -d --name api --network myapp-network -p 8080:8080 task-api
 
 # Use this simple command:
-docker-compose up
+docker compose up
 ```
 
 ### Compose File Structure
 
 ```yaml
-version: "3.8"
-
 services: # Define your containers
   api:
     build: .
@@ -58,8 +56,6 @@ volumes: # Define named volumes (optional)
 Create `docker-compose.yml` in your project root:
 
 ```yaml
-version: "3.8"
-
 services:
   # Task API Service
   task-api:
@@ -193,31 +189,31 @@ async fn main() -> Result<(), sqlx::Error> {
 
 ```bash
 # Start all services
-docker-compose up
+docker compose up
 
 # Start in background (detached)
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs
-docker-compose logs task-api  # Specific service
+docker compose logs
+docker compose logs task-api  # Specific service
 
 # Stop all services
-docker-compose down
+docker compose down
 
 # Stop and remove volumes (careful!)
-docker-compose down --volumes
+docker compose down --volumes
 ```
 
 ### Health Check Monitoring
 
 ```bash
 # Check service status
-docker-compose ps
+docker compose ps
 
 # Follow logs for startup issues
-docker-compose logs -f postgres
-docker-compose logs -f task-api
+docker compose logs -f postgres
+docker compose logs -f task-api
 
 # Test the stack
 curl http://localhost:8080/health
@@ -249,10 +245,10 @@ services:
 
 ```bash
 # Always use this flag
-docker-compose down --remove-orphans
+docker compose down --remove-orphans
 
 # Start with orphan removal
-docker-compose up --remove-orphans
+docker compose up --remove-orphans
 ```
 
 #### 2. Project Name Consistency
@@ -260,14 +256,14 @@ docker-compose up --remove-orphans
 ```bash
 # Problem: Different directories create different projects
 cd /path/to/project
-docker-compose up  # Project name: "project"
+docker compose up  # Project name: "project"
 
 cd /different/path/to/project
-docker-compose up  # Project name: "project" (different path)
+docker compose up  # Project name: "project" (different path)
 
 # Solution: Explicit project naming
-docker-compose -p task-management up
-docker-compose -p task-management down --remove-orphans
+docker compose -p task-management up
+docker compose -p task-management down --remove-orphans
 ```
 
 #### 3. Development Cleanup Script
@@ -279,7 +275,7 @@ Create `cleanup.sh`:
 echo "🧹 Cleaning up Task Management stack..."
 
 # Stop and remove containers
-docker-compose -p task-management down --remove-orphans
+docker compose -p task-management down --remove-orphans
 
 # Remove unused volumes (be careful!)
 echo "📦 Cleaning unused volumes..."
@@ -314,6 +310,17 @@ name: task-management # Compose v2 feature
 # README.md: Service names are stable, don't change them!
 ```
 
+Tip: Use Compose profiles to toggle optional services without renaming:
+
+```yaml
+services:
+  pgadmin:
+    image: dpage/pgadmin4
+    profiles: [tools]
+
+# Start only with tools: docker compose --profile tools up
+```
+
 ## 🔗 Service Discovery Magic
 
 ### How Services Find Each Other
@@ -336,11 +343,11 @@ services:
 
 ```bash
 # Start your stack
-docker-compose up -d
+docker compose up -d
 
 # Test internal connectivity
-docker-compose exec task-api curl http://postgres:5432
-docker-compose exec postgres ping task-api
+docker compose exec task-api curl http://postgres:5432
+docker compose exec postgres ping task-api
 
 # Test from outside (should fail)
 curl http://postgres:5432  # ❌ Won't work
@@ -383,7 +390,7 @@ ports:
   - "8081:8080"  # Host:Container
 
 # 3. Stop conflicting services
-docker-compose down --remove-orphans
+docker compose down --remove-orphans
 ```
 
 ### Issue 3: "Volume permission denied"
@@ -433,21 +440,21 @@ USER postgres
 
    ```bash
    # Start stack
-   docker-compose up -d
+   docker compose up -d
 
    # Rename a service in compose file
    # Restart and check for orphans
-   docker-compose up --remove-orphans
+   docker compose up --remove-orphans
    ```
 
 4. **Test data persistence**:
 
    ```bash
    # Stop stack
-   docker-compose down
+   docker compose down
 
    # Restart (data should survive)
-   docker-compose up -d
+   docker compose up -d
    curl http://localhost:8080/api/tasks  # Should show previous data
    ```
 
@@ -466,7 +473,7 @@ Before proceeding to networking:
 
 ```bash
 # View the complete stack
-docker-compose ps
+docker compose ps
 
 # Check networks
 docker network ls | grep task
@@ -475,7 +482,7 @@ docker network ls | grep task
 docker volume ls | grep task
 
 # View resource usage
-docker-compose top
+docker compose top
 ```
 
 ## 🔧 Break & Fix Exercises

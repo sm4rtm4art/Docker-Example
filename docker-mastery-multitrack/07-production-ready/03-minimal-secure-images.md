@@ -155,6 +155,8 @@ FROM ubuntu:22.04-minimal
 
 # BEST: Distroless
 FROM gcr.io/distroless/base-debian12
+
+Note: Distroless images lack shells and package managers; plan external health checks and debugging sidecars.
 ```
 
 ## 📏 Size Optimization Techniques

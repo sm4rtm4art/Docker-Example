@@ -27,7 +27,7 @@ A comprehensive, production-ready Docker learning path that teaches Docker conce
 
 **Core Path**: 15.5 hours (Modules 00-07) - Everything needed for production Docker  
 **Advanced Path**: +8 hours (Modules 08-11) - Monitoring, CI/CD, and ecosystem mastery  
-**Total**: 18-24 hours of hands-on learning
+**Total**: 20-24 hours of hands-on learning
 
 ## 🏗️ What You'll Build
 
@@ -83,7 +83,7 @@ This curriculum is actively tested and maintained with:
 - **Docker Desktop**: 4.25+ (or Docker Engine 24.0+)
 - **Docker Compose**: v2.23+ (included in Docker Desktop)
 - **BuildKit**: 0.12+ (enabled by default in modern Docker)
-- **Operating Systems**: Windows 10/11, macOS 10.14+, Ubuntu 20.04+
+- **Operating Systems**: Windows 10/11, macOS 12+, Ubuntu 20.04+
 
 **Update Policy**: We test with the latest stable Docker versions quarterly and update examples as needed. If you encounter issues with newer versions, please check our [troubleshooting guide](./docker-mastery-multitrack/common-resources/DOCKER_EMERGENCY_GUIDE.md).
 
