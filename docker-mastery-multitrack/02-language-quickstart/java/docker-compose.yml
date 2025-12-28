@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  task-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: task-api-java
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_PORT=8080
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,metrics
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+    networks:
+      - dev-network
+
+networks:
+  dev-network:
