@@ -3,9 +3,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+      args:
+        # Pass host UID/GID to avoid permission issues
+        # Use: UID=$(id -u) GID=$(id -g) docker-compose up
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
     volumes:
-      # Hot reload source code
+      # Hot reload source code (WARNING: bind mount permission issues possible!)
       - ./src:/app/src:cached
+      # Named volume for cache (no permission issues)
+      - python-cache:/app/.cache
     ports:
       - "8080:8080"
     environment:
@@ -25,6 +32,9 @@ services:
   #     - "5432:5432"
   #   networks:
   #     - dev-network
+
+volumes:
+  python-cache: # Docker-managed volume, no permission issues
 
 networks:
   dev-network:

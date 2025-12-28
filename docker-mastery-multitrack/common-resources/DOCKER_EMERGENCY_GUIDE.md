@@ -114,6 +114,8 @@ DATABASE_URL=postgresql://postgres:5432/db
 
 ## 💾 Volume & Permission Issues
 
+**📖 See also: [Complete Volumes & Permissions Guide](./VOLUMES_AND_PERMISSIONS_GUIDE.md)**
+
 ### "Permission Denied" Solutions
 
 ```bash
