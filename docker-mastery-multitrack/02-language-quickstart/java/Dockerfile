@@ -21,6 +21,11 @@ RUN mvn clean package -DskipTests
 # Runtime stage - smaller image
 FROM eclipse-temurin:17-jre-jammy
 
+# Install curl for health checks
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
 # Create non-root user for security
 # UID 1000 is standard
 ARG UID=1000
