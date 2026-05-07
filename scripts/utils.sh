@@ -3,8 +3,6 @@
 # =============================================================================
 # Common functions and colors for all bash scripts
 
-set -euo pipefail
-
 # =============================================================================
 # Color Definitions
 # =============================================================================
@@ -300,14 +298,6 @@ handle_error() {
     exit $exit_code
 }
 
-# Set up error handling
-trap 'handle_error $LINENO' ERR
-
-# =============================================================================
-# Initialization
-# =============================================================================
-log_header
-
 # =============================================================================
 # Version and Help
 # =============================================================================
@@ -328,6 +318,10 @@ show_help() {
 
 # Only run if called directly (not sourced)
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    set -euo pipefail
+    trap 'handle_error $LINENO' ERR
+    log_header
+
     case "${1:-}" in
         -h|--help)
             show_help

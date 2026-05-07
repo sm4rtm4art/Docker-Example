@@ -30,7 +30,7 @@ GET /health
 #### 2. List Tasks
 
 ```http
-GET /tasks
+GET /api/tasks
 ```
 
 **Response:**
@@ -54,7 +54,7 @@ GET /tasks
 #### 3. Get Single Task
 
 ```http
-GET /tasks/{id}
+GET /api/tasks/{id}
 ```
 
 **Response:**
@@ -73,7 +73,7 @@ GET /tasks/{id}
 #### 4. Create Task
 
 ```http
-POST /tasks
+POST /api/tasks
 ```
 
 **Request:**
@@ -101,7 +101,7 @@ POST /tasks
 #### 5. Update Task
 
 ```http
-PUT /tasks/{id}
+PUT /api/tasks/{id}
 ```
 
 **Request:**
@@ -119,7 +119,7 @@ PUT /tasks/{id}
 #### 6. Delete Task
 
 ```http
-DELETE /tasks/{id}
+DELETE /api/tasks/{id}
 ```
 
 **Response:** 204 No Content
@@ -143,8 +143,8 @@ tasks_completed_total 35
 
 # HELP http_requests_total Total HTTP requests
 # TYPE http_requests_total counter
-http_requests_total{method="GET",endpoint="/tasks",status="200"} 150
-http_requests_total{method="POST",endpoint="/tasks",status="201"} 42
+http_requests_total{method="GET",endpoint="/api/tasks",status="200"} 150
+http_requests_total{method="POST",endpoint="/api/tasks",status="201"} 42
 
 # HELP http_request_duration_seconds HTTP request latency
 # TYPE http_request_duration_seconds histogram
@@ -383,12 +383,12 @@ networks:
 
 ```bash
 # Create a task
-curl -X POST http://localhost:8080/tasks \
+curl -X POST http://localhost:8080/api/tasks \
   -H "Content-Type: application/json" \
   -d '{"title":"Test Docker","description":"Test the API"}'
 
 # List tasks
-curl http://localhost:8080/tasks
+curl http://localhost:8080/api/tasks
 
 # Check health
 curl http://localhost:8080/health
@@ -408,7 +408,7 @@ docker run --rm --network docker-mastery_backend \
 # Test volume persistence
 docker-compose down
 docker-compose up -d
-curl http://localhost:8080/tasks  # Should still have data
+curl http://localhost:8080/api/tasks  # Should still have data
 ```
 
 ## Success Criteria
