@@ -11,7 +11,7 @@ param(
 
 # Import utilities
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-. "$ScriptDir\..\scripts\utils.ps1"
+. "$ScriptDir\..\..\scripts\utils.ps1"
 
 # =============================================================================
 # Verification Functions

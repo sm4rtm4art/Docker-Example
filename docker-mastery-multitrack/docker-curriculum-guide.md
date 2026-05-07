@@ -63,7 +63,7 @@
 
 While 70% of content is shared across all tracks, each language has specific optimizations:
 
-### Python Track (FastAPI + UV [[memory:5222621]])
+### Python Track (FastAPI + UV)
 
 - **Package Manager**: UV (experimental, with pip fallback provided)
 - **Framework**: FastAPI with async/await patterns
@@ -165,7 +165,8 @@ docker --version
 docker run hello-world
 
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/sm4rtm4art/Docker-Example.git
+cd Docker-Example
 cd docker-mastery-multitrack
 ```
 
@@ -267,7 +268,7 @@ This is a living learning path! Contributions welcome:
 
 ## 📝 License
 
-[MIT License](./LICENSE) - Feel free to use for personal and commercial learning!
+[Apache License 2.0](../LICENSE) - Feel free to use for personal and commercial learning.
 
 ## 🙏 Acknowledgments
 

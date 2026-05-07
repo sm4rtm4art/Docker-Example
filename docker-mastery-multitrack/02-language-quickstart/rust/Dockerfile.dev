@@ -6,7 +6,9 @@ RUN apk add --no-cache musl-dev curl
 RUN cargo install cargo-watch
 
 # Create non-root user
-RUN addgroup -g 1000 rust && adduser -D -s /bin/sh -u 1000 -G rust rust
+ARG UID=1000
+ARG GID=1000
+RUN addgroup -g ${GID} rust && adduser -D -s /bin/sh -u ${UID} -G rust rust
 
 WORKDIR /app
 RUN chown rust:rust /app

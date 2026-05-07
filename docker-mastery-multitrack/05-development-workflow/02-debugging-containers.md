@@ -74,7 +74,7 @@ from logging_config import setup_logging
 
 logger = setup_logging()
 
-@app.get("/tasks")
+@app.get("/api/tasks")
 async def list_tasks():
     logger.info(f"Fetching tasks at {datetime.now()}")
     try:
