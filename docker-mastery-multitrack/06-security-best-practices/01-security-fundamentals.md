@@ -390,10 +390,10 @@ networks:
 
 ```bash
 # Start read-only container
-docker-compose up -d
+docker compose up -d
 
 # Test filesystem immutability
-docker-compose exec task-api touch /test-file
+docker compose exec task-api touch /test-file
 # Should fail: Read-only file system
 
 # Test application functionality
@@ -401,7 +401,7 @@ curl http://localhost:8080/health
 # Should work normally
 
 # Test writable volumes
-docker-compose exec task-api touch /app/logs/test.log
+docker compose exec task-api touch /app/logs/test.log
 # Should succeed
 ```
 
@@ -531,6 +531,16 @@ docker port myapp
 
 # Check environment variables (look for secrets!)
 docker exec myapp env | grep -i password
+
+# Harden runtime in Compose (local engine options)
+# services:
+#   api:
+#     security_opt:
+#       - no-new-privileges:true
+#     cap_drop:
+#       - ALL
+#     cap_add: []  # add only what you must
+#     read_only: true
 ```
 
 ## ✅ Security Fundamentals Checklist

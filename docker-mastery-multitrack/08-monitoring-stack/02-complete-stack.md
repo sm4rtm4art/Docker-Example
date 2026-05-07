@@ -567,10 +567,10 @@ mkdir -p grafana/dashboards
 
 ```bash
 # Start the complete monitoring stack
-docker-compose -f docker-compose.monitoring.yml up -d
+docker compose -f docker-compose.monitoring.yml up -d
 
 # Check all services are running
-docker-compose -f docker-compose.monitoring.yml ps
+docker compose -f docker-compose.monitoring.yml ps
 
 # Expected services:
 # nginx, task-api, postgres, postgres-exporter
@@ -662,7 +662,7 @@ database_connections_active
 curl http://localhost:9090/api/v1/targets
 
 # Verify Grafana can reach Prometheus
-docker-compose exec grafana wget -qO- http://prometheus:9090/api/v1/status/config
+docker compose exec grafana wget -qO- http://prometheus:9090/api/v1/status/config
 
 # Check dashboard queries
 # Go to Grafana → Explore → Query: up{job="task-api"}
@@ -672,7 +672,7 @@ docker-compose exec grafana wget -qO- http://prometheus:9090/api/v1/status/confi
 
 ```bash
 # Check cAdvisor permissions
-docker-compose logs cadvisor
+docker compose logs cadvisor
 
 # Verify Docker socket access
 ls -la /var/run/docker.sock

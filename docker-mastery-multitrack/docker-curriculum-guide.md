@@ -55,7 +55,7 @@
 | **10** | Orchestration Preview                                                           | 1 hour  | Kubernetes concepts, migration paths |
 | **11** | [Container Alternatives](./11-beyond-docker/container-alternatives-overview.md) | 1 hour  | Docker vs Podman, future ecosystem   |
 
-**🚀 Advanced Path Total**: +7 hours - Monitoring, CI/CD, and ecosystem expertise
+**🚀 Advanced Path Total**: +8 hours - Monitoring, CI/CD, and ecosystem expertise
 
 **Total Learning Time**: 20-24 hours
 

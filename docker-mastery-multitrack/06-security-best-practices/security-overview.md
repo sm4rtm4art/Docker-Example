@@ -38,6 +38,8 @@ This module addresses **actual security problems** you'll encounter:
 - Resource limits
 - Network isolation
 - Secrets management
+- Drop capabilities and set no-new-privileges
+- Apply seccomp/AppArmor/SELinux profiles (where available)
 
 ### 3. Host Security
 

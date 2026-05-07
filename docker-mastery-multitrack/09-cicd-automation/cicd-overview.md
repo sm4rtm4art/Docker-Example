@@ -175,6 +175,19 @@ jobs:
             myapp:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Generate SBOM
+        run: |
+          docker buildx build --sbom=true --provenance=false --platform linux/amd64 -t myapp:sbom --load .
+          docker sbom myapp:sbom --format spdx-json > sbom.spdx.json
+
+      - name: Sign image with cosign
+        if: ${{ github.event_name == 'push' }}
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: |
+          echo "${{ secrets.COSIGN_KEY }}" > cosign.key
+          cosign sign --key cosign.key myapp:latest
 ```
 
 ### Platform-Specific Optimizations
@@ -307,7 +320,7 @@ docker login -u username -p dckr_pat_xxxxx
 echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
 
 # Registry scanning in CI
-docker scout cves myapp:latest
+docker scout cves myapp:latest --only-severity critical,high
 ```
 
 ### Multi-Registry CI/CD Strategy

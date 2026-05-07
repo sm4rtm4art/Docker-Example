@@ -32,19 +32,19 @@ Master debugging techniques that make troubleshooting containerized applications
 
 ```bash
 # View current logs
-docker-compose logs task-api
+docker compose logs task-api
 
 # Follow logs in real-time
-docker-compose logs -f task-api
+docker compose logs -f task-api
 
 # View last 100 lines
-docker-compose logs --tail 100 task-api
+docker compose logs --tail 100 task-api
 
 # Show timestamps
-docker-compose logs -t task-api
+docker compose logs -t task-api
 
 # Multiple services
-docker-compose logs -f task-api postgres
+docker compose logs -f task-api postgres
 ```
 
 ### Structured Logging Setup
@@ -293,10 +293,10 @@ services:
 
 ```bash
 # Start container with debug build
-docker-compose up -d task-api
+docker compose up -d task-api
 
 # Execute into container
-docker-compose exec task-api sh
+docker compose exec task-api sh
 
 # Run with gdb
 cargo build
@@ -309,10 +309,10 @@ gdb target/debug/task-api
 
 ```bash
 # Test service discovery
-docker-compose exec task-api nslookup postgres
+docker compose exec task-api nslookup postgres
 
 # Test port connectivity
-docker-compose exec task-api nc -zv postgres 5432
+docker compose exec task-api nc -zv postgres 5432
 
 # Check network configuration
 docker network ls
@@ -326,8 +326,8 @@ docker network inspect <network_name>
 ```bash
 # Problem: Cannot connect to 'postgres'
 # Solution: Check service names in compose file
-docker-compose exec task-api nslookup postgres
-docker-compose exec task-api ping postgres
+docker compose exec task-api nslookup postgres
+docker compose exec task-api ping postgres
 ```
 
 **Issue 2: Connection Refused**
@@ -335,8 +335,8 @@ docker-compose exec task-api ping postgres
 ```bash
 # Problem: Connection refused on port 5432
 # Solution: Check if service is listening
-docker-compose exec postgres netstat -tuln
-docker-compose logs postgres
+docker compose exec postgres netstat -tuln
+docker compose logs postgres
 ```
 
 **Issue 3: Port Binding Issues**
@@ -354,13 +354,13 @@ docker ps -a
 
 ```bash
 # Start your application
-docker-compose up -d task-api
+docker compose up -d task-api
 
 # Get an interactive shell
-docker-compose exec task-api /bin/bash
+docker compose exec task-api /bin/bash
 
 # Or specific user
-docker-compose exec --user root task-api /bin/bash
+docker compose exec --user root task-api /bin/bash
 
 # Run debugging commands
 ps aux
@@ -385,10 +385,10 @@ Usage:
 
 ```bash
 # Start in debug mode
-docker-compose -f docker-compose.yml -f docker-compose.debug.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.debug.yml up -d
 
 # Attach to container
-docker-compose exec task-api /bin/bash
+docker compose exec task-api /bin/bash
 
 # Manually start your application
 cd /app && python src/main.py
@@ -406,13 +406,13 @@ docker stats
 docker stats task-api
 
 # Container processes
-docker-compose exec task-api top
+docker compose exec task-api top
 
 # Memory usage details
-docker-compose exec task-api cat /proc/meminfo
+docker compose exec task-api cat /proc/meminfo
 
 # Disk usage
-docker-compose exec task-api df -h
+docker compose exec task-api df -h
 ```
 
 ### Resource Limit Testing
@@ -450,20 +450,20 @@ dmesg | grep -i "killed process"
 
 ```bash
 # 1. Check container logs
-docker-compose logs task-api
+docker compose logs task-api
 
 # 2. Check if process is running
-docker-compose exec task-api ps aux
+docker compose exec task-api ps aux
 
 # 3. Try starting manually
-docker-compose exec task-api /bin/bash
+docker compose exec task-api /bin/bash
 # Then manually run your startup command
 
 # 4. Check file permissions
-docker-compose exec task-api ls -la /app
+docker compose exec task-api ls -la /app
 
 # 5. Check environment variables
-docker-compose exec task-api env
+docker compose exec task-api env
 ```
 
 ### Scenario 2: Database Connection Fails
@@ -472,19 +472,19 @@ docker-compose exec task-api env
 
 ```bash
 # 1. Check if database container is running
-docker-compose ps
+docker compose ps
 
 # 2. Test network connectivity
-docker-compose exec task-api nc -zv postgres 5432
+docker compose exec task-api nc -zv postgres 5432
 
 # 3. Check database logs
-docker-compose logs postgres
+docker compose logs postgres
 
 # 4. Verify credentials
-docker-compose exec postgres psql -U postgres -d tasks -c '\l'
+docker compose exec postgres psql -U postgres -d tasks -c '\l'
 
 # 5. Check connection string
-docker-compose exec task-api env | grep -i db
+docker compose exec task-api env | grep -i db
 ```
 
 ### Scenario 3: API Returns 500 Errors
@@ -498,13 +498,13 @@ environment:
   - LOG_LEVEL=DEBUG
 
 # 2. Follow application logs
-docker-compose logs -f task-api
+docker compose logs -f task-api
 
 # 3. Test API endpoints manually
-docker-compose exec task-api curl localhost:8080/health
+docker compose exec task-api curl localhost:8080/health
 
 # 4. Check application status
-docker-compose exec task-api ps aux | grep python
+docker compose exec task-api ps aux | grep python
 ```
 
 ## ✅ Hands-On Exercise: Debug Hunt Challenge
@@ -536,7 +536,7 @@ services:
 
 ### Your Mission: Debug and Fix
 
-1. **Start the broken stack**: `docker-compose -f docker-compose.broken.yml up`
+1. **Start the broken stack**: `docker compose -f docker-compose.broken.yml up`
 2. **Identify the issues** using the debugging techniques you learned
 3. **Fix the configuration** and verify it works
 4. **Document your debugging process**

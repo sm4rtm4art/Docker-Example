@@ -64,8 +64,6 @@ networks:
 Update your `docker-compose.yml`:
 
 ```yaml
-version: "3.8"
-
 services:
   # Nginx Load Balancer (Frontend)
   nginx:
@@ -190,19 +188,19 @@ http {
 
 ```bash
 # Start the multi-network stack
-docker-compose up -d
+docker compose up -d
 
 # Test what can reach what
 echo "🔗 Testing network connectivity..."
 
 # ✅ Nginx can reach API (frontend network)
-docker-compose exec nginx curl -f http://task-api:8080/health
+docker compose exec nginx curl -f http://task-api:8080/health
 
 # ❌ Nginx CANNOT reach database (no backend network)
-docker-compose exec nginx curl -f http://postgres:5432 || echo "❌ Blocked (good!)"
+docker compose exec nginx curl -f http://postgres:5432 || echo "❌ Blocked (good!)"
 
 # ✅ API can reach database (backend network)
-docker-compose exec task-api curl -f http://postgres:5432 || echo "❌ Database not responding (expected)"
+docker compose exec task-api curl -f http://postgres:5432 || echo "❌ Database not responding (expected)"
 
 # ✅ External access through nginx
 curl http://localhost/health
@@ -274,7 +272,7 @@ upstream task_api {
 
 ```bash
 # Scale services on demand
-docker-compose up -d --scale task-api=3
+docker compose up -d --scale task-api=3
 
 # Nginx will automatically load balance across all instances
 curl http://localhost/api/tasks  # Routes to different instances
@@ -293,26 +291,30 @@ docker network inspect task-management_frontend
 docker network inspect task-management_backend
 
 # See which containers are on which networks
-docker-compose exec task-api ip route
-docker-compose exec postgres ip route
+docker compose exec task-api ip route
+docker compose exec postgres ip route
 
 # Check DNS resolution
-docker-compose exec task-api nslookup postgres
-docker-compose exec nginx nslookup task-api
+docker compose exec task-api nslookup postgres
+docker compose exec nginx nslookup task-api
 ```
 
 ### Network Troubleshooting
 
 ```bash
 # Test connectivity between services
-docker-compose exec nginx ping task-api
-docker-compose exec task-api ping postgres
+docker compose exec nginx ping task-api
+docker compose exec task-api ping postgres
 
 # Check if ports are open
-docker-compose exec task-api nc -zv postgres 5432
+docker compose exec task-api nc -zv postgres 5432
 
 # View network traffic (advanced)
-docker-compose exec task-api tcpdump -i eth0 port 5432
+docker compose exec task-api tcpdump -i eth0 port 5432
+
+# DNS and routes
+docker compose exec task-api nslookup postgres
+docker compose exec task-api ip route
 ```
 
 ## 🔮 Preparing for Monitoring (Module 08 Preview)
@@ -361,7 +363,7 @@ task-api:
 ERROR: Could not connect to database
 
 # Debug: Check service networks
-docker-compose exec task-api ip route
+docker compose exec task-api ip route
 docker inspect task-management_task-api_1 | grep -A 10 NetworkSettings
 ```
 
@@ -389,7 +391,7 @@ nginx_1  | connect() failed (111: Connection refused) while connecting to upstre
 
 ```bash
 # Verify API is healthy
-docker-compose exec nginx curl http://task-api:8080/health
+docker compose exec nginx curl http://task-api:8080/health
 
 # Check nginx config
 docker-compose exec nginx nginx -t
@@ -426,17 +428,17 @@ task-api:
 
    ```bash
    # Verify nginx cannot reach database directly
-   docker-compose exec nginx curl postgres:5432 && echo "❌ Security breach!" || echo "✅ Properly isolated"
+   docker compose exec nginx curl postgres:5432 && echo "❌ Security breach!" || echo "✅ Properly isolated"
 
    # Verify API can still reach database
-   docker-compose exec task-api curl postgres:5432 || echo "Database connectivity works"
+   docker compose exec task-api curl postgres:5432 || echo "Database connectivity works"
    ```
 
 3. **Load balancing test**:
 
    ```bash
    # Scale your API
-   docker-compose up -d --scale task-api=3
+   docker compose up -d --scale task-api=3
 
    # Test load distribution
    for i in {1..10}; do

@@ -41,10 +41,10 @@ services:
 
 ```bash
 # Check environment variables
-docker-compose exec web env | grep POSTGRES
+docker compose exec web env | grep POSTGRES
 
 # Check if variable is being passed
-docker-compose config
+docker compose config
 
 # Check container configuration
 docker inspect container_name | grep -A 10 "Env"

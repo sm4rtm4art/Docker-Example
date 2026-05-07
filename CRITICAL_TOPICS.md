@@ -105,13 +105,13 @@ services:
 
 ```bash
 # Remove orphan containers for specific project
-docker-compose down --remove-orphans
+docker compose down --remove-orphans
 
 # Clean everything (careful!)
 docker system prune -a --volumes
 
 # Better: Use consistent project names
-docker-compose -p myproject up
+docker compose -p myproject up
 ```
 
 ## 🐘 Podman: The Daemonless Alternative
@@ -226,7 +226,7 @@ environment:
 ```bash
 # Cleanup script (add to each project)
 #!/bin/bash
-docker-compose down --remove-orphans
+docker compose down --remove-orphans
 docker volume prune -f
 docker network prune -f
 ```

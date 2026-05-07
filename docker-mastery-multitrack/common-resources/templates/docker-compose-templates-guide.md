@@ -25,7 +25,7 @@ docker compose \
   up
 ```
 
-> **Note**: Modern Docker uses `docker compose` (V2), but `docker-compose` (V1) still works. Use whichever your system supports!
+> Note: Use `docker compose` (V2). Legacy `docker-compose` (V1) is deprecated and may be missing on modern systems.
 
 ## 📁 Available Templates
 

@@ -1,5 +1,5 @@
 # Template: Complete Monitoring Stack
-# Use with: docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up
+# Use with: docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up
 
 services:
   # Add to your existing task-api service
