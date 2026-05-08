@@ -605,8 +605,6 @@ ENTRYPOINT ["/task-api"]
 ### Docker Compose Development
 
 ```yaml
-version: "3.8"
-
 services:
   task-api:
     build:

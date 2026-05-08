@@ -281,7 +281,6 @@ networks:
 ### Stage 1: API Only
 
 ```yaml
-version: "3.8"
 services:
   api:
     build: .
@@ -292,7 +291,6 @@ services:
 ### Stage 2: API + Database
 
 ```yaml
-version: "3.8"
 services:
   api:
     build: .
@@ -301,6 +299,8 @@ services:
     depends_on:
       - postgres
     environment:
+      # DEV ONLY: local classroom credentials for teaching Compose basics.
+      # In production, inject secrets through a secret manager or runtime config.
       DATABASE_URL: postgres://taskuser:taskpass@postgres:5432/taskdb
     networks:
       - backend
@@ -309,6 +309,7 @@ services:
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: taskuser
+      # DEV ONLY: simple local password for examples.
       POSTGRES_PASSWORD: taskpass
       POSTGRES_DB: taskdb
     volumes:
@@ -326,7 +327,6 @@ networks:
 ### Stage 3: Full Monitoring Stack
 
 ```yaml
-version: "3.8"
 services:
   api:
     build: .
@@ -339,7 +339,7 @@ services:
     # ... (as above)
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:latest # Classroom shortcut; pin a tested version in production.
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
@@ -353,8 +353,9 @@ services:
       - monitoring
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:latest # Classroom shortcut; pin a tested version in production.
     environment:
+      # DEV ONLY: default local admin password for walkthroughs.
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
@@ -401,13 +402,14 @@ curl http://localhost:8080/metrics
 
 ```bash
 # Test from another container
+# Classroom shortcut: pin helper image tags in production or CI for reproducible results.
 docker run --rm --network docker-mastery_backend \
   curlimages/curl:latest \
   curl http://api:8080/health
 
 # Test volume persistence
-docker-compose down
-docker-compose up -d
+docker compose down
+docker compose up -d
 curl http://localhost:8080/api/tasks  # Should still have data
 ```
 

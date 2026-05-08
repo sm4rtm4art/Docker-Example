@@ -5,6 +5,7 @@ services:
   # Add to your existing task-api service
   task-api:
     environment:
+      # DEV ONLY: local classroom credentials for compose exercises.
       - DATABASE_URL=postgresql://taskuser:taskpass@postgres:5432/tasks
     depends_on:
       postgres:
@@ -16,6 +17,7 @@ services:
     environment:
       - POSTGRES_DB=tasks
       - POSTGRES_USER=taskuser
+      # DEV ONLY: replace with secret injection outside local exercises.
       - POSTGRES_PASSWORD=taskpass
       - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
     ports:
@@ -34,8 +36,9 @@ services:
 
   # pgAdmin - Database management (optional)
   pgadmin:
-    image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4:latest # Classroom shortcut; pin a tested version in production.
     environment:
+      # DEV ONLY: local default credentials for classroom demos.
       - PGADMIN_DEFAULT_EMAIL=admin@example.com
       - PGADMIN_DEFAULT_PASSWORD=admin
     ports:

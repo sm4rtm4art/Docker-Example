@@ -54,7 +54,7 @@
 - API development
 - Language-specific patterns
 
-### Advanced Preview (Modules 8-10)
+### Advanced Preview (Modules 8-11)
 
 ✅ **CI/CD Integration**
 
@@ -76,6 +76,13 @@
 - Basic metrics collection
 - Container monitoring
 - Troubleshooting techniques
+
+✅ **Container Ecosystem Choices**
+
+- Compare Docker and Podman trade-offs
+- Understand migration considerations
+- Choose tools based on team and platform constraints
+- Recognize what stays Docker-specific vs portable
 
 ❌ **NOT Teaching**
 
@@ -140,7 +147,7 @@ Module 4-6: Real Applications (20% language-specific for setup)
      ↓
 Module 7-8: Production Focus (15% language-specific for optimization)
      ↓
-Module 9-10: Platform Skills (10% language-specific for deployment)
+Module 9-11: Platform Skills (10% language-specific for deployment)
 ```
 
 The language-specific content DECREASES as students advance, because:

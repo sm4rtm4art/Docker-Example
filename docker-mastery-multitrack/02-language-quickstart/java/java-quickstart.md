@@ -530,6 +530,24 @@ docker ps
 curl http://localhost:8080/api/tasks
 ```
 
+### Optional: Run with Docker Compose
+
+Use the included `docker-compose.yml` if you prefer a one-command run flow:
+
+```bash
+# Start the Java quickstart service
+UID=$(id -u) GID=$(id -g) docker compose up -d
+
+# Check service health
+docker compose ps
+curl http://localhost:8080/health
+
+# Stop and clean up
+docker compose down
+```
+
+> Note: In this module, Java Compose intentionally builds from the production `Dockerfile` instead of a separate `Dockerfile.dev`. This keeps the quickstart simple and focused on baseline container behavior before development-workflow variants in later modules.
+
 ## 🔍 Step 5: Docker Exploration
 
 ### Container Inspection

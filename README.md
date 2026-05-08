@@ -17,17 +17,15 @@ A comprehensive, production-ready Docker learning path that teaches Docker conce
 
 ## 📚 Learning Path
 
-| Phase                      | Duration  | Modules | Focus                                          | Outcome               |
-| -------------------------- | --------- | ------- | ---------------------------------------------- | --------------------- |
-| **🏃 Core Foundation**     | 4.5 hours | 00-02   | Docker fundamentals + language quickstart      | Container confidence  |
-| **🏃 Core Skills**         | 8 hours   | 03-05   | Dockerfiles, Compose, development workflow     | Multi-service mastery |
-| **🏃 Core Production**     | 3 hours   | 06-07   | Security, production operational excellence    | Secure deployment     |
-| **🚀 Advanced Monitoring** | 4 hours   | 08      | Complete monitoring stack (Prometheus/Grafana) | Production monitoring |
-| **🚀 Advanced Ecosystem**  | 4 hours   | 09-11   | CI/CD, orchestration, alternatives             | Ecosystem expertise   |
+Use the curriculum guide as the canonical module roadmap:
 
-**Core Path**: 15.5 hours (Modules 00-07) - Everything needed for production Docker  
-**Advanced Path**: +8 hours (Modules 08-11) - Monitoring, CI/CD, and ecosystem mastery  
-**Total**: 20-24 hours of hands-on learning
+📚 **[Docker Curriculum Guide](./docker-mastery-multitrack/docker-curriculum-guide.md)** - full module breakdown (`00-11`), pace, and storyline.
+
+At a glance:
+
+- **Core Path** (`00-07`): **15.5 hours** - Docker fundamentals through production readiness
+- **Advanced Path** (`08-11`): **+7 hours** - monitoring, CI/CD, orchestration preview, alternatives
+- **Total**: **20-24 hours** of hands-on learning
 
 ## 🏗️ What You'll Build
 
@@ -123,7 +121,7 @@ The complete curriculum is located in [`docker-mastery-multitrack/`](./docker-ma
 - **[Learning Objectives](./LEARNING_OBJECTIVES.md)** - Detailed skill outcomes
 - **[Task API Specification](./TASK_API_SPECIFICATION.md)** - Technical project requirements
 - **[Development Setup](./DEVELOPMENT_SETUP.md)** - Environment configuration
-- **[Implementation Progress](./TASKLIST.md)** - Development roadmap
+- **[Prerequisites (Module 00)](./docker-mastery-multitrack/00-prerequisites/prerequisites-overview.md)** - Platform setup and troubleshooting
 
 ## 📚 Learning Resources
 

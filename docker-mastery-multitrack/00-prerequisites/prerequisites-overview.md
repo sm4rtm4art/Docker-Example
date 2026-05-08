@@ -37,6 +37,12 @@ This learning path works on:
 - **macOS 12+**
 - **Linux** (Ubuntu, Debian, CentOS, Fedora, Arch)
 
+## ⚠️ Common Platform Friction (Read Before Setup)
+
+- **Apple Silicon / ARM64**: Some images are AMD64-only. If a build or run fails on architecture, use multi-arch tags when available or build with `docker buildx`.
+- **Windows / WSL2**: Prefer Docker Desktop with WSL2 backend. Running Docker from WSL2 gives fewer path and permission surprises than mixed PowerShell/WSL workflows.
+- **Docker Desktop resources**: If builds stall or monitoring stack containers crash, increase CPU/RAM/disk in Docker Desktop settings before troubleshooting code.
+
 ## 🐳 Core Requirements (All Students)
 
 ### 1. Docker Desktop / Docker Engine
@@ -102,9 +108,8 @@ docker-compose --version  # V1 (legacy)
 
 **Throughout this course:**
 
-- **Documentation shows**: `docker-compose` (for compatibility)
-- **You should use**: `docker compose` (modern V2 syntax)
-- **Both work identically**, just different commands!
+- **Documentation uses**: `docker compose` (modern V2 syntax)
+- **Recommendation**: Use `docker compose` in new commands and scripts
 
 **Common Issues:**
 
@@ -349,6 +354,7 @@ Install these extensions for the best experience:
 docker info
 
 # Test with a simple container
+# Classroom shortcut: using `latest` keeps setup simple; pin exact tags in CI/production.
 docker run --rm alpine:latest echo "Docker is working!"
 
 # Check available resources

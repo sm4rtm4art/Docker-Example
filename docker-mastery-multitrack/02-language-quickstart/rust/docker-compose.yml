@@ -26,7 +26,7 @@ services:
   #   environment:
   #     POSTGRES_DB: tasks
   #     POSTGRES_USER: taskuser
-  #     POSTGRES_PASSWORD: taskpass
+  #     POSTGRES_PASSWORD: taskpass # DEV ONLY local classroom default
   #   ports:
   #     - "5432:5432"
   #   networks:

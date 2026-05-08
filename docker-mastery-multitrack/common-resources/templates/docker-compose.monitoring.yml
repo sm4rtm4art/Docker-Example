@@ -13,7 +13,7 @@ services:
 
   # Prometheus - Metrics collection
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:latest # Classroom shortcut; pin a tested version in production.
     ports:
       - "9090:9090"
     volumes:
@@ -30,10 +30,11 @@ services:
 
   # Grafana - Visualization dashboards
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:latest # Classroom shortcut; pin a tested version in production.
     ports:
       - "3000:3000"
     environment:
+      # DEV ONLY: local default password for tutorial walkthroughs.
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafana_data:/var/lib/grafana
