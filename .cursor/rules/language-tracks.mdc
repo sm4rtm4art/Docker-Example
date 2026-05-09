@@ -1,0 +1,15 @@
+---
+description: Keep Java, Python, and Rust quickstarts aligned with the shared Docker curriculum contract.
+globs: docker-mastery-multitrack/02-language-quickstart/**/*,TASK_API_SPECIFICATION.md
+alwaysApply: false
+---
+
+# Language Track Parity
+
+- Keep Java, Python, and Rust examples focused on the same Task API behavior, ports, health checks, and Docker learning goal.
+- Use `/api/tasks` for task endpoints across implementations, quickstart docs, curl commands, metrics examples, and `TASK_API_SPECIFICATION.md`.
+- When changing an endpoint, port, health route, environment variable, or Compose service name, update all three language tracks or explain the intentional difference.
+- Treat the Rust quickstart as an executable app: keep `Cargo.lock` available for production Docker builds and do not exclude it from the Rust Docker build context.
+- Keep development Compose differences intentional. Python and Rust may use `Dockerfile.dev`; Java must either match that dev story or document why it differs.
+- Use language-specific details only to support the Docker lesson. Avoid drifting into framework tutorials for Spring Boot, FastAPI, or Actix.
+- Validate the touched track with the smallest practical command: syntax check, `docker compose config`, `docker build`, or a targeted language test when available.

@@ -18,7 +18,7 @@ As an **educational project**, every file students see becomes a learning exampl
 ### 1. Prerequisites
 
 ```bash
-# Ensure you have Python 3.8+ and pip
+# Ensure you have Python 3.11+ and pip
 python3 --version
 pip --version
 
@@ -40,7 +40,8 @@ source $HOME/.cargo/env
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/sm4rtm4art/Docker-Example.git
+cd Docker-Example
 cd docker-mastery-multitrack
 
 # Install pre-commit hooks

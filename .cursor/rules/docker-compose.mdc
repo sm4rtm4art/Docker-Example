@@ -1,0 +1,17 @@
+---
+description: Keep Dockerfiles, Compose files, and YAML examples accurate for the Docker curriculum.
+globs: **/Dockerfile*,**/.dockerignore,**/docker-compose*.yml,**/docker-compose*.yaml,**/*.yml,**/*.yaml
+alwaysApply: false
+---
+
+# Docker And Compose Teaching Rules
+
+- Prefer modern `docker compose` in new or updated material. Mention `docker-compose` only as legacy compatibility guidance.
+- For runnable Compose files, omit the top-level `version` unless a lesson is explicitly about legacy syntax.
+- Check every Dockerfile `COPY` against `.dockerignore` and the actual build context before claiming the image builds.
+- Do not use `:latest` unless the lesson explicitly frames it as a classroom shortcut or discusses tag risk.
+- Mark plaintext passwords and local defaults as `DEV ONLY` or classroom-only. Do not imply they are production secrets practice.
+- Separate image build hardening from runtime hardening. `USER` and file ownership can be image-level; read-only rootfs, dropped capabilities, and no-new-privileges require runtime, Compose, or orchestrator settings.
+- Keep development and production examples intentionally different. If Compose uses `Dockerfile.dev` while production uses `Dockerfile`, explain why.
+- Validate touched Compose files with `docker compose config` when Docker is available. Validate touched Dockerfiles with `docker build` when time and daemon access allow.
+- Keep `.dockerignore` lean but do not exclude required lockfiles, manifests, source directories, or config files used by Dockerfiles.

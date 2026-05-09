@@ -30,14 +30,14 @@
 | ------ | ------------------------------------------------------------------------------------- | ------- | ------------------------------------------ |
 | **03** | [Dockerfile Essentials](./03-dockerfile-essentials/dockerfile-essentials-overview.md) | 3 hours | Multi-stage builds, optimization, security |
 | **04** | [Docker Compose](./04-docker-compose/compose-overview.md)                             | 3 hours | Multi-service apps, networking, volumes    |
-| **05** | Development Workflow                                                                  | 2 hours | Hot reload, debugging, IDE integration     |
+| **05** | [Development Workflow](./05-development-workflow/development-workflow-overview.md)   | 2 hours | Hot reload, debugging, IDE integration     |
 
 ### 🏃 Core Production (Security & Deployment)
 
 | Module | Focus                                                                        | Time    | Description                                       |
 | ------ | ---------------------------------------------------------------------------- | ------- | ------------------------------------------------- |
 | **06** | [Security Best Practices](./06-security-best-practices/security-overview.md) | 2 hours | Non-root, secrets, read-only systems              |
-| **07** | Production Excellence                                                        | 2 hours | Health checks, resource limits, graceful shutdown |
+| **07** | [Production Excellence](./07-production-ready/production-excellence-overview.md) | 1 hour  | Health checks, resource limits, graceful shutdown |
 
 **🏃 Core Path Total**: 15.5 hours - Complete production Docker mastery
 
@@ -51,8 +51,8 @@
 
 | Module | Focus                                                                           | Time    | Description                          |
 | ------ | ------------------------------------------------------------------------------- | ------- | ------------------------------------ |
-| **09** | CI/CD Pipelines                                                                 | 2 hours | GitHub Actions, multi-arch builds    |
-| **10** | Orchestration Preview                                                           | 1 hour  | Kubernetes concepts, migration paths |
+| **09** | [CI/CD Pipelines](./09-cicd-automation/cicd-overview.md)                        | 2 hours | GitHub Actions, multi-arch builds    |
+| **10** | [Orchestration Preview](./10-orchestration-intro/orchestration-preview.md)      | 1 hour  | Kubernetes concepts, migration paths |
 | **11** | [Container Alternatives](./11-beyond-docker/container-alternatives-overview.md) | 1 hour  | Docker vs Podman, future ecosystem   |
 
 **🚀 Advanced Path Total**: +8 hours - Monitoring, CI/CD, and ecosystem expertise

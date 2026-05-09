@@ -1,0 +1,16 @@
+---
+description: Keep Docker curriculum markdown clear, consistent, and technically honest for junior learners.
+globs: **/*.md
+alwaysApply: false
+---
+
+# Docker Tutorial Markdown
+
+- Write for junior developers learning Docker. Teach Docker concepts first; use Java, Python, and Rust as examples, not as the main lesson.
+- Keep `README.md` as the landing page and `docker-mastery-multitrack/docker-curriculum-guide.md` as the canonical module overview.
+- Preserve the `00-11` learning path. When changing module names, links, or estimates, update related docs in the same change.
+- Keep student-facing tone practical and calm. Avoid hype, victory-lap maintainer notes, internal AI artifacts, and unexplained placeholders.
+- Prefer tested copy-paste commands. If a snippet is conceptual or not runnable from its folder, label it clearly.
+- Use `/api/tasks` for the shared Task API unless a lesson explicitly explains proxying or path rewriting.
+- Keep license, clone URL, prerequisites, ports, and time estimates consistent across README, curriculum guide, and learning objectives.
+- Mark local-only credentials, classroom shortcuts, and dev-only assumptions where students will see them.

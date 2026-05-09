@@ -409,8 +409,6 @@ CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8080", "--reload
 ### Docker Compose Development Setup
 
 ```yaml
-version: "3.8"
-
 services:
   task-api:
     build:
@@ -432,7 +430,7 @@ services:
   #   environment:
   #     POSTGRES_DB: tasks
   #     POSTGRES_USER: taskuser
-  #     POSTGRES_PASSWORD: taskpass
+  #     POSTGRES_PASSWORD: taskpass  # DEV ONLY local classroom default
   #   ports:
   #     - "5432:5432"
   #   networks:
@@ -529,8 +527,8 @@ id -u
 # Build with your host UID/GID to avoid permission issues
 docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t task-api-python .
 
-# Or with docker-compose
-UID=$(id -u) GID=$(id -g) docker-compose up
+# Or with docker compose
+UID=$(id -u) GID=$(id -g) docker compose up
 ```
 
 **For production**: Use named volumes instead of bind mounts to avoid permission issues entirely.
