@@ -366,7 +366,10 @@ CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8080"]
 
 ### Development Dockerfile
 
+Matches `Dockerfile.dev` in this folder (includes `UID`/`GID` build args used by Compose).
+
 ```dockerfile
+# Development Dockerfile for Python Task API
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -379,23 +382,34 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user
-RUN groupadd -r fastapi && useradd -r -g fastapi -u 1000 fastapi
+# Create non-root user with configurable UID/GID
+ARG UID=1000
+ARG GID=1000
+RUN set -eux; \
+    if getent group "${GID}" >/dev/null 2>&1; then \
+      EXISTING="$(getent group "${GID}" | cut -d: -f1)"; \
+      useradd -r -g "${EXISTING}" -u "${UID}" fastapi; \
+    else \
+      groupadd -r -g "${GID}" fastapi; \
+      useradd -r -g fastapi -u "${UID}" fastapi; \
+    fi
 
 WORKDIR /app
 
-# Install dependencies with development packages
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies - UV first (modern), pip fallback
+COPY pyproject.toml requirements.txt ./
 
-# Additional development dependencies
-RUN pip install --no-cache-dir \
-    pytest \
-    pytest-asyncio \
-    httpx \
-    black \
-    isort \
-    flake8
+# Install UV and dependencies with dev packages
+RUN pip install uv || echo "UV unavailable, falling back to pip" && \
+    if command -v uv >/dev/null 2>&1; then \
+        echo "📦 Using UV with dev dependencies" && \
+        uv pip install --system --no-cache -r requirements.txt && \
+        uv pip install --system --no-cache pytest pytest-asyncio httpx black isort flake8; \
+    else \
+        echo "📦 Using pip with manual dev dependencies" && \
+        pip install --no-cache-dir -r requirements.txt && \
+        pip install --no-cache-dir pytest pytest-asyncio httpx black isort flake8; \
+    fi
 
 # Switch to non-root user
 USER fastapi:fastapi
@@ -414,13 +428,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
     volumes:
       # Hot reload source code
-      - ./src:/app/src:ro
+      - ./src:/app/src:cached
+      # Named volume for cache (no permission issues)
+      - python-cache:/app/.cache
     ports:
       - "8080:8080"
     environment:
       - ENV=development
+      - LOG_LEVEL=DEBUG
     networks:
       - dev-network
 
@@ -435,6 +455,9 @@ services:
   #     - "5432:5432"
   #   networks:
   #     - dev-network
+
+volumes:
+  python-cache:
 
 networks:
   dev-network:
@@ -459,6 +482,8 @@ RUN if command -v uv >/dev/null 2>&1; then \
 ```
 
 ### Multi-Stage Build for Production
+
+Abbreviated pattern; see `Dockerfile` in this folder for UV/pip install and **UID/GID-safe** `COPY --chown=${UID}:${GID}`.
 
 ```dockerfile
 # Build stage
@@ -532,6 +557,8 @@ UID=$(id -u) GID=$(id -g) docker compose up
 ```
 
 **For production**: Use named volumes instead of bind mounts to avoid permission issues entirely.
+
+The production and development Dockerfiles in this folder **reuse an existing `GID` inside the image when it already exists**, so typical `docker compose up` flows are less likely to fail on hosts like macOS.
 
 📖 **See**: [Complete Volumes & Permissions Guide](../../common-resources/VOLUMES_AND_PERMISSIONS_GUIDE.md) for details.
 
@@ -634,6 +661,32 @@ docker exec python-api ps aux
 docker exec python-api curl http://localhost:8080/health
 ```
 
+## 🧹 Cleanup
+
+### Standalone `docker run`
+
+```bash
+docker stop python-api 2>/dev/null || true
+docker rm python-api 2>/dev/null || true
+docker rmi task-api-python 2>/dev/null || true
+```
+
+### Docker Compose
+
+From the `python/` directory:
+
+```bash
+docker compose down --remove-orphans
+docker rmi task-api-python 2>/dev/null || true
+```
+
+Optional: remove the named cache volume:
+
+```bash
+docker volume ls | grep python-cache
+# docker volume rm <project>_python-cache
+```
+
 ## ✅ Python Quickstart Checklist
 
 Congratulations! You've mastered Python containerization:
@@ -648,6 +701,6 @@ Congratulations! You've mastered Python containerization:
 
 ## 🚀 Next Steps
 
-Ready for multi-container applications? Continue to [Module 04: Docker Compose](../04-docker-compose/) where you'll add PostgreSQL and build a complete stack!
+Go deeper on image design in [Module 03: Dockerfile Essentials](../../03-dockerfile-essentials/), then wire services together in [Module 04: Docker Compose](../04-docker-compose/).
 
 **Remember**: These Python Docker patterns work for ANY Python application - Django, Flask, Tornado. Master the concepts here and apply them everywhere!

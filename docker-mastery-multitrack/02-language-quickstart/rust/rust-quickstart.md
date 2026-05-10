@@ -477,59 +477,71 @@ id -u
 # Enterprise Linux: often 10000+
 ```
 
-**If you plan to use bind mounts**, build with your actual UID:
+**If you plan to use bind mounts** (mounting host directories), build with your actual UID:
 
 ```bash
 # Build with your host UID/GID to avoid permission issues
 docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t task-api-rust .
 ```
 
+The Dockerfiles in this folder reuse an existing image `GID` when it already exists, which avoids common failures on hosts like macOS when passing through host `GID`.
+
 📖 **See**: [Complete Volumes & Permissions Guide](../../common-resources/VOLUMES_AND_PERMISSIONS_GUIDE.md) for details.
 
 ## 🐳 Rust Docker Patterns
 
-### Production Dockerfile (Multi-stage)
+### Production Dockerfile (matches `Dockerfile`)
 
 ```dockerfile
+# Production Dockerfile for Rust Task API
+# Multi-stage build for minimal image size
+
 # Build stage
-FROM rust:1.75 as builder
+FROM rust:alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache musl-dev
 
 WORKDIR /usr/src/app
 
-# Copy manifests
+# Copy dependency files first for better caching
 COPY Cargo.toml Cargo.lock ./
 
-# Create dummy source to build dependencies
+# Create dummy source to cache dependencies
 RUN mkdir src && echo "fn main() {}" > src/main.rs
-
-# Build dependencies (cached layer)
 RUN cargo build --release
-RUN rm src/main.rs
+RUN rm -rf src
 
-# Copy source code
+# Copy real source code
 COPY src ./src
 
 # Build application
 RUN cargo build --release
 
-# Runtime stage - minimal Debian
-FROM debian:bookworm-slim
+# Runtime stage
+FROM alpine:3.18
 
-# Install minimal runtime dependencies
-RUN apt-get update && apt-get install -y \
-    ca-certificates \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Install runtime dependencies
+RUN apk add --no-cache ca-certificates curl
 
-# Create non-root user
-RUN groupadd -r rust && useradd -r -g rust -u 1000 rust
+# Create non-root user with configurable UID/GID
+ARG UID=1000
+ARG GID=1000
+RUN set -eux; \
+    if getent group "${GID}" >/dev/null 2>&1; then \
+      GEXIST="$(getent group "${GID}" | cut -d: -f1)"; \
+      adduser -D -s /bin/sh -u "${UID}" -G "${GEXIST}" rust; \
+    else \
+      addgroup -g "${GID}" rust; \
+      adduser -D -s /bin/sh -u "${UID}" -G rust rust; \
+    fi
 
 # Create app directory
 WORKDIR /app
-RUN chown rust:rust /app
+RUN chown "${UID}:${GID}" /app
 
 # Copy binary from builder stage
-COPY --from=builder --chown=rust:rust /usr/src/app/target/release/task-api .
+COPY --from=builder --chown=${UID}:${GID} /usr/src/app/target/release/task-api .
 
 # Switch to non-root user
 USER rust:rust
@@ -545,62 +557,46 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 CMD ["./task-api"]
 ```
 
-### Minimal Dockerfile (Distroless)
+### Conceptual: distroless and `scratch` runtimes (not in this folder)
+
+The runnable quickstart uses **Alpine** in both build and runtime stages. Smaller runtimes such as **distroless** or **`FROM scratch`** are common in real projects, but this module does not ship separate `Dockerfile.distroless` or `Dockerfile.scratch` files. Treat the patterns below as **reading material**, not copy-paste build files.
+
+<details>
+<summary>Example: distroless-style layout (conceptual)</summary>
 
 ```dockerfile
-# Build stage
-FROM rust:1.75 as builder
-
+# CONCEPTUAL ONLY — not a file in this repository
+FROM rust:1.75 AS builder
 WORKDIR /usr/src/app
 COPY Cargo.toml Cargo.lock ./
 COPY src ./src
-
-# Build static binary
 ENV RUSTFLAGS="-C target-feature=+crt-static"
 RUN cargo build --release --target x86_64-unknown-linux-gnu
-
-# Runtime stage - Google's distroless
 FROM gcr.io/distroless/static-debian12
-
-# Copy binary
 COPY --from=builder /usr/src/app/target/x86_64-unknown-linux-gnu/release/task-api /
-
-# Distroless runs as non-root by default
-EXPOSE 8080
-
-# Note: No health check in distroless (no shell)
 ENTRYPOINT ["/task-api"]
 ```
 
-### Scratch-based Dockerfile (Ultra-minimal)
+</details>
+
+<details>
+<summary>Example: scratch layout (conceptual)</summary>
 
 ```dockerfile
-# Build stage
-FROM rust:1.75 as builder
-
+# CONCEPTUAL ONLY — not a file in this repository
+FROM rust:1.75 AS builder
 WORKDIR /usr/src/app
 COPY Cargo.toml Cargo.lock ./
 COPY src ./src
-
-# Build fully static binary
 ENV RUSTFLAGS="-C target-feature=+crt-static"
 RUN cargo build --release --target x86_64-unknown-linux-musl
-
-# Runtime stage - scratch (empty)
 FROM scratch
-
-# Copy CA certificates for HTTPS
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-
-# Copy binary
 COPY --from=builder /usr/src/app/target/x86_64-unknown-linux-musl/release/task-api /task-api
-
-# Expose port
-EXPOSE 8080
-
-# Run application
 ENTRYPOINT ["/task-api"]
 ```
+
+</details>
 
 ### Docker Compose Development
 
@@ -610,10 +606,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
     volumes:
       # Hot reload source code
-      - ./src:/usr/src/app/src:ro
-      - ./Cargo.toml:/usr/src/app/Cargo.toml:ro
+      - ./src:/app/src:cached
+      - ./Cargo.toml:/app/Cargo.toml:ro
+      # Cargo cache for faster builds
+      - cargo-cache:/usr/local/cargo/registry
     ports:
       - "8080:8080"
     environment:
@@ -622,34 +623,52 @@ services:
     networks:
       - dev-network
 
+volumes:
+  cargo-cache:
+
 networks:
   dev-network:
 ```
 
 ## 🔧 Rust-Specific Optimizations
 
-### Build Performance
+### Build Performance (`Dockerfile.dev`)
+
+This matches the development image used by `docker compose` in this folder (`rust:alpine`, `WORKDIR /app`, `cargo-watch`).
 
 ```dockerfile
-# Dockerfile.dev - Development with faster builds
-FROM rust:1.75
+# Development Dockerfile for Rust Task API
+FROM rust:alpine
 
-WORKDIR /usr/src/app
-
-# Install cargo-watch for hot reload
+# Install development tools
+RUN apk add --no-cache musl-dev curl
 RUN cargo install cargo-watch
 
-# Copy manifests
-COPY Cargo.toml Cargo.lock ./
+# Create non-root user
+ARG UID=1000
+ARG GID=1000
+RUN set -eux; \
+    if getent group "${GID}" >/dev/null 2>&1; then \
+      GEXIST="$(getent group "${GID}" | cut -d: -f1)"; \
+      adduser -D -s /bin/sh -u "${UID}" -G "${GEXIST}" rust; \
+    else \
+      addgroup -g "${GID}" rust; \
+      adduser -D -s /bin/sh -u "${UID}" -G rust rust; \
+    fi
 
-# Pre-build dependencies
-RUN mkdir src && echo "fn main() {}" > src/main.rs
-RUN cargo build
-RUN rm src/main.rs
+WORKDIR /app
+RUN chown "${UID}:${GID}" /app
 
+# Fix cargo registry permissions before switching user
+RUN mkdir -p /usr/local/cargo/registry && \
+    chown -R "${UID}:${GID}" /usr/local/cargo
+
+USER rust:rust
+
+# Expose port
 EXPOSE 8080
 
-# Hot reload command
+# Development command with hot reload
 CMD ["cargo", "watch", "-x", "run"]
 ```
 
@@ -730,19 +749,15 @@ docker images | grep task-api-rust
 ab -n 10000 -c 100 http://localhost:8080/health
 ```
 
-### Image Size Comparison
+### Image size (this quickstart)
 
 ```bash
-# Compare different base images
-docker build -f Dockerfile -t rust-debian .
-docker build -f Dockerfile.distroless -t rust-distroless .
-docker build -f Dockerfile.scratch -t rust-scratch .
-
-docker images | grep rust-
-# rust-debian     ~100MB
-# rust-distroless ~20MB
-# rust-scratch    ~10MB
+# Production image for this module
+docker build -f Dockerfile -t task-api-rust .
+docker images task-api-rust
 ```
+
+Compare sizes with other projects after you experiment with distroless or scratch patterns in your own Dockerfiles.
 
 ## 🐛 Rust Container Troubleshooting
 
@@ -794,6 +809,32 @@ docker run -it --rm rust-api /bin/bash
 docker exec rust-api ps aux
 ```
 
+## 🧹 Cleanup
+
+### Standalone `docker run`
+
+```bash
+docker stop rust-api 2>/dev/null || true
+docker rm rust-api 2>/dev/null || true
+docker rmi task-api-rust 2>/dev/null || true
+```
+
+### Docker Compose
+
+From the `rust/` directory:
+
+```bash
+docker compose down --remove-orphans
+docker rmi task-api-rust 2>/dev/null || true
+```
+
+Optional: remove the named Cargo cache volume Compose created:
+
+```bash
+docker volume ls | grep cargo-cache
+# docker volume rm <project>_cargo-cache
+```
+
 ## ✅ Rust Quickstart Checklist
 
 Congratulations! You've mastered Rust containerization:
@@ -801,13 +842,13 @@ Congratulations! You've mastered Rust containerization:
 - [ ] Actix-web Task API running in container
 - [ ] Multi-stage builds for optimized images
 - [ ] Static binary compilation working
-- [ ] Minimal container images (distroless/scratch)
+- [ ] Minimal Alpine-based production image from this module’s `Dockerfile`
 - [ ] Non-root user security implemented
 - [ ] Prometheus metrics integrated
 - [ ] Can debug Rust-specific container issues
 
 ## 🚀 Next Steps
 
-Ready for multi-container applications? Continue to [Module 04: Docker Compose](../04-docker-compose/) where you'll add PostgreSQL and build a complete stack!
+Solidify image design and layer caching in [Module 03: Dockerfile Essentials](../../03-dockerfile-essentials/), then add databases and Compose in [Module 04: Docker Compose](../04-docker-compose/).
 
 **Remember**: Rust's compile-time guarantees and zero-cost abstractions make it perfect for containerized microservices. These patterns scale to any Rust application - web servers, CLI tools, system services!

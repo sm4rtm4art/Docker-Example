@@ -4,11 +4,11 @@
 
 Welcome to the Java track! In this module, you'll build a real Spring Boot application and containerize it, learning Docker concepts through practical Java development.
 
-## 🎯 Learning Objectives
+## 🎯 Learning Outcomes
 
 By completing this module, you will be able to:
 
-- ✅ Create a Spring Boot REST API from scratch
+- ✅ Navigate a real Spring Boot Task API in this repository (Docker lesson first)
 - ✅ Build and test REST endpoints using Spring Boot
 - ✅ **Containerize** a Java application with Docker
 - ✅ Understand **port mapping** and container networking
@@ -16,7 +16,7 @@ By completing this module, you will be able to:
 - ✅ Use **environment variables** for configuration
 - ✅ Debug issues with **logs and container inspection**
 
-## 📚 What You'll Build
+## 🚀 Project Overview
 
 A **Task Management REST API** with Docker integration:
 
@@ -36,7 +36,7 @@ A **Task Management REST API** with Docker integration:
 - Environment-based configuration
 - Non-root user security
 
-## ⏱️ Time Investment
+### ⏱️ Time Investment
 
 - **Understanding the App**: 15 minutes
 - **Building & Testing**: 20 minutes
@@ -44,46 +44,51 @@ A **Task Management REST API** with Docker integration:
 - **Docker Exploration**: 15 minutes
 - **Total**: ~1 hour
 
-## 📋 Prerequisites
+## 📦 Project Setup
 
 - ✅ Completed [Module 00: Prerequisites](../../00-prerequisites/) with Java track
 - ✅ Completed [Module 01: Docker Fundamentals](../../01-docker-fundamentals/)
 - ✅ Java 17+ and Maven installed
 - ✅ Basic Java knowledge (classes, methods, annotations)
 
-## 🏗️ Project Structure
+### 🏗️ Project Structure
+
+The Java track in this repository is already implemented under `com.example.dockerdemo`. Use the tree below to find source files; snippets match what is checked in.
 
 ```
 java/
-├── pom.xml                           # Maven configuration
-├── Dockerfile                       # Container definition
+├── pom.xml
+├── Dockerfile
+├── docker-compose.yml
 ├── src/
 │   ├── main/
-│   │   ├── java/com/example/taskapi/
-│   │   │   ├── TaskApiApplication.java     # Main class
+│   │   ├── java/com/example/dockerdemo/
+│   │   │   ├── DockerDemoApplication.java
 │   │   │   ├── controller/
-│   │   │   │   ├── HealthController.java   # Health endpoint
-│   │   │   │   └── TaskController.java     # REST API
+│   │   │   │   ├── HomeController.java      # GET /
+│   │   │   │   └── TaskController.java      # /api/tasks
 │   │   │   ├── model/
-│   │   │   │   └── Task.java               # Data model
+│   │   │   │   └── Task.java                # Lombok model
 │   │   │   └── service/
-│   │   │       └── TaskService.java        # Business logic
+│   │   │       └── TaskService.java
 │   │   └── resources/
-│   │       └── application.properties      # Configuration
-│   └── test/                               # Test classes
-└── .dockerignore                           # Docker ignore file
+│   │       └── application.properties
+│   └── test/
+└── .dockerignore
 ```
 
-## 🚀 Step 1: Create the Spring Boot Application
+## ☕ Java Implementation
 
-### Maven Configuration (pom.xml)
+You do **not** need to retype the application from scratch for the Docker lesson. Open the files above in your editor, or refer to the excerpts below (they mirror the repository).
+
+### Maven Configuration (`pom.xml`)
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -94,37 +99,38 @@ java/
     </parent>
 
     <groupId>com.example</groupId>
-    <artifactId>task-api</artifactId>
-    <version>1.0.0</version>
-    <name>Task Management API</name>
-    <description>Docker Learning Path - Java Track Example</description>
+    <artifactId>docker-demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>docker-demo</name>
+    <description>Demo Spring Boot project for Docker learning</description>
 
     <properties>
         <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
-        <!-- Spring Boot Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
-        <!-- Spring Boot Actuator for health checks -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-
-        <!-- Development tools -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-
-        <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -137,60 +143,89 @@ java/
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
 </project>
 ```
 
-### Application Configuration (application.properties)
+### Application Configuration (`application.properties`)
 
 ```properties
-# Server configuration
+# Application Configuration
+spring.application.name=docker-demo
 server.port=8080
-server.servlet.context-path=/api
 
-# Actuator configuration (for health checks)
-management.endpoints.web.exposure.include=health,info
+# Actuator Configuration
+management.endpoints.web.exposure.include=health,info,metrics,env
 management.endpoint.health.show-details=always
-management.endpoints.web.base-path=/
+management.info.env.enabled=true
 
-# Application information
-info.app.name=Task Management API
-info.app.description=Docker Learning Path Example
-info.app.version=1.0.0
+# Application Info
+info.app.name=Docker Demo API
+info.app.description=Spring Boot REST API for Docker learning
+info.app.version=0.0.1
+info.app.java.version=@java.version@
+
+# Logging
+logging.level.root=INFO
+logging.level.com.example.dockerdemo=DEBUG
+logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %msg%n
+
+# Jackson Configuration
+spring.jackson.serialization.write-dates-as-timestamps=false
+spring.jackson.serialization.indent-output=true
+
+# DevTools (will be disabled in production)
+spring.devtools.restart.enabled=true
+spring.devtools.livereload.enabled=true
 ```
 
-## 🔧 Step 2: Build the Application Code
+Actuator exposes health at `/actuator/health` by default (no need to set `management.endpoints.web.base-path` unless you customize it).
 
-### Main Application Class
+### 🔧 Application source (reference)
 
-Create `src/main/java/com/example/taskapi/TaskApiApplication.java`:
+#### `DockerDemoApplication.java`
 
 ```java
-package com.example.taskapi;
+package com.example.dockerdemo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TaskApiApplication {
+public class DockerDemoApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(TaskApiApplication.class, args);
+        SpringApplication.run(DockerDemoApplication.class, args);
     }
 }
 ```
 
-### Task Model
-
-Create `src/main/java/com/example/taskapi/model/Task.java`:
+#### `Task.java` (Lombok)
 
 ```java
-package com.example.taskapi.model;
+package com.example.dockerdemo.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Task {
     private Long id;
     private String title;
@@ -198,72 +233,34 @@ public class Task {
     private boolean completed;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    // Constructors
-    public Task() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public Task(String title, String description) {
-        this();
-        this.title = title;
-        this.description = description;
-        this.completed = false;
-    }
-
-    // Getters and setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getTitle() { return title; }
-    public void setTitle(String title) {
-        this.title = title;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) {
-        this.description = description;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public boolean isCompleted() { return completed; }
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
 }
 ```
 
-### Task Service
-
-Create `src/main/java/com/example/taskapi/service/TaskService.java`:
+#### `TaskService.java`
 
 ```java
-package com.example.taskapi.service;
+package com.example.dockerdemo.service;
 
-import com.example.taskapi.model.Task;
+import com.example.dockerdemo.model.Task;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class TaskService {
 
-    private final Map<Long, Task> tasks = new ConcurrentHashMap<>();
-    private final AtomicLong nextId = new AtomicLong(1);
+    private final ConcurrentHashMap<Long, Task> tasks = new ConcurrentHashMap<>();
+    private final AtomicLong idCounter = new AtomicLong();
 
     public TaskService() {
-        // Add some sample data
-        createTask("Learn Docker fundamentals", "Complete Module 01 exercises");
-        createTask("Build first container", "Containerize this Java application");
-        createTask("Explore Docker Compose", "Learn multi-container applications");
+        createTask("Learn Docker", "Understand containerization basics");
+        createTask("Setup Spring Boot", "Create REST API with Spring Boot");
+        createTask("Connect to Database", "Learn Docker Compose with MariaDB");
     }
 
     public List<Task> getAllTasks() {
@@ -275,21 +272,27 @@ public class TaskService {
     }
 
     public Task createTask(String title, String description) {
-        Task task = new Task(title, description);
-        task.setId(nextId.getAndIncrement());
+        Task task = Task.builder()
+                .id(idCounter.incrementAndGet())
+                .title(title)
+                .description(description)
+                .completed(false)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
         tasks.put(task.getId(), task);
         return task;
     }
 
-    public Optional<Task> updateTask(Long id, Task updatedTask) {
-        Task existingTask = tasks.get(id);
-        if (existingTask != null) {
-            existingTask.setTitle(updatedTask.getTitle());
-            existingTask.setDescription(updatedTask.getDescription());
-            existingTask.setCompleted(updatedTask.isCompleted());
-            return Optional.of(existingTask);
-        }
-        return Optional.empty();
+    public Optional<Task> updateTask(Long id, Task taskUpdate) {
+        return Optional.ofNullable(tasks.computeIfPresent(id, (key, existingTask) -> {
+            existingTask.setTitle(taskUpdate.getTitle());
+            existingTask.setDescription(taskUpdate.getDescription());
+            existingTask.setCompleted(taskUpdate.isCompleted());
+            existingTask.setUpdatedAt(LocalDateTime.now());
+            return existingTask;
+        }));
     }
 
     public boolean deleteTask(Long id) {
@@ -302,15 +305,15 @@ public class TaskService {
 }
 ```
 
-### REST Controller
-
-Create `src/main/java/com/example/taskapi/controller/TaskController.java`:
+#### `TaskController.java`
 
 ```java
-package com.example.taskapi.controller;
+package com.example.dockerdemo.controller;
 
-import com.example.taskapi.model.Task;
-import com.example.taskapi.service.TaskService;
+import com.example.dockerdemo.model.Task;
+import com.example.dockerdemo.service.TaskService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -319,13 +322,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tasks")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class TaskController {
 
     private final TaskService taskService;
-
-    public TaskController(TaskService taskService) {
-        this.taskService = taskService;
-    }
 
     @GetMapping
     public List<Task> getAllTasks() {
@@ -340,10 +341,9 @@ public class TaskController {
     }
 
     @PostMapping
-    public Task createTask(@RequestBody Map<String, String> request) {
-        String title = request.get("title");
-        String description = request.get("description");
-        return taskService.createTask(title, description);
+    public ResponseEntity<Task> createTask(@RequestBody Task task) {
+        Task createdTask = taskService.createTask(task.getTitle(), task.getDescription());
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdTask);
     }
 
     @PutMapping("/{id}")
@@ -356,50 +356,54 @@ public class TaskController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         if (taskService.deleteTask(id)) {
-            return ResponseEntity.ok().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<Map<String, Long>> getTaskCount() {
+        return ResponseEntity.ok(Map.of("count", taskService.getTaskCount()));
     }
 }
 ```
 
-### Health Controller
-
-Create `src/main/java/com/example/taskapi/controller/HealthController.java`:
+#### `HomeController.java` (root JSON and endpoint hints)
 
 ```java
-package com.example.taskapi.controller;
+package com.example.dockerdemo.controller;
 
-import com.example.taskapi.service.TaskService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
-public class HealthController {
+public class HomeController {
 
-    private final TaskService taskService;
-
-    public HealthController(TaskService taskService) {
-        this.taskService = taskService;
-    }
+    @Value("${spring.application.name:docker-demo}")
+    private String applicationName;
 
     @GetMapping("/")
     public Map<String, Object> home() {
         return Map.of(
-            "message", "Task Management API is running!",
-            "version", "1.0.0",
+            "message", "Welcome to Docker Demo API!",
+            "application", applicationName,
+            "version", "0.0.1",
+            "timestamp", LocalDateTime.now(),
             "endpoints", Map.of(
                 "tasks", "/api/tasks",
-                "health", "/health"
+                "health", "/actuator/health",
+                "info", "/actuator/info"
             )
         );
     }
 }
 ```
 
-## 🧪 Step 3: Test the Application
+## 🧪 Testing Your Java Container
 
 ### Build and Run Locally
 
@@ -427,11 +431,11 @@ curl -X POST http://localhost:8080/api/tasks \
   -H "Content-Type: application/json" \
   -d '{"title": "Test Docker", "description": "Learn containerization"}'
 
-# Check health
-curl http://localhost:8080/health
+# Check health (Spring Boot Actuator endpoint)
+curl http://localhost:8080/actuator/health
 ```
 
-## 🐳 Step 4: Containerize with Docker
+## 🐳 Java Docker Patterns
 
 ### Create Dockerfile
 
@@ -490,7 +494,7 @@ EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
@@ -535,35 +539,41 @@ curl http://localhost:8080/api/tasks
 Use the included `docker-compose.yml` if you prefer a one-command run flow:
 
 ```bash
-# Start the Java quickstart service
-UID=$(id -u) GID=$(id -g) docker compose up -d
+# Start the Java quickstart service (optional: map host UID/GID for permission experiments)
+docker compose up -d
+# If you need host UID/GID and the image supports it:
+# UID=$(id -u) GID=$(id -g) docker compose up -d
 
 # Check service health
 docker compose ps
-curl http://localhost:8080/health
+curl http://localhost:8080/actuator/health
 
 # Stop and clean up
 docker compose down
 ```
 
-> Note: In this module, Java Compose intentionally builds from the production `Dockerfile` instead of a separate `Dockerfile.dev`. This keeps the quickstart simple and focused on baseline container behavior before development-workflow variants in later modules.
+> **Host UID/GID**: On some hosts (for example macOS), your `GID` may already exist inside the image build and cause `groupadd`/`addgroup` to fail during image build. If that happens, run `docker compose up` without passing `UID`/`GID`, or use the default build args in `docker-compose.yml`.
 
-## 🔍 Step 5: Docker Exploration
+> Note: In this module, Java Compose intentionally builds from the production `Dockerfile` instead of a separate `Dockerfile.dev`. This keeps the quickstart simple and focused on baseline container behavior before development-workflow variants in later modules. Spring Boot provides health checks through Actuator at `/actuator/health`.
+
+## 🔧 Java-Specific Docker Optimizations
 
 ### Container Inspection
 
 ```bash
-# View container logs
-docker logs task-api
+# View container logs (name depends how you started the container)
+docker logs task-api          # if you used: docker run --name task-api ...
+docker logs task-api-java    # if you used: docker compose up (see docker-compose.yml container_name)
 
 # Execute commands inside the container
 docker exec -it task-api bash
+# or: docker exec -it task-api-java bash
 
 # Inside the container, explore:
 ps aux                    # See running processes
 ls -la /app              # Check application files
 whoami                   # Verify non-root user
-curl localhost:8080/health  # Test from inside
+curl localhost:8080/actuator/health  # Test from inside
 ```
 
 ### Image Analysis
@@ -579,9 +589,9 @@ docker history task-api-java
 docker images eclipse-temurin:17-jre
 ```
 
-## 🎓 Knowledge Check
+## 🐛 Java Container Troubleshooting
 
-Test your understanding:
+Use these quick checks if the Java container does not behave as expected:
 
 1. **Why do we use multi-stage builds for Java applications?**
    <details>
@@ -598,21 +608,29 @@ Test your understanding:
 3. **How does the health check work in this container?**
    <details>
    <summary>Answer</summary>
-   Docker periodically calls `curl -f http://localhost:8080/health` inside the container. If it fails 3 times, the container is marked unhealthy.
+   Docker periodically calls `curl -f http://localhost:8080/actuator/health` inside the container. If it fails 3 times, the container is marked unhealthy.
    </details>
 
 ## 🧹 Cleanup
 
-```bash
-# Stop and remove the container
-docker stop task-api
-docker rm task-api
+### Standalone `docker run`
 
-# Remove the image (optional)
-docker rmi task-api-java
+```bash
+docker stop task-api 2>/dev/null || true
+docker rm task-api 2>/dev/null || true
+docker rmi task-api-java 2>/dev/null || true
 ```
 
-## 🚀 Going Further
+### Docker Compose
+
+From the `java/` directory:
+
+```bash
+docker compose down --remove-orphans
+docker rmi task-api-java 2>/dev/null || true
+```
+
+## 🚀 Next Steps
 
 ### Environment Variables
 
@@ -649,17 +667,16 @@ docker run -d -p 8080:8080 \
   task-api-java
 ```
 
-## 📋 Summary
+## ✅ Java Quickstart Checklist
 
-**You've successfully:**
+- [ ] Spring Boot Task API running in a container
+- [ ] Non-root user security implemented
+- [ ] Health checks working through `/actuator/health`
+- [ ] Multi-stage Java Docker build understood
+- [ ] Compose workflow tested for quick local startup
+- [ ] Container inspection and debugging commands practiced
 
-✅ Built a real Spring Boot REST API  
-✅ Created a secure, optimized Docker container  
-✅ Implemented health checks and non-root security  
-✅ Learned container inspection and debugging  
-✅ Understood multi-stage builds for Java
-
-**Next Step**: [Module 03: Dockerfile Essentials](../../03-dockerfile-essentials/) to master Docker image creation techniques!
+**Next steps**: [Module 03: Dockerfile Essentials](../../03-dockerfile-essentials/), then [Module 04: Docker Compose](../04-docker-compose/).
 
 ---
 

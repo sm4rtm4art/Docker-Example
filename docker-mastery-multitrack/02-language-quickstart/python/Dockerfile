@@ -15,8 +15,14 @@ RUN apt-get update && apt-get install -y \
 # Default to 1000 but allow override for different systems
 ARG UID=1000
 ARG GID=1000
-RUN groupadd -r -g ${GID} fastapi && \
-    useradd -r -g fastapi -u ${UID} fastapi
+RUN set -eux; \
+    if getent group "${GID}" >/dev/null 2>&1; then \
+      EXISTING="$(getent group "${GID}" | cut -d: -f1)"; \
+      useradd -r -g "${EXISTING}" -u "${UID}" fastapi; \
+    else \
+      groupadd -r -g "${GID}" fastapi; \
+      useradd -r -g fastapi -u "${UID}" fastapi; \
+    fi
 
 # Create app directory
 WORKDIR /app
@@ -35,7 +41,7 @@ RUN pip install uv || echo "UV unavailable, falling back to pip" && \
     fi
 
 # Copy application code
-COPY --chown=fastapi:fastapi src/ ./src/
+COPY --chown=${UID}:${GID} src/ ./src/
 
 # Switch to non-root user
 USER fastapi:fastapi
