@@ -32,14 +32,21 @@ RUN apk add --no-cache ca-certificates curl
 # Create non-root user with configurable UID/GID
 ARG UID=1000
 ARG GID=1000
-RUN addgroup -g ${GID} rust && adduser -D -s /bin/sh -u ${UID} -G rust rust
+RUN set -eux; \
+    if getent group "${GID}" >/dev/null 2>&1; then \
+      GEXIST="$(getent group "${GID}" | cut -d: -f1)"; \
+      adduser -D -s /bin/sh -u "${UID}" -G "${GEXIST}" rust; \
+    else \
+      addgroup -g "${GID}" rust; \
+      adduser -D -s /bin/sh -u "${UID}" -G rust rust; \
+    fi
 
 # Create app directory
 WORKDIR /app
-RUN chown rust:rust /app
+RUN chown "${UID}:${GID}" /app
 
 # Copy binary from builder stage
-COPY --from=builder --chown=rust:rust /usr/src/app/target/release/task-api .
+COPY --from=builder --chown=${UID}:${GID} /usr/src/app/target/release/task-api .
 
 # Switch to non-root user
 USER rust:rust

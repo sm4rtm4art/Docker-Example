@@ -26,12 +26,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user for security
-# UID 1000 is standard
+# Create non-root user for security (reuse host GID if it already exists — avoids failures on some macOS hosts)
 ARG UID=1000
 ARG GID=1000
-RUN groupadd -r -g ${GID} appgroup && \
-    useradd -r -g appgroup -u ${UID} appuser
+RUN set -eux; \
+    if getent group "${GID}" >/dev/null 2>&1; then \
+      EXISTING="$(getent group "${GID}" | cut -d: -f1)"; \
+      useradd -r -g "${EXISTING}" -u "${UID}" appuser; \
+    else \
+      groupadd -r -g "${GID}" appgroup; \
+      useradd -r -g appgroup -u "${UID}" appuser; \
+    fi
 
 # Set working directory
 WORKDIR /app
@@ -40,7 +45,7 @@ WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 
 # Change ownership to non-root user
-RUN chown -R appuser:appgroup /app
+RUN chown -R "${UID}:${GID}" /app
 
 # Switch to non-root user
 USER appuser
@@ -50,7 +55,7 @@ EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
