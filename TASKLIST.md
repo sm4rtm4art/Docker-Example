@@ -1,6 +1,6 @@
-# Docker Learning Path - Implementation Tasklist
+# Docker Learning Path - Implementation Tasklist (Maintainer Only)
 
-> Consolidated planning, progress tracking, and implementation roadmap.
+> **Note**: This is an internal maintainer-only planning and progress tracking document. If you are a student, please head over to the [Curriculum landing page](README.md) or the [Curriculum Guide](docker-mastery-multitrack/docker-curriculum-guide.md).
 
 ## Current Progress: REPOSITORY EXCELLENT! 🚀
 
@@ -94,7 +94,7 @@ Build a comprehensive Docker learning path from zero to intermediate skills with
 
 - [x] **Core vs Advanced Labels**: ✅ Clear learning path structure established
 
-  - Core Path (15 hours): Modules 00-07 - Foundation to Production
+  - Core Path (17.5 hours): Modules 00-07 - Foundation to Production
   - Advanced Path (8 hours): Modules 08-11 - Monitoring to Alternatives
   - Add badges: 🏃 Core | 🚀 Advanced
 
@@ -184,7 +184,7 @@ Task API → PostgreSQL → Prometheus → Grafana
 - Container permission debugging
 - Multi-stage build optimization
 - Security-by-default practices
-- Target: 18-24 hours total
+- Target: 24-28 hours total
 
 ### Quality Gates:
 

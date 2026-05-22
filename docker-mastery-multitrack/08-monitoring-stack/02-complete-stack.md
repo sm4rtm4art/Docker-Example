@@ -1,6 +1,6 @@
 # Part B: Complete Stack - Grafana Dashboards & Full Observability 📊
 
-Build the complete monitoring stack with Grafana dashboards, cAdvisor for container metrics, and production-ready observability!
+Build the complete monitoring stack with Grafana dashboards, cAdvisor for container metrics, and robust, production-pattern observability!
 
 ## 🎯 Learning Outcomes
 

@@ -37,15 +37,15 @@
 | Module | Focus                                                                        | Time    | Description                                       |
 | ------ | ---------------------------------------------------------------------------- | ------- | ------------------------------------------------- |
 | **06** | [Security Best Practices](./06-security-best-practices/security-overview.md) | 2 hours | Non-root, secrets, read-only systems              |
-| **07** | [Production Excellence](./07-production-ready/production-excellence-overview.md) | 1 hour  | Health checks, resource limits, graceful shutdown |
+| **07** | [Production Excellence](./07-production-ready/production-excellence-overview.md) | 3 hours | Health checks, resource limits, graceful shutdown |
 
-**🏃 Core Path Total**: 15.5 hours - Complete production Docker mastery
+**🏃 Core Path Total**: 17.5 hours - Complete production Docker mastery
 
 ### 🚀 Advanced Monitoring & Observability
 
 | Module | Focus                                                                     | Time    | Description                        |
 | ------ | ------------------------------------------------------------------------- | ------- | ---------------------------------- |
-| **08** | [Complete Monitoring Stack](./08-monitoring-stack/monitoring-overview.md) | 3 hours | Prometheus + Grafana observability |
+| **08** | [Complete Monitoring Stack](./08-monitoring-stack/monitoring-overview.md) | 4 hours | Prometheus + Grafana observability |
 
 ### 🚀 Advanced Ecosystem & Automation
 
@@ -57,7 +57,7 @@
 
 **🚀 Advanced Path Total**: +8 hours - Monitoring, CI/CD, and ecosystem expertise
 
-**Total Learning Time**: 20-24 hours
+**Total Learning Time**: 24-28 hours
 
 ## 🔀 Language Track Differences
 
