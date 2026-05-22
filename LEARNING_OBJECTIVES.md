@@ -56,6 +56,13 @@
 
 ### Advanced Preview (Modules 8-11)
 
+✅ **Observability**
+
+- Implement logging strategies
+- Basic metrics collection
+- Container monitoring
+- Troubleshooting techniques
+
 ✅ **CI/CD Integration**
 
 - Automate image builds
@@ -69,13 +76,6 @@
 - Docker Swarm introduction
 - Kubernetes concepts preview
 - Service discovery basics
-
-✅ **Observability**
-
-- Implement logging strategies
-- Basic metrics collection
-- Container monitoring
-- Troubleshooting techniques
 
 ✅ **Container Ecosystem Choices**
 
@@ -143,9 +143,9 @@ Module 0-1: Pure Docker (0% language-specific)
      ↓
 Module 2-3: Container Basics (30% language-specific for examples only)
      ↓
-Module 4-6: Real Applications (20% language-specific for setup)
+Module 4-6: Compose, Workflow, Security (20% language-specific for setup)
      ↓
-Module 7-8: Production Focus (15% language-specific for optimization)
+Module 7-8: Production & Observability (15% language-specific for optimization)
      ↓
 Module 9-11: Platform Skills (10% language-specific for deployment)
 ```

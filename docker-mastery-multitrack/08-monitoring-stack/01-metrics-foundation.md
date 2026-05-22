@@ -604,7 +604,7 @@ Before proceeding to Grafana:
 
 ## 🚀 Next Steps
 
-Metrics foundation complete! Time to build beautiful dashboards with [Part B: Complete Stack](./02-complete-stack.md) where we'll add Grafana, cAdvisor, and create production-ready monitoring!
+Metrics foundation complete! Time to build beautiful dashboards with [Part B: Complete Stack](./02-complete-stack.md) where we'll add Grafana, cAdvisor, and create production-pattern monitoring!
 
 ---
 

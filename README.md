@@ -23,9 +23,9 @@ Use the curriculum guide as the canonical module roadmap:
 
 At a glance:
 
-- **Core Path** (`00-07`): **15.5 hours** - Docker fundamentals through production readiness
-- **Advanced Path** (`08-11`): **+7 hours** - monitoring, CI/CD, orchestration preview, alternatives
-- **Total**: **20-24 hours** of hands-on learning
+- **Core Path** (`00-07`): **17.5 hours** - Docker fundamentals through production readiness
+- **Advanced Path** (`08-11`): **+8 hours** - monitoring, CI/CD, orchestration preview, alternatives
+- **Total**: **24-28 hours** of hands-on learning
 
 ## 🏗️ What You'll Build
 

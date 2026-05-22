@@ -394,7 +394,7 @@ nginx_1  | connect() failed (111: Connection refused) while connecting to upstre
 docker compose exec nginx curl http://task-api:8080/health
 
 # Check nginx config
-docker-compose exec nginx nginx -t
+docker compose exec nginx nginx -t
 ```
 
 ### Issue 3: "Database connection intermittent"
