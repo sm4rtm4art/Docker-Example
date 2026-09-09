@@ -23,7 +23,7 @@ Nutze in allen Befehlen den Projektnamen `docker-learning-db`, damit die Übung 
 ## Erfolgskontrolle
 
 `python3 scripts/validate.py database` prüft Verbindung, SQL und Persistenz in einem eigenen
-Testprojekt. Zusätzlich kannst du erklären, warum ein gestarteteter Container nicht zwingend
+Testprojekt. Zusätzlich kannst du erklären, warum ein gestarteter Container nicht zwingend
 bereit ist und weshalb zwei Container auf verschiedenen Netzwerken einander nicht automatisch erreichen.
 
 [Weiter: Entwicklungsworkflow](../05-development-workflow/development-workflow-overview.md)

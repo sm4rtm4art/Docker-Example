@@ -13,11 +13,12 @@ import tomllib
 import uuid
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from http.client import HTTPException
 from urllib.error import URLError
 from urllib.parse import unquote, urlencode, urlsplit
 from urllib.request import urlopen
 
-from api_contract import run as contract
+from api_contract import Contract, run as contract
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORTS = ROOT / "reports"
@@ -52,7 +53,7 @@ def wait_json(url, predicate=lambda value: True, timeout=90):
             if predicate(value):
                 return value
             last = str(value)
-        except (URLError, TimeoutError, json.JSONDecodeError) as error:
+        except (OSError, HTTPException, json.JSONDecodeError) as error:
             last = str(error)
         time.sleep(1)
     raise RuntimeError(f"Timed out waiting for {url}: {last}")
@@ -147,6 +148,10 @@ def compose_lab(mode, track):
                 wait_json("http://127.0.0.1:" + env["PROMETHEUS_PORT"] + "/api/v1/query?" + query,
                           lambda data: data.get("status") == "success" and any(item["value"][1] == "1" for item in data["data"]["result"]))
                 wait_json("http://127.0.0.1:" + env["GRAFANA_PORT"] + "/api/health", lambda data: data.get("database") == "ok")
+            # Seed a task after the contract suite's cleanup, so memory-loss verification is meaningful.
+            status, task, _ = Contract().request("POST", "/api/tasks", {"title": "restart-probe"})
+            require(status == 201, "Could not seed restart probe")
+            require(wait_json(url + "/api/tasks")["total"] >= 1, "Restart probe was not stored")
             dc("stop", "task-api")
             stopped = json.loads(command(["docker", "inspect", container], capture=True))[0]
             require(not stopped["State"]["OOMKilled"], "Process was OOM-killed")

@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule: {interval: weekly}
-  - package-ecosystem: pip
+  - package-ecosystem: uv
     directory: /docker-mastery-multitrack/02-language-quickstart/python
     schedule: {interval: weekly}
   - package-ecosystem: pip
