@@ -1,0 +1,15 @@
+services:
+  task-api:
+    build:
+      context: ./docker-mastery-multitrack/02-language-quickstart/${TASK_TRACK:-python}
+    ports:
+      - "127.0.0.1:${TASK_API_PORT:-8080}:8080"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 256
+    mem_limit: 512m
+    cpus: 1.0
+    stop_grace_period: 30s

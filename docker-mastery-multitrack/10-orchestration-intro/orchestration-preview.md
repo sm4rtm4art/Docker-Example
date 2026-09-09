@@ -1,104 +1,101 @@
-# Module 10: Beyond Docker Compose - Orchestration Preview
+# 10 – Optional: Kubernetes mit kind
 
-> **Duration**: 1 hour  
-> **Level**: Intermediate/Advanced Preview  
-> **Prerequisites**: Modules 1-8 completed
+## Lernziele
 
-## 🎯 Learning Outcomes
+Du überträgst dein Containerwissen auf Pod, Deployment und Service, beobachtest die Wiederherstellung
+eines Pods und unterscheidest Startup-, Readiness- und Liveness-Probes. Richtwert: 60–90 Minuten.
 
-By the end of this module, you will:
+## Voraussetzung
 
-1. **Understand when** Docker Compose isn't enough
-2. **Compare orchestration options** (Kubernetes, Swarm, Nomad)
-3. **Map Docker concepts** to Kubernetes equivalents
-4. **Plan migration paths** from Compose to orchestration
-5. **Know what to learn next** in your container journey
+Module 00–09. Docker, kind und kubectl sind verfügbar; installiere kind gemäß
+[offizieller Anleitung](https://kind.sigs.k8s.io/docs/user/quick-start/) und kubectl gemäß
+[Kubernetes-Anleitung](https://kubernetes.io/docs/tasks/tools/).
+Dieses Labor verwendet kind `v0.33.0` mit dem dafür veröffentlichten Kubernetes-Node-Image `v1.35.8`.
+Verwende kubectl 1.35 oder eine nach Kubernetes-Versionsregeln kompatible Version.
+Plane zusätzlich mehrere GB RAM und Speicher ein und beende nicht benötigte Labore.
 
-## 📚 Module Structure
+## Warum kind hier passt
 
-### When Do You Need Orchestration? (20 min)
-- Limitations of Docker Compose
-- Scale, resilience, and multi-host challenges
-- Real scenarios that require orchestration
+kind startet Kubernetes-Knoten als Container. Das ist für ein wegwerfbares Lern- und Testcluster
+geeignet. Ein zusätzlicher dauerhaft laufender „Server“ ist für diesen Kurs nicht nötig.
+Ein einzelner lokaler Knoten reicht für Deployment, Service, Imageverteilung und Probes.
+Er bildet keine Hochverfügbarkeit, produktiven Storage oder Cloud-LoadBalancer realistisch ab.
 
-### Orchestration Options Overview (20 min)
-- **Docker Swarm**: Docker's native orchestration
-- **Kubernetes**: Industry standard
-- **Nomad**: Lightweight alternative
-- Quick comparison matrix
+| Docker-/Compose-Begriff | Kubernetes-Bezug | Wichtiger Unterschied |
+| --- | --- | --- |
+| Container | Container in einem Pod | Ein Pod hat einen eigenen Lebenszyklus |
+| Servicekonfiguration | Deployment | Controller gleicht Soll- und Istzustand ab |
+| Servicename / Netzwerk | Service und Cluster-DNS | Service selektiert passende Pods |
+| Healthcheck | Probes | Readiness und Liveness haben verschiedene Wirkungen |
+| Named Volume | PVC / StorageClass | Bereitstellung und Dauerhaftigkeit hängen vom Cluster ab |
 
-### From Compose to Kubernetes (20 min)
-- Concept mapping:
-  - `docker-compose.yml` → K8s manifests
-  - Services → Deployments & Services
-  - Volumes → PersistentVolumeClaims
-  - Networks → Network Policies
-- Tools to ease transition (Kompose, etc.)
+## Übung
 
-## 🌟 Signs You Need Orchestration
+Alle Befehle im Repository-Wurzelverzeichnis, Bash. Verwende den Namen `docker-learning` nur,
+wenn noch kein gleichnamiges kind-Cluster existiert; andernfalls wähle einen eigenen Namen und
+passe alle Befehle zusammen an. Die separate kubeconfig vermeidet den Wechsel deines normalen Kontexts.
 
-You're ready for orchestration when you need:
-
-1. **High Availability** - Services that can't go down
-2. **Auto-scaling** - Handle varying loads automatically
-3. **Multi-host deployment** - Beyond single server
-4. **Self-healing** - Automatic recovery from failures
-5. **Rolling updates** - Zero-downtime deployments
-6. **Service mesh** - Advanced networking features
-
-## 📊 Quick Comparison
-
-| Feature | Docker Compose | Docker Swarm | Kubernetes |
-|---------|---------------|--------------|------------|
-| Learning Curve | Easy | Moderate | Steep |
-| Single Host | ✅ Yes | ✅ Yes | ⚠️ Possible |
-| Multi Host | ❌ No | ✅ Yes | ✅ Yes |
-| Auto-scaling | ❌ No | ⚠️ Basic | ✅ Advanced |
-| Ecosystem | Small | Medium | Huge |
-| Production Use | Dev/Small | Medium | Enterprise |
-
-## 🗺️ Your Learning Path Forward
-
-```mermaid
-graph LR
-    A[Docker Basics] --> B[Docker Compose]
-    B --> C{Need Scale?}
-    C -->|Simple| D[Docker Swarm]
-    C -->|Complex| E[Kubernetes]
-    C -->|Alternative| F[Nomad/Others]
-
-    style A fill:#90EE90
-    style B fill:#90EE90
-    style C fill:#FFD700
+```bash
+kind get clusters
+mkdir -p reports
+kind create cluster --name docker-learning --config docker-mastery-multitrack/10-orchestration-intro/kind.yaml --image kindest/node:v1.35.8@sha256:07b2536e30b803ed61d1677a79df6115f798ce64c80f9e22f6ed45afd09323c0 --kubeconfig reports/kind.kubeconfig --wait 120s
+export TASK_TRACK=python
+docker build -t task-api:kind "docker-mastery-multitrack/02-language-quickstart/$TASK_TRACK"
+kind load docker-image task-api:kind --name docker-learning
+kubectl --kubeconfig reports/kind.kubeconfig apply -f docker-mastery-multitrack/10-orchestration-intro/task-api.yaml
+kubectl --kubeconfig reports/kind.kubeconfig -n docker-learning rollout status deployment/task-api --timeout=180s
+kubectl --kubeconfig reports/kind.kubeconfig -n docker-learning get pods,services
+kubectl --kubeconfig reports/kind.kubeconfig -n docker-learning port-forward --address 127.0.0.1 service/task-api 8081:8080
 ```
 
-## 📝 Note
+Im zweiten Terminal, ebenfalls im Repository-Wurzelverzeichnis:
 
-This module provides a **preview** of orchestration concepts. Full orchestration courses are beyond the scope of this Docker fundamentals path, but this gives you a roadmap for what to learn next.
+```bash
+python3 scripts/api_contract.py --base-url http://127.0.0.1:8081 --report reports/kind-api.json
+```
 
-## 🎓 Key Takeaway
+Das Image muss auf allen verwendeten kind-Knoten vorhanden sein. `imagePullPolicy: Never` verhindert,
+dass Kubernetes das lokale Lehrimage aus einer Registry laden will. Ein `ImagePullBackOff` oder
+`ErrImageNeverPull` weist unter anderem auf fehlendes Laden oder einen abweichenden Namen hin.
 
-**Docker Compose is perfect for:**
-- Development environments
-- Small production deployments
-- Single-host applications
-- Learning and prototyping
+### Wiederherstellung beobachten
 
-**Move to orchestration when you need:**
-- Multi-host deployment
-- Automatic failover
-- Dynamic scaling
-- Enterprise features
+Beende Port-Forwarding mit Ctrl+C. Lösche dann nur den Pod dieses Labors:
 
-## 🚀 Next Steps in Your Journey
+```bash
+kubectl --kubeconfig reports/kind.kubeconfig -n docker-learning delete pod -l app=task-api
+kubectl --kubeconfig reports/kind.kubeconfig -n docker-learning rollout status deployment/task-api --timeout=180s
+kubectl --kubeconfig reports/kind.kubeconfig -n docker-learning get pods
+```
 
-1. **Master Docker and Compose first** (this course)
-2. **Try Docker Swarm** for simple orchestration
-3. **Learn Kubernetes basics** when ready for complexity
-4. **Explore cloud-native platforms** (EKS, GKE, AKS)
+Das Deployment erzeugt einen Ersatz. Die Aufgaben des alten Prozesses sind verloren. Starte
+Port-Forwarding für den Ersatz erneut, bevor du HTTP testest. Ein Service-Name bedeutet nicht,
+dass die Anwendung ihren Zustand mit anderen Pods teilt. Deshalb verwendet das Manifest eine Replik.
 
-Remember: You don't need Kubernetes for everything! Many successful applications run on Docker Compose.
+### Probes lesen
 
----
+Die Startup-Probe lässt Zeit für den Start; bis dahin greifen Liveness und Readiness noch nicht.
+Eine fehlgeschlagene Readiness nimmt den Pod aus regulären Service-Endpunkten. Wiederholt fehlschlagende
+Liveness kann einen Containerneustart auslösen. Hier verwenden alle `/health`, da keine externen
+Abhängigkeiten existieren. Bei einer Datenbankanbindung müssen die Bedeutungen getrennt werden.
 
-**Congratulations!** You've completed the Docker Learning Path! 🎉
+## Erfolgskontrolle
+
+Du kannst Pod-Ersetzung, Image-Laden und Port-Forwarding erklären. Der HTTP-Vertrag läuft erfolgreich.
+Als optionale automatisierte Wiederholung dient `python3 scripts/validate_kind.py --track python`;
+auch Rust und Java sind möglich. Er verwendet ein eigenes Cluster und löscht es anschließend.
+Die reguläre CI führt kind nicht aus; [.github/workflows/kind.yml](../../.github/workflows/kind.yml)
+ist ein separater manueller Check.
+
+## Aufräumen
+
+Beende Port-Forwarding. Lösche nur das eigens angelegte Lerncluster:
+
+```bash
+kind delete cluster --name docker-learning
+rm -f reports/kind.kubeconfig
+docker image rm task-api:kind
+```
+
+Quellen: [kind Quick Start](https://kind.sigs.k8s.io/docs/user/quick-start/),
+[Kubernetes-Probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/).

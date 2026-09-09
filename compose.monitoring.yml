@@ -1,0 +1,32 @@
+# Merge from repository root: -f compose.lab.yml -f compose.monitoring.yml
+services:
+  prometheus:
+    image: prom/prometheus:v3.14.0
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=2d"]
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./docker-mastery-multitrack/08-monitoring-stack/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 512m
+  grafana:
+    image: grafana/grafana:13.2.1
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: learner
+      # DEV ONLY: choose a local password; do not reuse any existing password.
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD for this local lab}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./docker-mastery-multitrack/08-monitoring-stack/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker-mastery-multitrack/08-monitoring-stack/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 512m
+volumes:
+  prometheus-data:
+  grafana-data:

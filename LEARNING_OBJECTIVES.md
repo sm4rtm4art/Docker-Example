@@ -1,173 +1,44 @@
-# Docker Learning Path - Core Objectives
+# Lernziele und Bewertung
 
-## 🎯 What Students Will Learn (Docker-Focused)
+Die [Modulübersicht](docker-mastery-multitrack/docker-curriculum-guide.md) ist die zentrale Reihenfolge.
+Wähle einen Sprachtrack. Verwende pro Modul diese Rubrik:
 
-### Beginner Level (Modules 0-3)
+| Stufe | Beobachtbares Ergebnis |
+| --- | --- |
+| 0 – offen | Übung noch nicht bearbeitet oder Ergebnis nicht erklärbar |
+| 1 – mit Hilfe | Beispiel funktioniert nach Anleitung; Begriffe teilweise erklärbar |
+| 2 – selbstständig | Übung erneut ausführbar, Ergebnis und typischer Fehler erklärbar |
+| 3 – Transfer | Eine begründete Änderung funktioniert; Nebenwirkungen werden benannt |
 
-✅ **Docker Concepts**
+Ziel für den Kernpfad ist Stufe 2 in 00–07. Stufe 3 ist Vertiefung, keine Zugangshürde.
 
-- Understand containers vs virtual machines
-- Know when to use Docker
-- Understand images, containers, and registries
-- Master basic Docker CLI commands
+## Kompetenzen und Belege
 
-✅ **Container Creation**
+| Module | Kompetenz | Praktischer Nachweis | Verständnisfrage |
+| --- | --- | --- | --- |
+| 00–01 | Daemon, Image und Container unterscheiden | Setup-Check und eigener Containerlebenszyklus | Warum beendet sich ein Container? |
+| 02–03 | Anwendung bauen und konfigurieren | API-Vertrag grün, Cache-Experiment | Warum braucht Rust einen Builder, aber keinen Compiler im Runtime-Image? |
+| 04 | Dienste verbinden und Daten erhalten | SQL-Verbindung per Servicename und Daten nach Neuerstellung | Warum rettet ein Volume keine Python-Liste? |
+| 05 | Änderungen und Fehler untersuchen | Log, Konfiguration und HTTP-Beobachtung gemeinsam auswerten | Wann reicht ein Neustart, wann muss neu gebaut werden? |
+| 06–07 | Schutzmaßnahmen und Betrieb beurteilen | UID, Schreibschutz, Health und Shutdown prüfen | Warum startet `unhealthy` allein keinen Container neu? |
+| 08–09 | Beobachtbarkeit und Prüfung gestalten | Prometheus-Target und CI-Berichte auswerten | Was belegt `up=1`, und was bleibt unbewiesen? |
+| 10–11 | Containerwissen übertragen | Pod ersetzen und Toolvergleich begründen | Warum teilen zwei Pods keinen Prozessspeicher? |
 
-- Write effective Dockerfiles
-- Build and tag images
-- Run and manage containers
-- Use volumes for persistence
+## Abschlussaufgabe
 
-❌ **NOT Teaching**
+1. Baue deinen Track aus einem frischen Checkout.
+2. Prüfe den vollständigen CRUD-Zyklus und weise die Laufzeit-UID nach.
+3. Erzeuge und untersuche einen Portkonflikt, ohne fremde Container zu entfernen.
+4. Zeige im Datenbanklabor, dass Daten eine Container-Neuerstellung überleben.
+5. Erkläre Gauge, Healthcheck und Readiness anhand der vorhandenen Dateien.
+6. Führe die relevanten CI-Prüfungen lokal aus und beschreibe mindestens zwei Grenzen der Tests.
 
-- Programming language basics
-- Framework specifics (Spring, FastAPI, Actix)
-- Language-specific build tools details
+Ein Mentor bewertet die Erklärung mit der Rubrik. In Selbstarbeit hältst du Vorhersage und Ergebnis
+schriftlich fest. JSON-Berichte aus `scripts/api_contract.py --report reports/mein-test.json`
+enthalten Testzahlen und Fehler; GitHub-Actions-Artefakte sind zeitlich begrenzt verfügbar.
 
-### Intermediate Level (Modules 4-7)
+## Fehler als Lernnachweis
 
-✅ **Multi-Container Applications**
-
-- Design with Docker Compose
-- Implement service communication
-- Manage shared volumes
-- Handle environment configuration
-
-✅ **Development Workflow**
-
-- Set up efficient local development
-- Debug applications in containers
-- Implement hot-reload strategies
-- Optimize build times
-
-✅ **Production Practices**
-
-- Create minimal, secure images
-- Implement health checks
-- Manage secrets properly
-- Optimize for size and performance
-
-❌ **NOT Teaching**
-
-- Microservices architecture
-- Database design
-- API development
-- Language-specific patterns
-
-### Advanced Preview (Modules 8-11)
-
-✅ **Observability**
-
-- Implement logging strategies
-- Basic metrics collection
-- Container monitoring
-- Troubleshooting techniques
-
-✅ **CI/CD Integration**
-
-- Automate image builds
-- Implement testing in containers
-- Push to registries
-- Basic vulnerability scanning
-
-✅ **Orchestration Basics**
-
-- Understand when you need orchestration
-- Docker Swarm introduction
-- Kubernetes concepts preview
-- Service discovery basics
-
-✅ **Container Ecosystem Choices**
-
-- Compare Docker and Podman trade-offs
-- Understand migration considerations
-- Choose tools based on team and platform constraints
-- Recognize what stays Docker-specific vs portable
-
-❌ **NOT Teaching**
-
-- Advanced Kubernetes
-- Service mesh
-- Cloud-specific services
-- Complex distributed systems
-
-## 📊 Skill Assessment Criteria
-
-Students completing this path should be able to:
-
-1. **Containerize Any Application**
-
-   - Given source code, create appropriate Dockerfile
-   - Optimize for size and build time
-   - Handle different application types
-
-2. **Debug Container Issues**
-
-   - Diagnose startup failures
-   - Fix networking problems
-   - Resolve permission issues
-   - Analyze resource constraints
-
-3. **Design Multi-Container Systems**
-
-   - Create Docker Compose files
-   - Implement proper networking
-   - Share data between containers
-   - Manage dependencies
-
-4. **Prepare for Production**
-   - Security hardening
-   - Size optimization
-   - Implement monitoring
-   - Create CI/CD pipelines
-
-## 🔍 What Makes This Path Different
-
-**Traditional Approach**: "Learn Docker with Node.js/Python/Java"
-
-- Often teaches the language alongside Docker
-- Mixes framework concepts with container concepts
-- Language-specific focus limits audience
-
-**Our Approach**: "Learn Docker, apply to YOUR language"
-
-- Docker concepts first, language examples second
-- Same learning objectives across all tracks
-- Clear separation of concerns
-- Broader audience reach
-
-## 📈 Progression Strategy
-
-```
-Module 0-1: Pure Docker (0% language-specific)
-     ↓
-Module 2-3: Container Basics (30% language-specific for examples only)
-     ↓
-Module 4-6: Compose, Workflow, Security (20% language-specific for setup)
-     ↓
-Module 7-8: Production & Observability (15% language-specific for optimization)
-     ↓
-Module 9-11: Platform Skills (10% language-specific for deployment)
-```
-
-The language-specific content DECREASES as students advance, because:
-
-- Docker concepts become more universal
-- Focus shifts to platform/infrastructure
-- Advanced topics are language-agnostic
-
-## ✅ Success Indicators
-
-**Good Module Design**:
-
-- "How to implement health checks in Docker"
-- "Optimizing layer caching for faster builds"
-- "Container networking patterns"
-
-**Poor Module Design**:
-
-- "Building REST APIs with FastAPI in Docker"
-- "Spring Boot microservices with Docker"
-- "Rust web development in containers"
-
-Remember: We're creating Docker experts who happen to use different languages, not language experts who happen to use Docker.
+Ein anfänglich roter Test ist kein schlechter Lernstand. Entscheidend ist, ob du eine Hypothese
+formulierst, gezielt prüfst und die Ursache behebst. Notiere bei einer Korrektur den ursprünglichen
+Fehler, den entscheidenden Befund und den erfolgreichen Nachtest.

@@ -1,33 +1,12 @@
-# Development Dockerfile for Rust Task API
-FROM rust:alpine
-
-# Install development tools
-RUN apk add --no-cache musl-dev curl
-RUN cargo install cargo-watch
-
-# Create non-root user
-ARG UID=1000
-ARG GID=1000
-RUN set -eux; \
-    if getent group "${GID}" >/dev/null 2>&1; then \
-      GEXIST="$(getent group "${GID}" | cut -d: -f1)"; \
-      adduser -D -s /bin/sh -u "${UID}" -G "${GEXIST}" rust; \
-    else \
-      addgroup -g "${GID}" rust; \
-      adduser -D -s /bin/sh -u "${UID}" -G rust rust; \
-    fi
-
+# syntax=docker/dockerfile:1
+FROM rust:1.98.1-bookworm
+RUN groupadd --gid 10001 app && useradd --uid 10001 --gid app --create-home app
 WORKDIR /app
-RUN chown "${UID}:${GID}" /app
-
-# Fix cargo registry permissions before switching user
-RUN mkdir -p /usr/local/cargo/registry && \
-    chown -R "${UID}:${GID}" /usr/local/cargo
-
-USER rust:rust
-
-# Expose port
+COPY Cargo.toml Cargo.lock ./
+COPY src/ ./src/
+RUN mkdir -p /app/target /usr/local/cargo/registry \
+    && chown -R 10001:10001 /app /usr/local/cargo
+USER 10001:10001
 EXPOSE 8080
-
-# Development command with hot reload
-CMD ["cargo", "watch", "-x", "run"]
+# Recompile on restart; no unpinned cargo-watch installation.
+CMD ["cargo", "run", "--locked"]

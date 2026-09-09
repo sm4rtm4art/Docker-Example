@@ -1,0 +1,12 @@
+# Standalone development configuration; do not merge with docker-compose.yml.
+services:
+  task-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "127.0.0.1:${TASK_API_PORT:-8080}:8080"
+    volumes:
+      - ./src:/app/src:ro
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]

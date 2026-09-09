@@ -1,211 +1,70 @@
-# Docker Learning Curriculum 🐳
+# Docker-Lernpfad: von der ersten API bis zum lokalen Kubernetes-Cluster
 
-> **Master Docker fundamentals through multiple programming languages**
+Ein praktischer Lernpfad für Entwicklerinnen und Entwickler mit Grundkenntnissen in
+Python, Rust oder Java. Im Mittelpunkt stehen Container, Images, Netzwerke, Daten und
+Betriebsverhalten. Die Frameworks dienen als Beispiele; ein Sprachtrack genügt.
 
-A comprehensive, production-ready Docker learning path that teaches Docker concepts first, then applies them across Java, Python, and Rust. Built for developers who want to understand Docker deeply, not just copy commands.
+## Einstieg
 
-## 🎯 Philosophy: Docker First, Language Second
+1. [Arbeitsumgebung vorbereiten](docker-mastery-multitrack/00-prerequisites/prerequisites-overview.md).
+2. [Lernpfad und Module ansehen](docker-mastery-multitrack/docker-curriculum-guide.md).
+3. [Python, Rust oder Java auswählen](docker-mastery-multitrack/02-language-quickstart/quickstart-overview.md).
 
-**Traditional approach**: "Learn Docker with Python"  
-**Our approach**: **"Learn Docker, apply to YOUR language"**
+Die Module 00–07 bilden den Kern, 08–11 den Aufbau. Plane ungefähr 12–18 Stunden
+für einen Track einschließlich Übungen ein; Fehlersuche und Wiederholung können mehr Zeit benötigen.
 
-- 🐳 **Docker concepts are universal** - master them once
-- 🔄 **70% content reuse** across all language tracks
-- 🛡️ **Security-first** from day one (always non-root)
-- 🎯 **Real problem solving** (container cleanup, monitoring)
-- 🚀 **Production patterns** throughout
+## Was tatsächlich enthalten ist
 
-## 📚 Learning Path
+| Baustein | Ausführbarer Inhalt | Bewusste Grenze |
+| --- | --- | --- |
+| Python / Rust / Java | Derselbe Task-API-Vertrag, Dockerfiles, lokale Compose-Konfiguration | Aufgaben liegen im Arbeitsspeicher; Neustarts verlieren Daten |
+| PostgreSQL-Labor | Zwei Services, DNS, Healthcheck, Named Volume, Persistenztest | Eigenständige Datenübung; die Task API ist nicht an PostgreSQL angebunden |
+| Monitoring | Prometheus, Grafana, bereitgestelltes Dashboard | Aktuelle Aufgabenbestände und Scrape-Status; keine erfundenen Latenzmetriken |
+| CI | Syntax, interne Links, Builds, HTTP-Vertrag, Laufzeitrechte, Persistenz | Prüft technische Ergebnisse, nicht automatisch dein Verständnis |
+| kind | Lokales Deployment mit Service und Probes | Optionales Lerncluster; keine hochverfügbare Produktionsumgebung |
 
-Use the curriculum guide as the canonical module roadmap:
+Die Anwendungen besitzen keine Authentifizierung und sind ausschließlich für lokale Lernübungen
+vorgesehen. Ports werden an `127.0.0.1` gebunden. Image-Härtung und Betriebsübungen ersetzen
+keine Prüfung einer konkreten Produktionsumgebung.
 
-📚 **[Docker Curriculum Guide](./docker-mastery-multitrack/docker-curriculum-guide.md)** - full module breakdown (`00-11`), pace, and storyline.
+## Einen Track ausprobieren
 
-At a glance:
-
-- **Core Path** (`00-07`): **17.5 hours** - Docker fundamentals through production readiness
-- **Advanced Path** (`08-11`): **+8 hours** - monitoring, CI/CD, orchestration preview, alternatives
-- **Total**: **24-28 hours** of hands-on learning
-
-## 🏗️ What You'll Build
-
-### Core Project: Task Management API
-
-- **Task API** in your language of choice (Java Spring Boot, Python FastAPI, Rust Actix)
-- **PostgreSQL** database with persistent storage
-- **Complete monitoring stack** (Prometheus + Grafana)
-- **Production deployment** with security, health checks, and cleanup automation
-
-### Advanced Projects:
-
-- Multi-architecture Docker builds (ARM + x86)
-- Container registry management (Docker Hub, ECR, GCR)
-- CI/CD pipelines with GitHub Actions
-- Migration from Docker to Podman
-
-## 🚀 Quick Start
+Nach Modul 00, im Repository-Wurzelverzeichnis, in Bash / WSL:
 
 ```bash
-# Clone the repository
 git clone https://github.com/sm4rtm4art/Docker-Example.git
 cd Docker-Example
-
-# Choose your path
-cd docker-mastery-multitrack
-
-# Start with prerequisites
-cd 00-prerequisites
+export TASK_TRACK=python
+docker compose -p docker-learning -f compose.lab.yml up --build --wait
+curl --fail http://127.0.0.1:8080/health
+python3 scripts/api_contract.py
 ```
 
-### Language Track Selection
+`TASK_TRACK` akzeptiert `python`, `rust` oder `java`. Erwarteter Health-Inhalt:
+`status: healthy`, `storage: memory`. Der API-Test legt eigene Aufgaben an und entfernt sie wieder.
+Windows-Anweisungen und Voraussetzungen stehen in [Modul 00](docker-mastery-multitrack/00-prerequisites/prerequisites-overview.md).
 
-**Choose your language track**, but remember - the Docker concepts are universal:
+Aufräumen nach dieser Übung:
 
-- **Java**: Spring Boot + Maven (enterprise-ready)
-- **Python**: FastAPI + UV (modern Python tooling)
-- **Rust**: Actix-web + Cargo (performance-focused)
+```bash
+python3 scripts/cleanup.py api
+```
 
-## 📋 Prerequisites
+## Dokumentation und Qualität
 
-- **Docker Desktop** installed and running
-- **Basic terminal/command line** experience
-- **One programming language** (Java, Python, or Rust)
-- **Git** for version control
+- [Lernziele und Bewertung](LEARNING_OBJECTIVES.md)
+- [Verbindlicher API-Vertrag](TASK_API_SPECIFICATION.md)
+- [Lokale Validierung und Pflege](DEVELOPMENT_SETUP.md)
+- [Fachliche Referenzen](SOURCES.md)
+- [Überarbeitungsbefunde und verbleibende Grenzen](REVIEW_NOTES.md)
+- [Erweiterungsvorschläge](TASKLIST.md)
 
-No prior Docker experience required!
+Der Workflow [Validate curriculum](.github/workflows/validate.yml) läuft für Pull Requests und
+Änderungen auf `main`. Ein grüner Lauf bezieht sich auf den jeweiligen Commit und den Linux-Runner;
+eine allgemeine Testzusage für alle Plattformen wird daraus nicht abgeleitet.
 
-## ⚙️ Tested With
+## Mitwirken und Lizenz
 
-This curriculum is actively tested and maintained with:
-
-- **Docker Desktop**: 4.25+ (or Docker Engine 24.0+)
-- **Docker Compose**: v2.23+ (included in Docker Desktop)
-- **BuildKit**: 0.12+ (enabled by default in modern Docker)
-- **Operating Systems**: Windows 10/11, macOS 12+, Ubuntu 20.04+
-
-**Update Policy**: We test with the latest stable Docker versions quarterly and update examples as needed. If you encounter issues with newer versions, please check our [troubleshooting guide](./docker-mastery-multitrack/common-resources/DOCKER_EMERGENCY_GUIDE.md).
-
-## 🎓 Learning Features
-
-### 🔧 Hands-On Exercises
-
-- Real debugging scenarios ("break then fix")
-- Container cleanup challenges
-- Security vulnerability exercises
-- Performance optimization tasks
-
-### 🛡️ Security-First Approach
-
-- **Always non-root containers**
-- **Read-only filesystems** where possible
-- **Secrets management** best practices
-- **Vulnerability scanning** integration
-
-### 🧹 Cleanup Integration
-
-- **Container lifecycle management** throughout
-- **Volume and network cleanup** strategies
-- **Development vs production** separation patterns
-- **Monitoring and maintenance** automation
-
-## 📖 Curriculum Structure
-
-The complete curriculum is located in [`docker-mastery-multitrack/`](./docker-mastery-multitrack/) with detailed learning materials.
-
-### Complete Learning Path:
-
-📚 **[Docker Curriculum Guide](./docker-mastery-multitrack/docker-curriculum-guide.md)** - Full module breakdown and learning path
-
-### Key Documents:
-
-- **[Learning Objectives](./LEARNING_OBJECTIVES.md)** - Detailed skill outcomes
-- **[Task API Specification](./TASK_API_SPECIFICATION.md)** - Technical project requirements
-- **[Development Setup](./DEVELOPMENT_SETUP.md)** - Environment configuration
-- **[Prerequisites (Module 00)](./docker-mastery-multitrack/00-prerequisites/prerequisites-overview.md)** - Platform setup and troubleshooting
-
-## 📚 Learning Resources
-
-### By Module
-
-**Foundation (Modules 00-03)**
-
-- [Docker Official Documentation](https://docs.docker.com/) - Comprehensive reference
-- [Docker Best Practices](https://docs.docker.com/develop/best-practices/) - Production patterns
-
-**Dockerfiles & Images (Module 03)**
-
-- [Dockerfile Reference](https://docs.docker.com/engine/reference/builder/) - Complete syntax guide
-- [hadolint](https://github.com/hadolint/hadolint) - Dockerfile linter for best practices
-
-**Multi-Container Apps (Module 04)**
-
-- [Compose Specification](https://compose-spec.io/) - Official format reference
-- [Awesome Compose](https://github.com/docker/awesome-compose) - Real-world examples
-
-**Security (Module 06)**
-
-- [Docker Security](https://docs.docker.com/engine/security/) - Official security guide
-- [OWASP Container Security](https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html) - Security checklist
-
-**Monitoring (Module 08)**
-
-- [Prometheus Documentation](https://prometheus.io/docs/) - Metrics collection
-- [Grafana Tutorials](https://grafana.com/tutorials/) - Visualization guides
-
-### 🔗 Additional Resources
-
-**Helper Scripts**
-
-- [`scripts/`](./scripts/) - Cross-platform utilities (Windows + Unix)
-- Docker cleanup automation
-- Development environment setup
-- Health check utilities
-
-**Examples**
-
-- [`examples/`](./examples/) - Reference implementations
-- Security-focused Dockerfiles
-- Volume management patterns
-- Container networking examples
-
-**Emergency Help**
-
-- [`DOCKER_EMERGENCY_GUIDE.md`](./docker-mastery-multitrack/common-resources/DOCKER_EMERGENCY_GUIDE.md) - Troubleshooting guide
-
-## 🌟 Why This Curriculum?
-
-### For **Developers**:
-
-- Master Docker once, apply everywhere
-- Build production-ready containerization skills
-- Understand security and operational best practices
-
-### For **Teams**:
-
-- Consistent Docker knowledge across language stacks
-- Shared security and operational patterns
-- Reduced onboarding time for new technologies
-
-### For **Organizations**:
-
-- Standardized containerization approach
-- Security-first development practices
-- Production-ready deployment patterns
-
-## 🤝 Contributing
-
-This is an open educational resource. Contributions welcome!
-
-- **Report issues** for unclear instructions
-- **Suggest improvements** for better learning
-- **Add language tracks** following our patterns
-- **Share real-world scenarios** for exercises
-
-## 📄 License
-
-Educational content is available under [LICENSE](./LICENSE) for learning and teaching purposes.
-
----
-
-> **"The best way to learn Docker is to master the concepts first, then apply them to solve real problems."**  
-> Start your journey with [Prerequisites](./docker-mastery-multitrack/00-prerequisites/prerequisites-overview.md) ➡️
+Bitte ändere bei Anpassungen am API-Vertrag immer Implementierungen, Tests und Dokumentation gemeinsam.
+Beispiele sollen einen Arbeitsordner, ein erwartetes Ergebnis und einen Aufräumweg nennen.
+Es gilt die [Apache License 2.0](LICENSE) für dieses Repository.

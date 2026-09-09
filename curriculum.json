@@ -1,0 +1,88 @@
+{
+  "modules": [
+    {
+      "id": "00",
+      "title": "Voraussetzungen",
+      "path": "docker-mastery-multitrack/00-prerequisites/prerequisites-overview.md",
+      "time": "30–60 min",
+      "outcome": "Arbeitsumgebung prüfen"
+    },
+    {
+      "id": "01",
+      "title": "Container und Images",
+      "path": "docker-mastery-multitrack/01-docker-fundamentals/docker-fundamentals-overview.md",
+      "time": "60–90 min",
+      "outcome": "Lebenszyklus und Portfreigabe erklären"
+    },
+    {
+      "id": "02",
+      "title": "Eine Task API containerisieren",
+      "path": "docker-mastery-multitrack/02-language-quickstart/quickstart-overview.md",
+      "time": "60–90 min",
+      "outcome": "Einen Sprachtrack bauen und per HTTP prüfen"
+    },
+    {
+      "id": "03",
+      "title": "Dockerfiles und Builds",
+      "path": "docker-mastery-multitrack/03-dockerfile-essentials/shared-concepts/dockerfile-essentials-overview.md",
+      "time": "90–120 min",
+      "outcome": "Build-Kontext, Cache und Multi-Stage verstehen"
+    },
+    {
+      "id": "04",
+      "title": "Compose, Netzwerke und Daten",
+      "path": "docker-mastery-multitrack/04-docker-compose/compose-overview.md",
+      "time": "90–120 min",
+      "outcome": "DNS und Datenpersistenz experimentell belegen"
+    },
+    {
+      "id": "05",
+      "title": "Entwicklungsworkflow",
+      "path": "docker-mastery-multitrack/05-development-workflow/development-workflow-overview.md",
+      "time": "45–60 min",
+      "outcome": "Änderungen und Fehler systematisch untersuchen"
+    },
+    {
+      "id": "06",
+      "title": "Container-Sicherheit",
+      "path": "docker-mastery-multitrack/06-security-best-practices/security-overview.md",
+      "time": "60–90 min",
+      "outcome": "Build- und Laufzeitschutz unterscheiden"
+    },
+    {
+      "id": "07",
+      "title": "Betriebsverhalten",
+      "path": "docker-mastery-multitrack/07-production-ready/production-excellence-overview.md",
+      "time": "60–90 min",
+      "outcome": "Health, Shutdown und Limits prüfen"
+    },
+    {
+      "id": "08",
+      "title": "Monitoring",
+      "path": "docker-mastery-multitrack/08-monitoring-stack/monitoring-overview.md",
+      "time": "60–90 min",
+      "outcome": "Metriken scrapen und korrekt interpretieren"
+    },
+    {
+      "id": "09",
+      "title": "CI und Lernkontrolle",
+      "path": "docker-mastery-multitrack/09-cicd-automation/cicd-overview.md",
+      "time": "45–60 min",
+      "outcome": "Prüfergebnisse und Grenzen einordnen"
+    },
+    {
+      "id": "10",
+      "title": "Optional: Kubernetes mit kind",
+      "path": "docker-mastery-multitrack/10-orchestration-intro/orchestration-preview.md",
+      "time": "60–90 min",
+      "outcome": "Deployment, Service und Probes anwenden"
+    },
+    {
+      "id": "11",
+      "title": "Container-Werkzeuge einordnen",
+      "path": "docker-mastery-multitrack/11-beyond-docker/container-alternatives-overview.md",
+      "time": "30–45 min",
+      "outcome": "Docker, Podman und containerd unterscheiden"
+    }
+  ]
+}

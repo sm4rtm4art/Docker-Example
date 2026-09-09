@@ -2,64 +2,27 @@ package com.example.dockerdemo.service;
 
 import com.example.dockerdemo.model.Task;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.time.Instant;
+import java.util.*;
 
 @Service
 public class TaskService {
+    private final Map<String, Task> tasks = new HashMap<>();
 
-    private final ConcurrentHashMap<Long, Task> tasks = new ConcurrentHashMap<>();
-    private final AtomicLong idCounter = new AtomicLong();
-
-    public TaskService() {
-        // Initialize with some sample data
-        createTask("Learn Docker", "Understand containerization basics");
-        createTask("Setup Spring Boot", "Create REST API with Spring Boot");
-        createTask("Connect to Database", "Learn Docker Compose with MariaDB");
-    }
-
-    public List<Task> getAllTasks() {
-        return new ArrayList<>(tasks.values());
-    }
-
-    public Optional<Task> getTaskById(Long id) {
-        return Optional.ofNullable(tasks.get(id));
-    }
-
-    public Task createTask(String title, String description) {
-        Task task = Task.builder()
-                .id(idCounter.incrementAndGet())
-                .title(title)
-                .description(description)
-                .completed(false)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-
-        tasks.put(task.getId(), task);
+    public synchronized List<Task> getAllTasks() { return List.copyOf(tasks.values()); }
+    public synchronized Optional<Task> getTaskById(String id) { return Optional.ofNullable(tasks.get(id)); }
+    public synchronized Task createTask(String title, String description) {
+        Instant now = Instant.now();
+        Task task = new Task(UUID.randomUUID().toString(), title, description, false, now, now);
+        tasks.put(task.id(), task);
         return task;
     }
-
-    public Optional<Task> updateTask(Long id, Task taskUpdate) {
-        return Optional.ofNullable(tasks.computeIfPresent(id, (key, existingTask) -> {
-            existingTask.setTitle(taskUpdate.getTitle());
-            existingTask.setDescription(taskUpdate.getDescription());
-            existingTask.setCompleted(taskUpdate.isCompleted());
-            existingTask.setUpdatedAt(LocalDateTime.now());
-            return existingTask;
-        }));
+    public synchronized Optional<Task> replaceTask(String id, String title, String description, boolean completed) {
+        Task previous = tasks.get(id);
+        if (previous == null) return Optional.empty();
+        Task task = new Task(id, title, description, completed, previous.createdAt(), Instant.now());
+        tasks.put(id, task);
+        return Optional.of(task);
     }
-
-    public boolean deleteTask(Long id) {
-        return tasks.remove(id) != null;
-    }
-
-    public long getTaskCount() {
-        return tasks.size();
-    }
+    public synchronized boolean deleteTask(String id) { return tasks.remove(id) != null; }
 }
