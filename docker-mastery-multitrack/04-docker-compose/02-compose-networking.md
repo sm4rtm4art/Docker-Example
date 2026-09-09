@@ -1,56 +1,39 @@
-# Compose-Netzwerke: Namen und Erreichbarkeit
+# Service DNS and network boundaries
 
-## Lernziele
+## Learning objectives
 
-Du unterscheidest Hostzugriff, Container-DNS und den Zugriff über gemeinsame Netzwerke.
+Connect containers by service name and distinguish container-local from host-local addresses.
 
-## Voraussetzung
+## Prerequisites
 
-Die Compose-Grundlagen dieses Moduls. Alle Befehle im Repository-Wurzelverzeichnis.
+The Compose basics lesson. Run from the repository root.
 
-## Konzept
+## Exercise
 
-Innerhalb eines Compose-Netzwerks wird ein Service unter seinem Servicenamen gefunden. Der Client
-verbindet sich mit `postgres:5432`, nicht mit `localhost:5432`. `localhost` bezeichnet den eigenen
-Netzwerk-Namespace. Container-IP-Adressen können sich nach einer Neuerstellung ändern.
-
-Die Datenbank veröffentlicht bewusst keinen Hostport. Der Client benötigt keine solche Freigabe,
-weil er Mitglied desselben Netzwerks ist. `internal: true` begrenzt dessen externe Konnektivität.
-Der Hostadministrator und der Docker-Daemon bleiben außerhalb dieser Schutzgrenze.
-
-## Übung
+Start the standalone database lab:
 
 ```bash
 export DB_COMPOSE=docker-mastery-multitrack/common-resources/templates/docker-compose.database.yml
 docker compose -p docker-learning-db -f "$DB_COMPOSE" up -d --wait postgres
 docker compose -p docker-learning-db -f "$DB_COMPOSE" run --rm client -c 'SELECT current_database(), current_user;'
-docker network inspect docker-learning-db_database
 ```
 
-Erwartet werden Datenbank `learning` und Benutzer `learner`. Im Netzwerk-Inspect findest du die
-aktuell angeschlossenen Container. Die Clientverbindung belegt DNS-Auflösung und TCP-Verbindung
-zusammen mit erfolgreicher Datenbankanmeldung.
+Expect database `learning` and user `learner`. Read the Compose file: `client` connects to hostname `postgres`, the service name on their shared network. The database has no published host port. Explicitly targeting `client` runs it even though it belongs to the `tools` profile.
 
-### Fehler gezielt erzeugen
+`localhost` inside the client container means that container itself, not the database or your host. Try the wrong address:
 
 ```bash
-docker compose -p docker-learning-db -f "$DB_COMPOSE" run --rm client -h localhost -c 'SELECT 1;'
+docker compose -p docker-learning-db -f "$DB_COMPOSE" run --rm --entrypoint psql client -h 127.0.0.1 -U learner -d learning -c 'SELECT 1;'
 ```
 
-Erwartet wird ein Verbindungsfehler: Im Clientcontainer läuft kein Datenbankserver.
-Wiederhole mit `-h postgres` und erkläre den Unterschied. Dieses Experiment benötigt keinen
-zusätzlichen Hostport und keine fest codierte Container-IP.
+Expect a connection failure. The client entrypoint normally includes `-h postgres`; setting `PGHOST` alone would not override that explicit option. Restore the default command and show that it succeeds. The network is marked `internal`; do not treat network separation as authentication or a complete security policy.
 
-## Erfolgskontrolle
+The credentials in this file are **DEV ONLY**, for a disposable local exercise. The health check uses `pg_isready`; it establishes server readiness to accept connections, not schema correctness. The SQL query verifies usable credentials and a real operation.
 
-Zeichne oder beschreibe Host, Client und Datenbank mit ihren Ports. Beantworte: Wann ist `ports`
-erforderlich? Was passiert bei einem falschen Servicenamen? Warum ist „kein veröffentlichter Port“
-keine vollständige Zugriffskontrolle gegen einen Hostadministrator?
+Keep the database running for the storage lesson, or stop it with `python3 scripts/cleanup.py database`.
 
-## Aufräumen
+Reading: [Compose networking](https://docs.docker.com/compose/how-tos/networking/).
 
-```bash
-python3 scripts/cleanup.py database
-```
+## Check your understanding
 
-Quelle: [Netzwerke in Compose](https://docs.docker.com/compose/how-tos/networking/).
+Explain why `postgres` works and `127.0.0.1` fails inside the client. Show that a service can be reachable by another container without publishing a host port.

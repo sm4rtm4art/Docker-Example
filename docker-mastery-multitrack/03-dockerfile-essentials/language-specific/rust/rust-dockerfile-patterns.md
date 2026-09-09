@@ -1,40 +1,21 @@
-# Dockerfile-Muster für Rust
+# Rust: native artifacts and build caches
 
-## Lernziele
+## Learning objectives
 
-Du begründest die Besonderheiten deines Tracks, ohne ein zweites, abweichendes Dockerfile aus der
-Dokumentation zu kopieren.
+Explain the dependency and artifact boundaries in your chosen image.
 
-## Voraussetzung
+## Prerequisites
 
-Die beiden gemeinsamen Lektionen in Modul 03. Referenz ist der
-[ausführbare Dockerfile](../../../02-language-quickstart/rust/Dockerfile).
+The two shared Dockerfile lessons.
 
-## Übung
+## Exercise
 
-Prüfe `Cargo.lock`, den Release-Build mit `--locked` und das COPY aus dem Builder.
-Die Registry und das Target-Verzeichnis werden als Cache-Mount eingebunden. Der Cache darf die
-Korrektheit nicht verändern: Baue nach einer sichtbaren Source-Änderung und kontrolliere die HTTP-Antwort.
+Read the Rust `Dockerfile` and `Cargo.lock`. `--locked` requires Cargo to use the committed dependency resolution. The build caches the registry and target directory, compiles the real source and copies the resulting executable out of the cache before the step ends.
 
-Der Debian-Builder und die Debian-Runtime vermeiden einen unbeabsichtigten musl/glibc-Wechsel.
-Prüfe eine neue Basisversion zusätzlich mit dem Container-Vertragstest. Ein erfolgreicher Compilerlauf
-beweist nicht, dass alle Laufzeitbibliotheken vorhanden sind.
+Make a source-only edit, rebuild and verify the changed response. A successful cached build is useful only if it contains the current program. Inspect the final stage: a native binary can still depend on libc or other shared libraries. Debian-based build and runtime stages keep this example on a compatible runtime family.
 
-Für lokale Abhängigkeitspflege: `cargo update` bewusst ausführen, Lockfile-Diff prüfen und anschließend
-`cargo build --locked --release`. Unabhängige Aktualisierungen nicht mit einem fachlichen Fehler vermischen.
+Reading: [Cargo build](https://doc.rust-lang.org/cargo/commands/cargo-build.html).
 
-Führe aus dem Repository-Wurzelverzeichnis den vollständigen Trackcheck aus:
+## Check your understanding
 
-```bash
-python3 scripts/validate.py track --track rust
-```
-
-Er startet ein eigenes Compose-Projekt, prüft den HTTP-Vertrag und die Laufzeitkonfiguration und
-räumt nur dieses Testprojekt auf. Dockerzugriff ist erforderlich.
-
-## Erfolgskontrolle
-
-Du erklärst, welche Abhängigkeiten nur zum Bauen benötigt werden und welche beim Start vorhanden
-sein müssen. Du kannst einen Buildfehler von einem Fehler beim Containerstart unterscheiden.
-
-[Zurück zur Modulübersicht](../../shared-concepts/dockerfile-essentials-overview.md)
+Show the source change in the running API, identify the final artifact and explain which inputs trigger a rebuild. Restore your exercise edit and clean up your lab.

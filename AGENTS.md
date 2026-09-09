@@ -6,9 +6,12 @@ This repository is a Docker-first learning curriculum for junior developers. It 
 
 ## Working Principles
 
+- Keep the course in English; keep revision reports and internal planning outside the lessons.
+- Use module `index.md` files for Sphinx/MyST navigation. Keep the short optional kind introduction under `11-beyond-docker`.
+
 - Preserve the `docker-mastery-multitrack` module path from `00` through `11`.
 - Treat `README.md` as the landing page and `docker-mastery-multitrack/docker-curriculum-guide.md` as the canonical module overview.
-- Keep the shared Task API contract consistent across code, docs, and `TASK_API_SPECIFICATION.md`. The canonical task endpoint is `/api/tasks`.
+- Keep the shared Task API contract consistent across code, docs, and `docker-mastery-multitrack/02-language-quickstart/task-api.md`. The canonical task endpoint is `/api/tasks`.
 - Prefer modern `docker compose` in new or updated material. Mention `docker-compose` only as legacy compatibility guidance.
 - Keep examples honest: label conceptual snippets, dev-only credentials, classroom shortcuts, and runtime-only hardening requirements.
 - Do not add internal AI artifacts, hype-heavy maintainer notes, or untested copy-paste snippets to student-facing docs.

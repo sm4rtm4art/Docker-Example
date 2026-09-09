@@ -1,50 +1,31 @@
-# Metriken: messen, ohne mehr zu behaupten als bekannt ist
+# Understand the metrics you collect
 
-## Lernziele
+## Learning objectives
 
-Du unterscheidest Gauge, Counter und Histogramm und ordnest die tatsächlich implementierten Werte zu.
+Distinguish gauges, counters and scrape health.
 
-## Voraussetzung
+## Prerequisites
 
-Eine laufende API aus einem Track. Befehle starten im Repository-Wurzelverzeichnis.
+A running Task API from module 02.
 
-## Konzept
-
-Ein Gauge beschreibt einen aktuellen Wert, der steigen und sinken kann. Ein Counter beschreibt
-kumulierte Ereignisse und steigt bis zu einem möglichen Prozessneustart. Ein Histogramm aggregiert
-Beobachtungen, etwa Dauern, in Buckets sowie Summe und Anzahl.
-
-Die Kurs-API stellt drei Gauges bereit: `task_count`, `task_completed_count` und `task_pending_count`.
-Ein Löschen senkt den Aufgabenbestand. Deshalb wäre `tasks_total` als Counter hier fachlich falsch.
-Die Metriken werden pro Prozess berechnet; mehrere Replikate hätten getrennte Speicherstände.
-
-## Übung
+## Exercise
 
 ```bash
 curl --fail http://127.0.0.1:8080/metrics
-curl --fail -X POST http://127.0.0.1:8080/api/tasks -H 'Content-Type: application/json' -d '{"title":"Monitoring verstehen"}'
+curl --fail -H 'Content-Type: application/json' -d '{"title":"Observe a metric"}' http://127.0.0.1:8080/api/tasks
 curl --fail http://127.0.0.1:8080/metrics
 ```
 
-Erwartet: `task_count` und `task_pending_count` steigen um eins. Speichere die ID der Aufgabe und
-lösche sie nach dem Versuch; der Bestand fällt wieder. Die Antwort muss echter Text sein, kein
-JSON-kodierter String mit Anführungszeichen und Escape-Sequenzen.
+The application exports three gauges: `task_count`, `task_completed_count` and `task_pending_count`. Total equals completed plus pending. Create, complete and delete a task using the [API reference](../02-language-quickstart/task-api.md), checking metrics after each change.
 
-Mit dem folgenden [Stack](02-complete-stack.md) übernimmt Prometheus den regelmäßigen Abruf.
-`up` wird dabei von Prometheus erzeugt: 1 bedeutet erfolgreicher Scrape, 0 ein fehlgeschlagener
-Scrape. Es ist kein automatisch vollständiger Bereitschaftstest der Geschäftslogik.
+A gauge represents a value that can rise or fall. A counter accumulates events and normally only increases until reset. Do not apply a counter rate to the current task count and call it request throughput. This API does not instrument HTTP latency or request totals.
 
-### Transferfrage
+Prometheus periodically scrapes the text endpoint and adds its own `up` metric: 1 for a successful scrape, 0 for a failed one. `up` says whether the scrape worked, not whether every business operation succeeds. Avoid labels containing task IDs or free-form titles because they create unbounded time-series cardinality.
 
-Wie würdest du künftig HTTP-Latenzen messen? Instrumentiere echte Anfragen mit einem Histogramm
-und verwende begrenzte Labels wie Route und Methode. Konkrete Task-IDs oder Benutzerkennungen als
-Label erzeugen viele Zeitreihen und können sensible Daten verbreiten. Eine `rate`-Abfrage auf dem
-aktuellen Aufgabenbestand wäre keine korrekte Anfragerate.
+Stop the API with `python3 scripts/cleanup.py api` before starting the full monitoring project.
 
-## Erfolgskontrolle
+Reading: [Metric types](https://prometheus.io/docs/concepts/metric_types/), [instrumentation practices](https://prometheus.io/docs/practices/instrumentation/).
 
-Du kannst den Metriktyp für Bestand, Request-Anzahl und Request-Dauer begründen. Du erklärst,
-warum ein zurückgesetzter Prozessspeicher in diesem Kurs kein Persistenzfehler des Monitorings ist.
+## Check your understanding
 
-Quellen: [Prometheus-Metriktypen](https://prometheus.io/docs/concepts/metric_types/),
-[Metriknamen und Labels](https://prometheus.io/docs/practices/naming/).
+Predict all three gauge changes when completing and deleting a task. Explain what additional instrumentation would be needed to measure request latency.

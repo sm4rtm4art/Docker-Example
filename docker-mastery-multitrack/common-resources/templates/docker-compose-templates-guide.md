@@ -1,16 +1,15 @@
-# Ausführbare Compose-Dateien
+# Find the right Compose lab
 
-| Einstiegspunkt | Verwendung |
-| --- | --- |
-| [compose.lab.yml](../../../compose.lab.yml) | Gemeinsame Runtime für den gewählten Track |
-| [docker-compose.database.yml](docker-compose.database.yml) | Eigenständiges SQL-, Netzwerk- und Persistenzlabor |
-| [compose.monitoring.yml](../../../compose.monitoring.yml) | Ergänzung zum Root-API-Labor für Prometheus/Grafana |
+Run course commands from the repository root. Use one API project at a time on a given host port.
 
-Compose löst relative Pfade bei zusammengeführten Dateien relativ zur ersten Compose-Datei auf.
-Deshalb liegen die beiden kombinierbaren Dateien im Repository-Wurzelverzeichnis. Die
-Datenbankdatei wird eigenständig verwendet. Fehlende Konfigurationsdateien sollen nicht durch
-Platzhalterverzeichnisse oder verdeckte Annahmen ersetzt werden.
+| Configuration | Purpose | Lesson |
+| --- | --- | --- |
+| Root `compose.lab.yml` | Selected API track with runtime restrictions | [Run a Task API](../../02-language-quickstart/index.md) |
+| Track `docker-compose.yml` | Track-local runtime project | [Language quickstarts](../../02-language-quickstart/index.md) |
+| Python/Rust `compose.dev.yml` | Source-editing workflow | [Development](../../05-development-workflow/index.md) |
+| `docker-compose.database.yml` in this directory | Standalone PostgreSQL and SQL client | [Networking](../../04-docker-compose/02-compose-networking.md) |
+| Root `compose.monitoring.yml` merged with `compose.lab.yml` | API, Prometheus and Grafana | [Monitoring](../../08-monitoring-stack/02-complete-stack.md) |
 
-Vollständige Befehle und Aufräumen stehen in [Modul 04](../../04-docker-compose/compose-overview.md)
-und [Modul 08](../../08-monitoring-stack/02-complete-stack.md).
-Die frühere doppelte Monitoringvorlage wurde zugunsten dieser einen ausführbaren Konfiguration entfernt.
+Resolve configurations with `docker compose ... config` before starting a changed stack. `compose.dev.yml` is standalone; the monitoring file is an overlay and needs both `-f` arguments in the lesson's order.
+
+The database's credentials are **DEV ONLY**. It is an independent persistence lab; the Task API does not connect to it. Monitoring requires a local Grafana password and retains data in its own volumes.

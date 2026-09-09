@@ -1,73 +1,58 @@
-# Änderungen: Reload, Neustart oder Build?
+# Reload, restart or rebuild?
 
-## Lernziele
+## Learning objectives
 
-Du wählst die passende Rückkopplung für Quellcode, Abhängigkeiten und Imageänderungen.
+Select a feedback loop that matches what changed.
 
-## Voraussetzung
+## Prerequisites
 
-Beende das Root-Labor im Repository-Wurzelverzeichnis mit `python3 scripts/cleanup.py api`.
-Wechsle danach in den Ordner deines Tracks.
+Stop the root lab from the repository root with `python3 scripts/cleanup.py api`. Then enter your track directory.
 
-## Übung
+## Exercise
 
-### Python
+## Python
 
-Arbeitsordner: `docker-mastery-multitrack/02-language-quickstart/python`.
+Working directory: `docker-mastery-multitrack/02-language-quickstart/python`.
 
 ```bash
 docker compose -f compose.dev.yml up --build
 ```
 
-Ändere den Text der Root-Antwort in `src/main.py`. Uvicorn lädt die Anwendung neu; prüfe dies in
-einem zweiten Terminal mit `curl --fail http://127.0.0.1:8080/`. Der Source-Mount ist im Container
-schreibgeschützt, dein Editor bearbeitet die Datei auf dem Host. Ein Reload verliert In-Memory-Aufgaben.
-Bei geänderten Abhängigkeiten aktualisiere das Lockfile und baue das Entwicklungsimage erneut.
+Edit the root response in `src/main.py`. In a second terminal, request `curl --fail http://127.0.0.1:8080/`. Uvicorn reloads the application after the source edit. The container's source mount is read-only; your editor changes the host file. Reloading clears in-memory tasks. Dependency edits require an updated lockfile and a rebuilt development image.
 
-### Rust
+## Rust
 
-Arbeitsordner: `docker-mastery-multitrack/02-language-quickstart/rust`.
+Working directory: `docker-mastery-multitrack/02-language-quickstart/rust`.
 
 ```bash
 docker compose -f compose.dev.yml up --build -d
 docker compose -f compose.dev.yml logs -f task-api
 ```
 
-Ändere die Root-Antwort in `src/main.rs`, beende die Logansicht mit Ctrl+C und führe aus:
+The first compilation can take several minutes. Edit the root response in `src/main.rs`, leave the log view with Ctrl+C and restart:
 
 ```bash
 docker compose -f compose.dev.yml restart task-api
 ```
 
-`cargo run --locked` kompiliert beim Start; die erste Kompilierung kann mehrere Minuten benötigen.
-Es ist kein automatischer Watcher installiert. Der Target-Cache liegt in diesem Entwicklungscontainer
-und geht bei dessen Entfernung verloren. Manifeste und Lockfile werden ins Image kopiert; nach deren
-Änderung ist ein neuer Build erforderlich.
+`cargo run --locked` compiles when the container starts; it does not watch files. Its target cache survives a restart of this container but is lost when the container is removed. Manifest and lockfile edits require an image rebuild.
 
-### Java
+## Java
 
-Arbeitsordner: `docker-mastery-multitrack/02-language-quickstart/java`.
+Working directory: `docker-mastery-multitrack/02-language-quickstart/java`.
 
 ```bash
 docker compose up --build --wait
 ```
 
-Nach einer Änderung von `HomeController.java` denselben Befehl wiederholen. Java nutzt im Kurs
-den vollständigen Image-Build als einfach nachvollziehbaren Workflow. Eine DevTools-/IDE-Hotreload-
-Integration ist eine mögliche Vertiefung, nicht Bestandteil dieses Beispiels.
+Edit `HomeController.java` and repeat the command. This track uses an image rebuild rather than an automatic source watcher.
 
-## Erfolgskontrolle
+## Cleanup
 
-| Änderung | Erforderlicher Schritt |
-| --- | --- |
-| Python-Source im Dev-Mount | Automatischer Reload |
-| Rust-Source im Dev-Mount | Entwicklungscontainer neu starten |
-| Java-Source / Runtime-Image | Neu bauen und Container neu erstellen |
-| Manifest, Lockfile oder Dockerfile | Neu bauen und neu erstellen |
+Restore your own source edits. From the track directory, use `docker compose -f compose.dev.yml down` for Python/Rust, or `docker compose down` for Java. Return to the repository root before the next lesson.
 
-## Aufräumen
+Reading: [Bind mounts](https://docs.docker.com/engine/storage/bind-mounts/).
 
-Im jeweiligen Trackordner: Python/Rust mit `docker compose -f compose.dev.yml down`,
-Java mit `docker compose down`. Setze nur deine eigenen Übungsänderungen zurück.
+## Check your understanding
 
-Quelle: [Bind Mounts](https://docs.docker.com/engine/storage/bind-mounts/).
+For each of source, dependency manifest and Dockerfile edits, name the required action. Explain why restarting a runtime container does not bring new host source into its image.

@@ -1,35 +1,23 @@
-# Editor und Container-Workflow verbinden
+# Use an editor without changing the runtime contract
 
-## Lernziele
+## Learning objectives
 
-Du integrierst die funktionierenden Terminalbefehle in deinen Editor, ohne eine neue Betriebsumgebung
-als Voraussetzung für den Kurs einzuführen.
+Separate source editing and debugging conveniences from the deployable image.
 
-## Voraussetzung
+## Prerequisites
 
-Ein beliebiger Editor; die Entwicklungsübung dieses Moduls funktioniert bereits im Terminal.
+The development workflow experiment.
 
-## Übung
+## Exercise
 
-Öffne das Repository als Projekt. Verwende ein integriertes Terminal für Compose und ein zweites
-für HTTP-Tests. Trage als Arbeitsverzeichnis explizit den Trackordner oder das Repository-Wurzelverzeichnis
-ein, passend zum jeweiligen Befehl. Speichere eine Änderung und beobachte Build-/Reload-Logs.
+Open the repository in your preferred editor. Use its integrated Bash terminal to run the same Compose commands from the previous lesson. Keep the working directory visible; a terminal opened in the wrong directory can use the wrong Compose project.
 
-Python-Sprachanalyse kann ein lokal erzeugtes Virtualenv verwenden. Rust-Analyse benötigt für volle
-Funktion einen lokalen Rust-Toolchain oder eine bewusst konfigurierte Entwicklungsumgebung. Java-
-Analyse benötigt einen passenden JDK. Das sind Editoranforderungen, keine Voraussetzungen für den
-reinen Docker-Buildpfad.
+Edit the host source and verify the response over HTTP. For Python/Rust development, source is bind-mounted read-only into the container. For Java, rebuild the image. Keep host build outputs and virtual environments out of the build context.
 
-Setze zunächst keinen Remote-Debug-Port frei. Wenn du später JDWP oder debugpy ergänzt, verwende
-eine separate Dev-Konfiguration, lokale Bindung und entferne sie aus Runtime-Images.
-Ein Debugger kann weitreichenden Zugriff auf den Prozess erlauben.
+A debugger is an optional local development tool. Before adding one, determine its runtime, listen address, port and authentication behaviour. A published debugger may grant code execution. Bind it to loopback for local use and put debugging settings in a development-only configuration.
 
-## Erfolgskontrolle
+Record the shortest repeatable edit → run → inspect loop for your track. You should be able to reproduce it from a terminal without editor-specific state.
 
-Du kannst denselben Build und Test auch außerhalb der IDE ausführen. Ein Teammitglied benötigt
-keine nicht dokumentierte persönliche Editor-Konfiguration, um deine Änderung zu reproduzieren.
+## Check your understanding
 
-## Aufräumen
-
-Beende den Entwicklungsstack wie in der vorigen Lektion. Persönliche IDE-Dateien müssen nicht
-in das Repository aufgenommen werden.
+Show another learner how to repeat your workflow. Identify which files constitute the application build and which settings belong only to your editor.

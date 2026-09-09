@@ -1,42 +1,23 @@
-# Dockerfile-Muster für Python
+# Python: dependencies and runtime compatibility
 
-## Lernziele
+## Learning objectives
 
-Du begründest die Besonderheiten deines Tracks, ohne ein zweites, abweichendes Dockerfile aus der
-Dokumentation zu kopieren.
+Explain the dependency and artifact boundaries in your chosen image.
 
-## Voraussetzung
+## Prerequisites
 
-Die beiden gemeinsamen Lektionen in Modul 03. Referenz ist der
-[ausführbare Dockerfile](../../../02-language-quickstart/python/Dockerfile).
+The two shared Dockerfile lessons.
 
-## Übung
+## Exercise
 
-Prüfe zuerst `pyproject.toml` und `uv.lock`. Ein leeres oder manuell skizziertes Lockfile ist
-kein Lockfile. `uv sync --locked` muss aus einem frischen Checkout funktionieren.
-Die virtuelle Umgebung wird immer am Pfad `/app/.venv` aufgebaut und verwendet; der Pythonpfad
-bleibt zwischen Builder und Runtime kompatibel.
+Read the Python `Dockerfile` and `pyproject.toml`. The committed `uv.lock` controls dependency resolution. The build uses `uv sync --locked --no-dev`; a stale lockfile should fail rather than silently resolve a different environment.
 
-Im Runtime-Image laufen keine Paketinstallationen. Der Code gehört root und wird von UID 10001
-nur gelesen. Ein zusätzlicher Worker würde einen getrennten Aufgabenbestand halten; erhöhe die
-Workerzahl deshalb erst nach Einführung einer gemeinsamen Speicherlösung.
+The virtual environment is built for the container OS and Python version, then copied to a compatible runtime stage. A host virtual environment may contain incompatible paths or compiled extensions.
 
-Für lokale Pflege: `uv lock`, danach `uv sync --locked` und den HTTP-Vertrag prüfen.
-`requirements.txt` wird mit `uv export --locked --no-dev --no-emit-project --output-file requirements.txt`
-im Python-Trackordner erzeugt. Ändere diese Datei nicht unabhängig vom Lockfile.
+Make a source-only edit and rebuild twice. Compare the dependency layer with the source layer. Dependency changes require a lockfile update and rebuild; installing packages into a running container does not update the Dockerfile.
 
-Führe aus dem Repository-Wurzelverzeichnis den vollständigen Trackcheck aus:
+Reading: [uv in Docker](https://docs.astral.sh/uv/guides/integration/docker/).
 
-```bash
-python3 scripts/validate.py track --track python
-```
+## Check your understanding
 
-Er startet ein eigenes Compose-Projekt, prüft den HTTP-Vertrag und die Laufzeitkonfiguration und
-räumt nur dieses Testprojekt auf. Dockerzugriff ist erforderlich.
-
-## Erfolgskontrolle
-
-Du erklärst, welche Abhängigkeiten nur zum Bauen benötigt werden und welche beim Start vorhanden
-sein müssen. Du kannst einen Buildfehler von einem Fehler beim Containerstart unterscheiden.
-
-[Zurück zur Modulübersicht](../../shared-concepts/dockerfile-essentials-overview.md)
+Show the source change in the running API, identify the final artifact and explain which inputs trigger a rebuild. Restore your exercise edit and clean up your lab.

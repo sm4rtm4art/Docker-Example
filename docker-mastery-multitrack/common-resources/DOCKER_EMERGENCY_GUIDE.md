@@ -1,37 +1,31 @@
-# Fehlersuche ohne globale Bereinigung
+# Troubleshooting Docker labs
 
-Starte mit dem konkreten Symptom. Bewahre Logs und Fehlermeldungen, bevor du Ressourcen entfernst.
-Alle Befehle beziehen sich auf das Root-API-Labor im Repository-Wurzelverzeichnis.
+Start with the layer that failed. Run commands from the repository root unless you started a track-local project.
 
-```bash
-docker context show
-docker version
-docker compose -p docker-learning -f compose.lab.yml ps
-docker compose -p docker-learning -f compose.lab.yml logs --tail 100 task-api
-```
+| Symptom | First observation | Likely next step |
+| --- | --- | --- |
+| Cannot connect to Docker | `docker version`; `docker context show` | Check daemon availability and selected context |
+| Build cannot find a file | Build context and `.dockerignore` | Correct the context or required input path |
+| Port already allocated | `docker ps` and your host's listening ports | Stop the competing lab or choose another host port |
+| Container exits immediately | `docker compose -p docker-learning -f compose.lab.yml logs task-api` | Investigate startup command, configuration and dependencies |
+| Container is unhealthy | Inspect `.State.Health` | Read health-check output and test the configured endpoint |
+| API returns 404 | Requested method and path | Use `/api/tasks` and a real task ID |
+| Database client cannot connect | Service name, network and PostgreSQL health | Use `postgres`, not `localhost`, inside the client |
+| File write fails | Process UID, mount mode and ownership | Check whether the path should be writable |
+| Task data disappears | Was the API process restarted? | The sample API stores tasks in memory |
+| Grafana login fails after changing an env var | Existing Grafana volume | The initial-password variable does not reset an existing account |
 
-| Symptom | Gezielte Prüfung |
-| --- | --- |
-| Cannot connect to daemon | Docker starten, aktiven Kontext und Rechte prüfen |
-| COPY failed | Build-Kontext und `.dockerignore` mit echtem Pfad abgleichen |
-| Port already allocated | Konfliktport identifizieren; für das Labor `TASK_API_PORT` ändern |
-| Container beendet sich | Logs und Exitcode lesen; Startprogramm prüfen |
-| Healthcheck schlägt fehl | Route, vorhandenes Prüfprogramm und Startfrist prüfen |
-| Permission denied | Benutzer, Mountmodus und Eigentümer prüfen; kein pauschales `chmod 777` |
-| Daten nach Neustart weg | Prozessspeicher mit Volume-Dateien unterscheiden |
-| Grafana-Login passt nicht | Initialpasswort gilt für neue Datenbank; vorhandene Grafana-Daten beachten |
-
-Portwechsel in Bash, Repository-Wurzelverzeichnis:
+## Collect evidence
 
 ```bash
-export TASK_API_PORT=8082
-docker compose -p docker-learning -f compose.lab.yml up --build --wait
-python3 scripts/api_contract.py --base-url http://127.0.0.1:8082
+docker compose -p docker-learning -f compose.lab.yml ps -a
+docker compose -p docker-learning -f compose.lab.yml logs --tail=100 task-api
+CONTAINER_ID=$(docker compose -p docker-learning -f compose.lab.yml ps -q task-api)
+docker inspect --format '{{json .State}}' "$CONTAINER_ID"
 ```
 
-Prüfe davor mit `docker ps`, ob ein anderer Dienst den ursprünglichen Port belegt.
-Stoppe keine fremden Container, um Platz zu schaffen. Bei Speicherknappheit hilft zunächst
-`docker system df` als reine Bestandsaufnahme.
+If the container has already exited, obtain its ID with `ps -a -q task-api`. Record the command, relevant output, expected result and smallest reproduction. Remove credentials before sharing logs or resolved configuration.
 
-[Cleanup-Anleitung](../../scripts/scripts-utilities-guide.md) und
-[ausführliche Diagnoseübung](../05-development-workflow/02-debugging-containers.md).
+Avoid global cleanup as a troubleshooting step. Use `python3 scripts/cleanup.py api`, `database` or `monitoring` for the named course projects. Volumes are retained unless you explicitly add `--delete-data`.
+
+For permission issues, read [storage and permissions](VOLUMES_AND_PERMISSIONS_GUIDE.md). Do not solve Docker access problems by making the socket world-writable or running an application privileged.

@@ -1,59 +1,36 @@
-# Container systematisch debuggen
+# Diagnose a failing container
 
-## Lernziele
+## Learning objectives
 
-Du formulierst eine prüfbare Hypothese und grenzt Build-, Start-, Netzwerk- und Anwendungsfehler ein.
+Use configuration, process state, logs and health output to narrow down a failure.
 
-## Voraussetzung
+## Prerequisites
 
-Repository-Wurzelverzeichnis; ein ausgewählter Track in `TASK_TRACK`.
+A running root API lab. Commands use the repository root.
 
-## Übung
+## Exercise
 
 ```bash
-docker compose -p docker-learning -f compose.lab.yml up --build --wait
-docker compose -p docker-learning -f compose.lab.yml ps
-docker compose -p docker-learning -f compose.lab.yml logs --tail 100 task-api
+docker compose -p docker-learning -f compose.lab.yml ps -a
+docker compose -p docker-learning -f compose.lab.yml logs --tail=100 task-api
 docker compose -p docker-learning -f compose.lab.yml config
-curl -i http://127.0.0.1:8080/health
+CONTAINER_ID=$(docker compose -p docker-learning -f compose.lab.yml ps -q task-api)
+docker inspect --format '{{json .State}}' "$CONTAINER_ID"
 ```
 
-Arbeite vom beobachteten Fehler zur nächstkleineren Frage:
+Distinguish build failures from startup failures and HTTP failures. A process can be running while a route fails. An unhealthy container has failed its configured health check; Docker does not automatically restart it just because health becomes unhealthy.
 
-| Beobachtung | Nächste Prüfung | Mögliche Ursache |
-| --- | --- | --- |
-| Build scheitert bei COPY | Kontext und `.dockerignore` | Benötigte Datei ausgeschlossen |
-| Container beendet sich sofort | Exitcode und Logs | Falsches Startprogramm oder fehlende Bibliothek |
-| Hostverbindung abgelehnt | `ps`, Ports, aktiver Docker-Kontext | Keine Freigabe, falscher Port oder Dienst beendet |
-| HTTP 404 | Angefragten Pfad mit Vertrag vergleichen | HTTP-Server läuft; Route stimmt nicht |
-| Health `unhealthy` | Healthcheck-Logs und Startdauer | Prüfbefehl fehlt, Pfad falsch oder Anwendung unbereit |
-| Schreiben scheitert | Mountmodus, UID und Dateirechte | Gewollter Schreibschutz oder falscher Eigentümer |
+In a second terminal, request an unpublished host port such as `curl --max-time 3 http://127.0.0.1:65534/health` after checking that port is unused. Compare the connection error with an HTTP 404 from `http://127.0.0.1:8080/missing`. The first concerns connectivity; the second proves an HTTP server responded.
 
-### Ein kontrollierter Fehler
-
-Rufe `/api/does-not-exist` auf. Erwarte HTTP 404 und erkläre, warum du jetzt weder Firewall noch
-Docker-Neuinstallation untersuchen musst. Prüfe anschließend `/health` und stelle die Verbindung
-zwischen Netzwerkfunktion und Anwendungsroute her.
-
-Untersuche den echten Healthcheck und Benutzer:
+For filesystem issues, inspect the process identity and mounts:
 
 ```bash
-container_id=$(docker compose -p docker-learning -f compose.lab.yml ps -q task-api)
-docker inspect "$container_id" --format '{{json .State.Health}}'
 docker compose -p docker-learning -f compose.lab.yml exec task-api id
+docker inspect --format '{{json .Mounts}}' "$CONTAINER_ID"
 ```
 
-`docker exec` benötigt ein im Image vorhandenes Programm. Ein fehlendes `bash` bedeutet nicht,
-dass der Container defekt ist. In minimalen Images kann auch `sh` fehlen; nutze dann Logs,
-Inspect oder eine geeignete externe Diagnoseumgebung.
+Avoid installing tools into the running runtime container as a permanent fix. Make a reproducible Dockerfile or configuration change, then rebuild and verify it. Clean up with `python3 scripts/cleanup.py api`.
 
-## Erfolgskontrolle
+## Check your understanding
 
-Beschreibe einen Fehler mit Symptom, Hypothese, genau einem entscheidenden Test und Ergebnis.
-Vermeide als erste Maßnahme globale Prune-Befehle: Sie zerstören Belege und können fremde Daten treffen.
-
-## Aufräumen
-
-```bash
-python3 scripts/cleanup.py api
-```
+Explain what each observation rules out. Diagnose an intentionally wrong port without changing application code or broadening filesystem permissions.

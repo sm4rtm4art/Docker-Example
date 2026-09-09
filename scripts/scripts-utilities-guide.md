@@ -1,41 +1,26 @@
-# Prüf- und Aufräumskripte
+# Validation and cleanup commands
 
-Alle Befehle im Repository-Wurzelverzeichnis. Python 3.12+ ist erforderlich.
+Run from the repository root with Python 3.12+. See [module 09](../docker-mastery-multitrack/09-cicd-automation/index.md) for check coverage and learning evidence.
 
-| Befehl | Wirkung |
+| Command | Purpose |
 | --- | --- |
-| `python3 scripts/validate.py static` | Syntax, lokale Links, Lernstruktur; benötigt PyYAML |
-| `python3 scripts/validate.py configs` | Compose-Konfigurationen auflösen |
-| `python3 scripts/validate.py track --track python` | Isolierter Runtime-Check; auch Rust/Java |
-| `python3 scripts/validate_dev.py --track python` | Echte Dev-Konfiguration; auch Rust |
-| `python3 scripts/validate.py database` | DNS, SQL und Persistenz prüfen |
-| `python3 scripts/validate.py monitoring` | API, Prometheus und Grafana prüfen |
-| `python3 scripts/validate_kind.py --track python` | Optionales isoliertes kind-Labor |
-| `python3 scripts/api_contract.py` | Sieben HTTP-Tests gegen die laufende lokale API |
+| `python3 scripts/validate.py static` | Syntax, local Markdown links and module structure; requires PyYAML |
+| `python3 scripts/validate.py configs` | Resolve all Compose configurations |
+| `python3 scripts/validate.py track --track python` | Isolated runtime lab; also Rust and Java |
+| `python3 scripts/validate_dev.py --track python` | Development lab; also Rust |
+| `python3 scripts/validate.py database` | Database connection and persistence |
+| `python3 scripts/validate.py monitoring` | API, Prometheus and Grafana |
+| `python3 scripts/validate_kind.py --track python` | Optional isolated kind lab |
+| `python3 scripts/api_contract.py` | HTTP checks against the running local API |
 
-## Interaktive Kursprojekte aufräumen
+## Cleanup
 
-```bash
-python3 scripts/cleanup.py api
-python3 scripts/cleanup.py database
-python3 scripts/cleanup.py monitoring
-```
+`python3 scripts/cleanup.py api`, `database` and `monitoring` remove the fixed course projects `docker-learning`, `docker-learning-db` and `docker-learning-monitoring`, respectively. Named volumes remain unless you explicitly add `--delete-data`.
 
-Die Skripte entfernen nur die fest benannten Projekte `docker-learning`, `docker-learning-db`
-und `docker-learning-monitoring`. Named Volumes bleiben standardmäßig erhalten.
-`--delete-data` löscht ausdrücklich die Volumes des gewählten Kursprojekts. Verwende diese
-Projektnamen deshalb nur für den Kurs.
+Track-local projects use different names. Stop them with `docker compose down` (or `docker compose -f compose.dev.yml down`) from the relevant track directory. Automated validation uses random project names and removes its own test volumes.
 
-Tracklokale Starts mit `docker compose up` haben andere Projektnamen und werden im jeweiligen
-Trackordner mit `docker compose down` beendet. Die automatischen Validierungen erzeugen eigene
-zufällige Projektnamen und räumen sie selbst auf, einschließlich ihrer Testvolumes.
+The shell and PowerShell cleanup entry points delegate to `cleanup.py`; use `python3 scripts/cleanup.py --help` for supported arguments.
 
-Die alten Einstiegsskripte `run-cleanup.sh`, `docker-cleanup-v2.sh` und `docker-cleanup.ps1`
-leiten nur noch an `cleanup.py` weiter. Alte globale Optionen werden nicht unterstützt;
-`python3 scripts/cleanup.py --help` zeigt die zulässigen Parameter.
+## Results
 
-## Fehlerberichte
-
-Prüfungen liefern bei einem Fehler einen Exitcode ungleich 0. Logs und HTTP-Testberichte liegen
-unter `reports/`. Fehlender Dockerzugriff ist ein nicht ausgeführter Containercheck, kein Erfolg.
-Die vollständige Prüfbedeutung steht in [Modul 09](../docker-mastery-multitrack/09-cicd-automation/cicd-overview.md).
+A failed check exits with a nonzero status. Runtime logs and HTTP reports are written under `reports/`. A missing Docker daemon means the runtime check could not run; it is not a passing result.

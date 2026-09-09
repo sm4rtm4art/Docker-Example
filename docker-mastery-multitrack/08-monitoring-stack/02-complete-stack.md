@@ -1,15 +1,14 @@
-# Einen vollständigen Monitoring-Stack betreiben
+# Run API, Prometheus and Grafana
 
-## Lernziele
+## Learning objectives
 
-Du startest API, Prometheus und Grafana mit bereitgestellten Konfigurationen und prüfst den Datenweg.
+Trace service DNS, metric scraping, provisioning and retained history.
 
-## Voraussetzung
+## Prerequisites
 
-Modul 08 Grundlagen. Alle Befehle in Bash im Repository-Wurzelverzeichnis.
-Beende vorher andere Kursinstanzen auf 8080, 9090 oder 3000. Die Zugangsdaten gelten nur lokal.
+The metrics lesson. Stop other labs on 8080, 9090 and 3000. Commands run from the repository root.
 
-## Übung
+## Exercise
 
 ```bash
 python3 scripts/cleanup.py api
@@ -19,61 +18,36 @@ docker compose -p docker-learning-monitoring -f compose.lab.yml -f compose.monit
 docker compose -p docker-learning-monitoring -f compose.lab.yml -f compose.monitoring.yml up --build --wait
 ```
 
-Wähle stattdessen `rust` oder `java`, wenn das dein Track ist. Das Passwort ist ein **DEV-ONLY**-
-Beispiel; verwende keinen vorhandenen persönlichen Zugang. Bei Grafana wird der Initialzugang beim
-ersten Anlegen der Datenbank eingerichtet. Eine spätere Änderung der Umgebungsvariable setzt ein
-bereits gespeichertes Passwort nicht automatisch zurück.
+Choose `rust` or `java` if preferred. The example password is **DEV ONLY**; do not reuse a personal password. Grafana creates its initial account when its database is first initialised. Changing the environment variable later does not reset an existing account password.
 
-Öffne nach dem Start:
-
-| Adresse | Prüfung |
+| Local URL | Observation |
 | --- | --- |
-| `http://127.0.0.1:8080/health` | API antwortet mit `storage: memory` |
-| `http://127.0.0.1:9090/targets` | Target `task-api` ist UP |
-| `http://127.0.0.1:3000` | Anmeldung als `learner` mit dem gewählten Laborpasswort |
+| `http://127.0.0.1:8080/health` | API reports healthy and memory storage |
+| `http://127.0.0.1:9090/targets` | `task-api` target is UP |
+| `http://127.0.0.1:3000` | Sign in as `learner` using the lab password |
 
-In Grafana ist die Datenquelle Prometheus voreingestellt. Öffne das Dashboard **Docker Task API**.
-Lege eine Aufgabe über die API an und warte mindestens einen Scrape-Zyklus (fünf Sekunden) sowie
-den Dashboard-Refresh. Die Panels zeigen Bestände, keine erfundenen Durchsatzwerte.
-`up --wait` kennt hier nur für die API einen Healthcheck; Targets und Grafana sind separat zu prüfen.
+Open the **Docker Task API** dashboard in Grafana. Create tasks and wait for the five-second scrape interval plus the dashboard refresh. Panels show task counts. `up --wait` checks the API's health check; verify the Prometheus target and Grafana separately.
 
-### Den Datenweg nachvollziehen
+Prometheus connects to `task-api:8080`; Grafana connects to `prometheus:9090`. Those are container-network addresses. Your browser uses published host ports. Read `prometheus.yml` and the Grafana provisioning files in this module: configuration is mounted read-only, while each monitoring service stores its data in a named volume.
 
-Prometheus erreicht `task-api:8080` im Compose-Netzwerk, Grafana erreicht `prometheus:9090`.
-Dein Browser verwendet dagegen veröffentlichte Hostports. Die Konfigurationsdateien sind
-schreibgeschützt eingebunden; Prometheus und Grafana schreiben ihre Daten in eigene Named Volumes.
+Stop and start only the API:
 
 ```bash
 docker compose -p docker-learning-monitoring -f compose.lab.yml -f compose.monitoring.yml stop task-api
 ```
 
-Beobachte in Prometheus, wie `up` nach dem nächsten erfolglosen Scrape auf 0 wechselt.
-Alte Messwerte können in historischen Diagrammen weiterhin sichtbar bleiben. Starte die API wieder:
+Query `up` in Prometheus after the next scrape. Expect 0. Historical task values can remain visible in graphs.
 
 ```bash
 docker compose -p docker-learning-monitoring -f compose.lab.yml -f compose.monitoring.yml start task-api
 ```
 
-Der Aufgabenbestand ist leer. Die Prometheus-Historie bleibt im eigenen Volume erhalten.
+The task store starts empty; Prometheus retains its own history. Validate a separate isolated stack with `python3 scripts/validate.py monitoring --track python`.
 
-## Erfolgskontrolle
+Clean up with `python3 scripts/cleanup.py monitoring`. Add `--delete-data` only when you intend to remove the lab's measurement history and Grafana data.
 
-```bash
-python3 scripts/validate.py monitoring --track python
-```
+Reading: [Prometheus configuration](https://prometheus.io/docs/prometheus/latest/configuration/configuration/), [Grafana provisioning](https://grafana.com/docs/grafana/latest/administration/provisioning/).
 
-Der Check startet ein isoliertes Projekt auf freien lokalen Ports, prüft den API-Vertrag, einen
-Prometheus-Scrape und die Grafana-Health-Antwort. Er prüft keine Screenshots, Alerts oder realen
-Betriebs-SLOs. Lies zusätzlich das eingecheckte Dashboard und die Datenquellenkonfiguration.
+## Check your understanding
 
-## Aufräumen
-
-```bash
-python3 scripts/cleanup.py monitoring
-```
-
-Zum bewussten Löschen der Messhistorie und Grafana-Daten:
-`python3 scripts/cleanup.py monitoring --delete-data`.
-
-Quellen: [Prometheus-Konfiguration](https://prometheus.io/docs/prometheus/latest/configuration/configuration/),
-[Grafana-Provisioning](https://grafana.com/docs/grafana/latest/administration/provisioning/).
+Show the target, datasource and panel involved in one measurement. Explain why the history survives API restart but the tasks do not. Identify the independent checks used for each service.

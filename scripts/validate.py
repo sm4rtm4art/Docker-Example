@@ -97,7 +97,7 @@ def static():
     curriculum = ROOT / "curriculum.json"
     for module in json.loads(curriculum.read_text())["modules"]:
         text = (ROOT / module["path"]).read_text()
-        for heading in ("## Lernziele", "## Voraussetzung", "## Übung", "## Erfolgskontrolle"):
+        for heading in ("## Learning objectives", "## Prerequisites", "## Exercise", "## Check your understanding"):
             if heading not in text:
                 errors.append(f"{module['path']}: missing {heading}")
     require(not errors, "\n".join(errors))

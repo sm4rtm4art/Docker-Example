@@ -1,57 +1,31 @@
-# Multi-Stage-Builds: Werkzeuge und Laufzeit trennen
+# Multi-stage builds
 
-## Lernziele
+## Learning objectives
 
-Du kannst ein Artefakt zwischen Stufen übertragen und seine Laufzeitabhängigkeiten begründen.
+Separate build tools from runtime dependencies without losing required artifacts.
 
-## Voraussetzung
+## Prerequisites
 
-Dockerfile-Grundlagen. Befehle laufen im Repository-Wurzelverzeichnis.
+Read the build-context lesson.
 
-## Konzept
+## Exercise
 
-Eine neue `FROM`-Anweisung beginnt eine neue Stufe. Nur gezielt kopierte Dateien und die gewählte
-Runtime-Basis gelangen ins finale Image. Ein kleineres Image ist leichter zu verteilen, aber nicht
-allein deshalb sicher. Bibliotheken, Zertifikate, Benutzer und Startkommando müssen zusammenpassen.
+Open the Dockerfile for your track and find each `FROM`, stage name and `COPY --from`. Draw the path from source files to the final artifact.
 
-| Track | Build-Artefakt | Runtime benötigt |
+| Track | Build artifact | Runtime requirement |
 | --- | --- | --- |
-| Python | Virtualenv plus Quellcode | Kompatiblen Python-Interpreter und Bibliotheken |
-| Rust | Kompilierte ausführbare Datei | Passende libc und ggf. dynamische Bibliotheken |
-| Java | Ausführbares Spring-Boot-JAR | Passende JRE |
+| Python | Virtual environment | Compatible Python interpreter and runtime libraries |
+| Rust | Native executable | Compatible ABI and dynamically linked libraries |
+| Java | Application JAR | Compatible JRE |
 
-Ein Virtualenv ist nicht beliebig zwischen Betriebssystemen, Architekturen oder Python-Versionen
-verschiebbar. Ein Rust-Binary ist nicht automatisch statisch gelinkt. Alpine verwendet musl,
-Debian glibc. Deshalb verwenden die Rust-Stufen hier dieselbe Debian-Familie.
+A final stage starts from its own base image. Files from a builder do not appear there unless copied. A small final image can reduce shipped tools and dependencies, but size alone does not establish security.
 
-## Übung
+Build your track and inspect the resulting image. Locate its application artifact and verify the API. Then read the relevant language pattern below the shared lessons.
 
-Für Java oder Rust (ersetze `java` bei Bedarf):
+BuildKit cache mounts keep reusable build data outside normal image layers. Files required by a later stage must be copied into a normal filesystem path before that build step finishes. In the Rust Dockerfile, find the copy out of the target cache and explain why it exists.
 
-```bash
-export TASK_TRACK=java
-docker build --target builder -t task-api:builder "docker-mastery-multitrack/02-language-quickstart/$TASK_TRACK"
-docker build -t task-api:runtime "docker-mastery-multitrack/02-language-quickstart/$TASK_TRACK"
-docker image inspect task-api:builder task-api:runtime --format '{{.RepoTags}} {{.Size}}'
-docker run --rm --entrypoint sh task-api:runtime -c 'id; command -v javac || command -v cargo || true'
-```
+Reading: [Multi-stage builds](https://docs.docker.com/build/building/multi-stage/), [cache mounts](https://docs.docker.com/build/cache/optimize/).
 
-Für Python heißt die Abhängigkeitsstufe `dependencies`. Passe `--target` entsprechend an.
-Erwarte keine festen Größenwerte: Architektur, Basisstand und Abhängigkeiten beeinflussen das Ergebnis.
-Notiere die tatsächlichen Werte und erkläre den Unterschied.
+## Check your understanding
 
-Beim Rust-Build ist `target/` ein Cache-Mount. Sein Inhalt wird nicht automatisch Teil des Layers.
-Deshalb kopiert derselbe RUN-Schritt das Binary nach `/tmp/task-api`, bevor die Runtime es übernimmt.
-
-## Erfolgskontrolle
-
-Du findest das `COPY --from=...` und erklärst dessen Quellpfad. Du kannst sagen, welche Dateien
-bei einem Wechsel der Runtime-Basis erneut auf Kompatibilität geprüft werden müssen.
-
-## Aufräumen
-
-```bash
-docker image rm task-api:builder task-api:runtime
-```
-
-Quelle: [Multi-Stage-Builds](https://docs.docker.com/build/building/multi-stage/).
+List the compiler/package manager files excluded from the final stage and the runtime dependencies that remain. Explain why copying a native binary between unrelated base distributions may fail.

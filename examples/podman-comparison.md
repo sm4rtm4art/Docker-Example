@@ -1,8 +1,14 @@
-# Docker und Podman vergleichen
+# Optional Podman comparison
 
-Der fachliche Vergleich ist in [Modul 11](../docker-mastery-multitrack/11-beyond-docker/container-alternatives-overview.md)
-beschrieben. Ein OCI-kompatibles Image erleichtert den Wechsel, ersetzt aber keinen Laufzeittest.
+Prerequisites: complete the Docker path and install Podman using its [official instructions](https://podman.io/docs/installation). This is an exploratory exercise; validate behaviour in your own environment.
 
-Prüfe bei einem eigenen Portierungsversuch mindestens Netzwerk/DNS, Hostportbindung, UID-Mapping,
-Mountrechte und den gemeinsamen HTTP-Vertrag. Die normale CI dieses Repositorys verwendet Docker;
-sie bestätigt keine pauschale Podman-Kompatibilität.
+From the repository root, with host port 8080 free:
+
+```bash
+podman build -t localhost/task-api:learning docker-mastery-multitrack/02-language-quickstart/python
+podman run --name task-api-podman -d -p 127.0.0.1:8080:8080 --read-only --tmpfs /tmp:rw,noexec,nosuid,size=64m --cap-drop ALL --security-opt no-new-privileges localhost/task-api:learning
+```
+
+Wait for `curl --fail http://127.0.0.1:8080/health` to succeed, then run `python3 scripts/api_contract.py`. Inspect the process identity, mounts and port binding. Compare these with the Docker lab; do not infer complete Compose compatibility from this single-container test.
+
+Clean up with `podman rm -f task-api-podman` and `podman image rm localhost/task-api:learning`. For the conceptual overview, see [Beyond Docker](../docker-mastery-multitrack/11-beyond-docker/index.md).

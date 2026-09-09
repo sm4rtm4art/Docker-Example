@@ -1,42 +1,25 @@
-# Minimale Images mit nachvollziehbaren Grenzen
+# Choose an appropriate runtime image
 
-## Lernziele
+## Learning objectives
 
-Du wählst eine Runtime-Basis anhand ihrer Anforderungen und prüfst die Folgen einer Verkleinerung.
+Evaluate runtime compatibility, maintenance and size together.
 
-## Voraussetzung
+## Prerequisites
 
-Multi-Stage-Builds und die Sicherheitsübung. Verwende die echten Track-Dockerfiles als Ausgangspunkt.
+The multi-stage and security lessons.
 
-## Konzept
+## Exercise
 
-Weniger Pakete können Wartung und Angriffsfläche reduzieren. Größe allein misst weder Sicherheit
-noch Performance. Eine Shell ist ein Diagnosewerkzeug und zugleich zusätzliche Software; ihre
-Entfernung ist eine Abwägung. Distroless bedeutet nicht pauschal non-root: Das hängt vom gewählten
-Image und dessen Variante ab.
+Inspect the final stage of each track's Dockerfile. Compare the application artifact, interpreter or runtime, system libraries and health-check tool.
 
-Ein `scratch`-Image enthält keine Shell, keinen Paketmanager und keine Zertifikate. Es eignet sich
-nur, wenn das kopierte Programm und seine benötigten Dateien dafür vorbereitet wurden. Ein Rust-
-Binary kann dynamisch gelinkt sein. Ein Python-Virtualenv ersetzt nicht den Interpreter.
+A smaller image can reduce downloads and shipped packages. It can also remove tools you currently use for health checks or debugging. Alpine uses musl libc; Debian-family images generally use glibc. Native Python extensions and Rust binaries must be built for a compatible runtime environment.
 
-Fehlendes curl verhindert keinen Healthcheck grundsätzlich: Ein vorhandenes Programm oder die
-Anwendung selbst kann prüfen, und ein Orchestrator kann HTTP-Probes von außen ausführen.
-Der Python-Track nutzt dafür bereits die Standardbibliothek.
+Choose one possible reduction for your track and write down its compatibility implications before changing the Dockerfile. If you implement it, rebuild, run the API contract, verify health checks and repeat the runtime security check. Measure the resulting image size with `docker image inspect`; do not infer it from the base image name.
 
-## Übung
+Tags can be updated by their publisher. Digests select a specific image, but require a deliberate update process to receive fixes. Keep base OS and runtime support periods in your maintenance decisions.
 
-Prüfe in deinem Runtime-Dockerfile jede installierte Systemabhängigkeit und notiere ihren Zweck.
-Wähle eine denkbare Verkleinerung und formuliere vor der Umsetzung den erforderlichen Nachtest:
-Build, Start, TLS-Verbindung falls relevant, Healthcheck, UID und Stop-Signal.
+Reading: [Docker build best practices](https://docs.docker.com/build/building/best-practices/).
 
-Baue das unveränderte Referenzimage und messe dessen reale Größe wie in Modul 03. Eine optionale
-Distroless-Variante ist erst erfolgreich, wenn sie dieselben Laufzeitprüfungen erfüllt. Der Kurs
-enthält dafür bewusst keine ungetestete zweite „sichere“ Kopiervorlage.
+## Check your understanding
 
-## Erfolgskontrolle
-
-Du kannst eine Basisentscheidung mit Kompatibilität, Pflege, Diagnose und Rechten begründen.
-Du erklärst, warum ein Scanner ohne Befunde keine Abwesenheit von Schwachstellen beweist.
-
-Quellen: [Docker-Buildempfehlungen](https://docs.docker.com/build/building/best-practices/),
-[Distroless-Projekt](https://github.com/GoogleContainerTools/distroless).
+Defend a base-image choice using runtime compatibility, update strategy and diagnosability. Explain what a smaller size proves and what it does not.

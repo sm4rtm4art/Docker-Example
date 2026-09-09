@@ -1,59 +1,33 @@
-# Dockerfile-Grundlagen: vom Kontext zum Prozess
+# Build context, layers and cache
 
-## Lernziele
+## Learning objectives
 
-Du ordnest jede zentrale Dockerfile-Anweisung einer Wirkung beim Build oder beim Start zu.
+Explain how Docker finds input files and decides whether a build step can be reused.
 
-## Voraussetzung
+## Prerequisites
 
-Modul 02; ein ausgewählter Track. Befehle starten im Repository-Wurzelverzeichnis.
+Module 02. Commands run from the repository root.
 
-## Konzept
-
-| Anweisung | Wirkung | Häufiges Missverständnis |
-| --- | --- | --- |
-| FROM | Basis bzw. neue Build-Stufe | Ein Tag ist kein Digest |
-| WORKDIR | Arbeitsverzeichnis für folgende Anweisungen | Ändert nicht dein Host-Terminal |
-| COPY | Dateien aus dem Kontext oder einer Stufe übernehmen | Der Pfad bezieht sich nicht beliebig auf den Host |
-| RUN | Prozess während des Builds ausführen | Läuft nicht bei jedem Containerstart |
-| ENV | Variable als Imagekonfiguration setzen | Kein sicherer Ort für Passwörter |
-| USER | Standardbenutzer für folgende Schritte und Laufzeit | Bedeutet nicht, dass der Docker-Daemon rootless läuft |
-| EXPOSE | Beabsichtigten Containerport dokumentieren | Veröffentlicht keinen Hostport |
-| CMD / ENTRYPOINT | Startprogramm und Standardargumente | Shell-Form kann die Signalweiterleitung beeinflussen |
-
-Dateisystemändernde Schritte erzeugen Layer; Metadatenanweisungen sind nicht pauschal zusätzliche
-Dateisystemschichten. Ein späteres Löschen entfernt vertrauliche Daten nicht aus früheren Layern.
-
-## Übung
+## Exercise
 
 ```bash
 export TASK_TRACK=python
-docker build --progress=plain -t task-api:cache "docker-mastery-multitrack/02-language-quickstart/$TASK_TRACK"
-docker build --progress=plain -t task-api:cache "docker-mastery-multitrack/02-language-quickstart/$TASK_TRACK"
-docker image history task-api:cache
-docker image inspect task-api:cache --format '{{json .Config}}'
+docker build --progress=plain -t task-api:lesson "docker-mastery-multitrack/02-language-quickstart/$TASK_TRACK"
+docker build --progress=plain -t task-api:lesson "docker-mastery-multitrack/02-language-quickstart/$TASK_TRACK"
+docker history task-api:lesson
+docker image inspect task-api:lesson
 ```
 
-Wiederhole den Build nach einer kleinen Änderung an der Root-Antwort deines Tracks. Notiere zuerst,
-welche Schritte du für erneut notwendig hältst. Vergleiche dies mit `CACHED` im Buildprotokoll.
-RUN-Schritte holen bei einem Cachetreffer nicht automatisch neue Paketstände aus dem Netz.
-Ein Build mit `--pull` aktualisiert Basisreferenzen; `--no-cache` deaktiviert den Buildcache.
-Keines davon ersetzt eine kontrollierte Versionsaktualisierung.
+The final argument is the **build context**. `COPY` sources are relative to that context, not to your current directory or an arbitrary host path. `.dockerignore` excludes files from the context before they reach the builder. Keep credentials, host virtual environments and build outputs out; retain manifests, lockfiles and source files needed by `COPY`.
 
-Untersuche `.dockerignore`: Sind `.venv/`, `target/` und lokale Geheimnisse ausgeschlossen?
-Bleiben Quellcode, Manifeste und Lockfiles zugänglich? Teste in einer Kopie des Trackordners,
-was passiert, wenn `src/` ausgeschlossen wird. Erwartet wird ein fehlgeschlagener COPY-Schritt.
+`FROM` selects a base; `RUN` executes a build command; `COPY` adds files; `WORKDIR` sets the working directory; `USER` selects a runtime identity. Exec-form `CMD` provides a default command without an extra shell. `ENV` persists in image configuration. Neither `ENV` nor `ARG` is a suitable channel for build secrets; use BuildKit secret mounts when credentials are needed.
 
-## Erfolgskontrolle
+Change one response in your track's source, rebuild, and observe where the cache stops being reused. Copying dependency manifests before frequently changing source can preserve expensive dependency steps. Cache reuse is an optimisation, not proof that an image is current or secure.
 
-Du kannst den Build-Kontext zeigen, zwei unterschiedliche Cache-Invalidierungen erklären und
-sagen, weshalb Geheimnisse weder in ARG/ENV noch in COPY-Dateien gehören.
+Inspect the image history and final metadata. History is useful for understanding layers but is not a complete security scan. Remove the exercise tag with `docker image rm task-api:lesson` when finished.
 
-## Aufräumen
+Reading: [Build context](https://docs.docker.com/build/concepts/context/), [cache invalidation](https://docs.docker.com/build/cache/invalidation/), [build secrets](https://docs.docker.com/build/building/secrets/).
 
-Entferne nur das Übungsimage mit `docker image rm task-api:cache`, nachdem kein Container es mehr nutzt.
-Setze deine kleine Source-Änderung gezielt zurück.
+## Check your understanding
 
-Quellen: [Dockerfile-Referenz](https://docs.docker.com/reference/dockerfile/),
-[Buildcache](https://docs.docker.com/build/cache/),
-[Build-Kontext](https://docs.docker.com/build/building/context/).
+Explain why `COPY ../secret.txt .` cannot import an arbitrary file outside the context. Identify one source edit that reuses dependency installation and one dependency edit that invalidates it.

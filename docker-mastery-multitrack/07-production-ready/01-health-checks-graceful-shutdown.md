@@ -1,52 +1,39 @@
-# Healthchecks und geordnetes Beenden
+# Health checks and graceful shutdown
 
-## Lernziele
+## Learning objectives
 
-Du unterscheidest Prozessstart, erfolgreiche HTTP-Prüfung und fachliche Bereitschaft.
+Distinguish a running process, a healthy service and a clean shutdown.
 
-## Voraussetzung
+## Prerequisites
 
-Repository-Wurzelverzeichnis, ausgewählter `TASK_TRACK`.
+Start the root API lab. Run from the repository root.
 
-## Konzept
-
-Ein Docker-Healthcheck führt einen Befehl **im Container** aus. Er benötigt ein vorhandenes Programm
-und eine passende Route. Status `unhealthy` allein startet einen Standalone-Container nicht neu.
-Eine Restart-Policy reagiert auf Prozessbeendigung; sie ist kein allgemeiner Health-Reparaturdienst.
-
-`/health` prüft in diesem Kurs die Erreichbarkeit des API-Prozesses. Eine Datenbank wird nicht geprüft,
-weil keine angebunden ist. Mit echten Abhängigkeiten sollten Liveness und Readiness getrennt werden:
-Ein Datenbankausfall soll nicht zwangsläufig alle API-Prozesse in Neustartschleifen versetzen.
-
-Beim Stoppen sendet Docker üblicherweise SIGTERM und nach Ablauf der Frist SIGKILL. Exec-Form startet
-das eigentliche Programm ohne zusätzliche Shell. Java und Rust erhalten explizite Shutdownfristen;
-Uvicorn behandelt das Stop-Signal ebenfalls. Die Compose-Frist beträgt 30 Sekunden.
-
-## Übung
+## Exercise
 
 ```bash
-docker compose -p docker-learning -f compose.lab.yml up --build --wait
-container_id=$(docker compose -p docker-learning -f compose.lab.yml ps -q task-api)
-docker inspect "$container_id" --format '{{json .State.Health}}'
+CONTAINER_ID=$(docker compose -p docker-learning -f compose.lab.yml ps -q task-api)
+docker inspect --format '{{json .State.Health}}' "$CONTAINER_ID"
+curl --fail http://127.0.0.1:8080/health
 docker compose -p docker-learning -f compose.lab.yml stop task-api
-docker inspect "$container_id" --format '{{json .State}}'
-docker compose -p docker-learning -f compose.lab.yml logs --tail 50 task-api
+docker inspect --format '{{json .State}}' "$CONTAINER_ID"
 ```
 
-Prüfe Exitcode, OOMKilled und Logs. Der automatische Test akzeptiert 0 oder 143 (SIGTERM),
-aber nicht 137 (SIGKILL). Das ist ein grundlegender Stop-Nachweis, kein Test laufender Langzeitanfragen.
-Eine spätere Erweiterung sollte eine echte laufende Anfrage beim Stoppen beobachten.
+The Dockerfile health check calls `/health`. Inspect the recorded exit codes and output, not just the status label. The endpoint checks this in-memory application; it does not establish readiness of an external database.
 
-## Erfolgskontrolle
+Stopping normally sends the configured stop signal (SIGTERM by default) to the main process, waits for the grace period, then uses SIGKILL if necessary. Exec-form startup avoids an extra shell that could interfere with signal handling. The supplied frameworks handle termination and Compose allows 30 seconds to stop.
 
-Erkläre, warum „HTTP 200“, „Container running“ und „alle Geschäftsabhängigkeiten bereit“ drei
-unterschiedliche Aussagen sind. Beschreibe, was bei Überschreitung der Stop-Frist geschieht.
+A clean stop and `OOMKilled: false` are useful evidence, but an exit code alone does not prove that all in-flight requests completed. Investigate termination under realistic traffic before relying on it operationally. Docker health status by itself does not cause a restart; restart policies respond to process exit under their configured conditions.
 
-## Aufräumen
+Restart and check that tasks are empty:
 
 ```bash
+docker compose -p docker-learning -f compose.lab.yml up --wait
+curl --fail http://127.0.0.1:8080/api/tasks
 python3 scripts/cleanup.py api
 ```
 
-Quellen: [HEALTHCHECK](https://docs.docker.com/reference/dockerfile/#healthcheck),
-[Container stoppen](https://docs.docker.com/reference/cli/docker/container/stop/).
+Reading: [Docker stop](https://docs.docker.com/reference/cli/docker/container/stop/), [HEALTHCHECK](https://docs.docker.com/reference/dockerfile/#healthcheck).
+
+## Check your understanding
+
+Explain why unhealthy, exited and OOM-killed require different investigations. Describe the effect of exhausting the shutdown grace period.

@@ -1,64 +1,34 @@
-# Lernpfad und Lernvereinbarung
+# Choose your route
 
-## Zielgruppe und Arbeitsweise
+Follow the modules in order with one language track. Python uses an interpreted runtime, Rust produces a native binary, and Java runs a JAR on the JVM. The HTTP behaviour is shared, so you can focus on Docker before comparing languages.
 
-Dieser Kurs setzt einfache Terminalkenntnisse und Erfahrung mit einer Programmiersprache voraus.
-Wähle **einen** Track: Python/FastAPI, Rust/Actix Web oder Java/Spring Boot. Alle drei
-implementieren denselben [API-Vertrag](../TASK_API_SPECIFICATION.md).
+| Module | Time | Completion evidence |
+| --- | --- | --- |
+| [00 — Prepare your environment](00-prerequisites/index.md) | 30–60 min | Verify your tools and identify the Docker daemon. |
+| [01 — Containers and images](01-docker-fundamentals/index.md) | 60–90 min | Explain container lifecycle, isolation and published ports. |
+| [02 — Run a Task API](02-language-quickstart/index.md) | 60–90 min | Build one language track and verify its HTTP behaviour. |
+| [03 — Dockerfiles and builds](03-dockerfile-essentials/index.md) | 90–120 min | Use build contexts, caching and multi-stage builds. |
+| [04 — Compose, networks and storage](04-docker-compose/index.md) | 90–120 min | Connect services and demonstrate data persistence. |
+| [05 — Develop inside containers](05-development-workflow/index.md) | 45–60 min | Choose between reload, restart and rebuild. |
+| [06 — Container security](06-security-best-practices/index.md) | 60–90 min | Apply and verify image and runtime protections. |
+| [07 — Operate containers reliably](07-production-ready/index.md) | 60–90 min | Test health checks, shutdown and resource limits. |
+| [08 — Observe a Compose application](08-monitoring-stack/index.md) | 60–90 min | Trace metrics from the API through Prometheus to Grafana. |
+| [09 — Validate your work in CI](09-cicd-automation/index.md) | 45–60 min | Interpret automated checks and record learning evidence. |
+| [10 — Docker capstone: operate a stack](10-orchestration-intro/index.md) | 45–60 min | Combine builds, networking, security and recovery in one exercise. |
+| [11 — Beyond Docker (optional)](11-beyond-docker/index.md) | 45–60 min | Compare container tools and try a small local Kubernetes lab. |
 
-Arbeite jede Übung in vier Schritten durch: Ergebnis vorhersagen, Befehl ausführen,
-Beobachtung notieren, Ursache erklären. Lies eine Musterlösung erst nach deinem eigenen Versuch.
-Die Zeitangaben sind Planungswerte für einen Track, keine gemessenen Bearbeitungszeiten.
+## How to work through a module
 
-## Module
+1. Read the learning objectives and check the prerequisites.
+2. Predict the outcome of the exercise.
+3. Run it, inspect the actual state and explain any difference.
+4. Complete the self-check and any relevant automated check.
+5. Clean up the lab before starting another stack on the same ports.
 
-| Modul | Thema | Richtwert | Nachweis |
-| --- | --- | --- | --- |
-| 00 | [Voraussetzungen](00-prerequisites/prerequisites-overview.md) | 30–60 min | Arbeitsumgebung prüfen |
-| 01 | [Container und Images](01-docker-fundamentals/docker-fundamentals-overview.md) | 60–90 min | Lebenszyklus und Portfreigabe erklären |
-| 02 | [Eine Task API containerisieren](02-language-quickstart/quickstart-overview.md) | 60–90 min | Einen Sprachtrack bauen und per HTTP prüfen |
-| 03 | [Dockerfiles und Builds](03-dockerfile-essentials/shared-concepts/dockerfile-essentials-overview.md) | 90–120 min | Build-Kontext, Cache und Multi-Stage verstehen |
-| 04 | [Compose, Netzwerke und Daten](04-docker-compose/compose-overview.md) | 90–120 min | DNS und Datenpersistenz experimentell belegen |
-| 05 | [Entwicklungsworkflow](05-development-workflow/development-workflow-overview.md) | 45–60 min | Änderungen und Fehler systematisch untersuchen |
-| 06 | [Container-Sicherheit](06-security-best-practices/security-overview.md) | 60–90 min | Build- und Laufzeitschutz unterscheiden |
-| 07 | [Betriebsverhalten](07-production-ready/production-excellence-overview.md) | 60–90 min | Health, Shutdown und Limits prüfen |
-| 08 | [Monitoring](08-monitoring-stack/monitoring-overview.md) | 60–90 min | Metriken scrapen und korrekt interpretieren |
-| 09 | [CI und Lernkontrolle](09-cicd-automation/cicd-overview.md) | 45–60 min | Prüfergebnisse und Grenzen einordnen |
-| 10 | [Optional: Kubernetes mit kind](10-orchestration-intro/orchestration-preview.md) | 60–90 min | Deployment, Service und Probes anwenden |
-| 11 | [Container-Werkzeuge einordnen](11-beyond-docker/container-alternatives-overview.md) | 30–45 min | Docker, Podman und containerd unterscheiden |
+Use a Bash shell from the repository root unless a lesson specifies another directory. Reserve the project names `docker-learning`, `docker-learning-db` and `docker-learning-monitoring` for these labs. Cleanup commands target those projects.
 
-## Roter Faden
+## What you will operate
 
-Du startest mit einem Container und baust anschließend eine kleine API. In Modul 03 untersuchst
-du ihre Images. Modul 04 trennt Prozessspeicher, Containerdateisystem und dauerhafte Daten anhand
-eines PostgreSQL-Labors. Entwicklung, Sicherheitsmaßnahmen und Betriebsverhalten folgen, bevor
-ein Monitoring-Stack und eine CI hinzukommen. Kubernetes ist ein optionaler Transfer nach diesen Grundlagen.
+The Task API has one process and in-memory storage: stopping or replacing that process removes its tasks. The standalone PostgreSQL exercise demonstrates durable files and service DNS. The monitoring exercise combines the Task API, Prometheus and Grafana.
 
-Die Module bauen konzeptionell aufeinander auf, ihre Compose-Labore sind eigenständig startbar.
-Alle allgemeinen Shell-Beispiele verwenden Bash und starten im Repository-Wurzelverzeichnis,
-sofern direkt am Beispiel kein anderer Ordner angegeben ist. Unter Windows wird WSL empfohlen;
-PowerShell-Einstieg steht in Modul 00. Jeder neue Terminaltab braucht seine eigenen Umgebungsvariablen.
-
-## Lernstand dokumentieren
-
-Erstelle für dich eine Tabelle mit Modul, Vorhersage, Beobachtung und Erklärung. Ein Modul ist
-abgeschlossen, wenn du die Erfolgskontrolle selbstständig erklären und die Übung erneut ausführen kannst.
-Die [Bewertungsrubrik](../LEARNING_OBJECTIVES.md) trennt technische Funktion und Verständnis.
-CI-Berichte sind zusätzliche Belege und kein personenbezogenes Lernmanagementsystem.
-
-## Grenzen des Kursprojekts
-
-Aufgaben werden in allen Tracks in einem einzelnen Prozess gespeichert. Weder ein Volume-Mount
-noch eine Umgebungsvariable `DATABASE_URL` erzeugt eine Datenbankintegration. Das PostgreSQL-Labor
-prüft Datenpersistenz direkt per SQL. Eine Integration in alle drei APIs ist ein
-[ausgewiesenes Erweiterungsprojekt](../TASKLIST.md).
-
-Die Laufzeit-Compose-Dateien verwenden bereits Schutzmaßnahmen, die du später im Detail untersuchst.
-Du musst diese beim ersten Start noch nicht alle verstehen. Baue einen Begriff nach dem anderen auf.
-
-## Quellen und Versionspflege
-
-Maßgeblich sind die verlinkten [Primärquellen](../SOURCES.md), die Dateien im jeweiligen Commit
-und dessen CI-Ergebnisse. Versions-Tags sind lesbar, aber veränderlich. Lockfiles fixieren
-Anwendungsabhängigkeiten; vollständige Reproduzierbarkeit benötigt zusätzlich Image-Digests
-und eine kontrollierte Paketversorgung.
+Complete the Docker capstone before continuing to Beyond Docker. The optional kind lab transfers a few familiar concepts to a disposable cluster; it needs additional tools and resources.

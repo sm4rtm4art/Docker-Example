@@ -1,41 +1,23 @@
-# Dockerfile-Muster für Java
+# Java: build with a JDK, run with a JRE
 
-## Lernziele
+## Learning objectives
 
-Du begründest die Besonderheiten deines Tracks, ohne ein zweites, abweichendes Dockerfile aus der
-Dokumentation zu kopieren.
+Explain the dependency and artifact boundaries in your chosen image.
 
-## Voraussetzung
+## Prerequisites
 
-Die beiden gemeinsamen Lektionen in Modul 03. Referenz ist der
-[ausführbare Dockerfile](../../../02-language-quickstart/java/Dockerfile).
+The two shared Dockerfile lessons.
 
-## Übung
+## Exercise
 
-Prüfe die Maven-Parent-Version, Java-Version und den Namen des gepackten JARs.
-Der Build führt `mvn verify` aus. Ein erfolgreiches Spring-Kontexttest-Ergebnis allein prüft noch nicht
-HTTP-Vertrag, Portfreigabe oder Container-UID; dafür folgt der gemeinsame Containercheck.
+Read the Java `Dockerfile` and `pom.xml`. Maven and a JDK compile and verify the project in the build stage. The final stage copies the application JAR into a Java 21 JRE image. The compiler and Maven are not runtime requirements.
 
-Die Runtime braucht eine JRE, nicht zwingend ein vollständiges JDK. Bei Speicherlimits zählen
-neben dem Java-Heap auch Metaspace, Threadstacks, direkte Buffer und weiterer nativer Speicher.
-Ein Heap-Limit gleich dem gesamten Containerlimit lässt dafür keinen Spielraum.
+Change a controller response and rebuild. Compare dependency resolution and application packaging in the build log. Verify the response and the shared API tests.
 
-Maven-Versionen sind explizit gewählt, ein Maven-POM ist jedoch kein universelles Lockfile.
-Snapshots und dynamische Versionsbereiche sind hier nicht vorgesehen. Prüfe nach Aktualisierungen
-Abhängigkeitsbaum, Anwendungstest und Containerverhalten.
+A container memory limit covers the entire process, not just the Java heap. Native memory, thread stacks and the JVM also consume memory. Diagnose actual usage before adjusting heap settings.
 
-Führe aus dem Repository-Wurzelverzeichnis den vollständigen Trackcheck aus:
+Reading: [Maven lifecycle](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html), [Spring Boot container images](https://docs.spring.io/spring-boot/reference/packaging/container-images/index.html).
 
-```bash
-python3 scripts/validate.py track --track java
-```
+## Check your understanding
 
-Er startet ein eigenes Compose-Projekt, prüft den HTTP-Vertrag und die Laufzeitkonfiguration und
-räumt nur dieses Testprojekt auf. Dockerzugriff ist erforderlich.
-
-## Erfolgskontrolle
-
-Du erklärst, welche Abhängigkeiten nur zum Bauen benötigt werden und welche beim Start vorhanden
-sein müssen. Du kannst einen Buildfehler von einem Fehler beim Containerstart unterscheiden.
-
-[Zurück zur Modulübersicht](../../shared-concepts/dockerfile-essentials-overview.md)
+Show the source change in the running API, identify the final artifact and explain which inputs trigger a rebuild. Restore your exercise edit and clean up your lab.

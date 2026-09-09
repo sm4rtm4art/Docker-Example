@@ -1,73 +1,18 @@
-# Diagnoseaufgaben mit Musterlösungen
+# Troubleshooting practice
 
-Arbeite in einer eigenen Übungskopie. Notiere vor jedem Test eine Hypothese. Prüfe anschließend
-mit der kleinsten passenden Beobachtung. Keine Aufgabe benötigt globale Prune-Befehle.
+Try these after the corresponding module. Make changes only in your own exercise configuration and restore them afterwards. For each challenge, record a prediction, observation, cause and fix.
 
-## 1. Die API ist „weg“, aber der Container läuft
+| Challenge | Experiment | Completion evidence |
+| --- | --- | --- |
+| Wrong host port | Request an unused port instead of the API's published port | Distinguish connection failure from an HTTP error |
+| Wrong service address | Override the SQL client entrypoint and connect to `127.0.0.1`, as in module 04 | Explain container-local loopback and recover with service DNS |
+| Read-only path | Attempt `touch /app/should-fail` in the runtime API | Show the denied write and the runtime read-only setting |
+| Lost task | Create a task, restart the API and query it | Explain why a process restart clears memory |
+| Stale application | Edit source, restart a runtime container, then rebuild it | Explain which operation delivers new code |
+| Missing metric target | Stop the API in the monitoring stack | Observe `up` become 0 while Prometheus stays available |
 
-Beobachtung: Du hast `TASK_API_PORT=8082` gesetzt und fragst Port 8080 ab.
-Aufgabe: Belege den tatsächlichen Hostport und prüfe `/health` dort.
+Start with [the troubleshooting guide](DOCKER_EMERGENCY_GUIDE.md) if you need a diagnostic sequence. A successful fix should preserve the intended restrictions, such as local ports and a read-only root filesystem.
 
-<details>
-<summary>Musterlösung</summary>
+## Transfer challenge
 
-`docker compose -p docker-learning -f compose.lab.yml ps` zeigt die Freigabe.
-Der Hostport ist 8082, der Prozessport bleibt 8080. Ein Neubuild des Anwendungscodes behebt
-keinen falsch gewählten Clientport.
-
-</details>
-
-## 2. Die Datenbank ist gestartet, aber die Taskliste verschwindet
-
-Beobachtung: Das SQL-Labor behält seinen Datensatz, die API verliert Aufgaben beim Neustart.
-Aufgabe: Erkläre beide Ergebnisse anhand des Codes und der Mounts.
-
-<details>
-<summary>Musterlösung</summary>
-
-Die API verwendet ausschließlich Prozessspeicher. PostgreSQL schreibt im getrennten Labor
-in ein Named Volume. Die bloße Existenz einer Datenbank oder einer `DATABASE_URL`-Variable
-integriert sie nicht in die Anwendung.
-
-</details>
-
-## 3. Ein Schreibtest schlägt fehl
-
-Beobachtung: `touch /app/example` meldet einen Fehler, `touch /tmp/example` funktioniert.
-Aufgabe: Entscheide, ob ein Defekt vorliegt.
-
-<details>
-<summary>Musterlösung</summary>
-
-In der Runtime-Konfiguration ist das gewollt: read-only Rootdateisystem, beschreibbares tmpfs
-für temporäre Daten. Prüfe Benutzer und Mounts, bevor du Berechtigungen erweiterst.
-
-</details>
-
-## 4. Prometheus zeigt erfolgreiche Scrapes, aber Aufgaben fehlen
-
-Beobachtung: `up=1`, `task_count=0` nach einem Neustart.
-Aufgabe: Welche Aussage beweist jede Metrik?
-
-<details>
-<summary>Musterlösung</summary>
-
-`up=1` belegt einen erfolgreichen Scrape. Der Aufgabenbestand ist separat und nach dem Neustart
-des In-Memory-Prozesses tatsächlich leer. Ein Gauge darf sinken.
-
-</details>
-
-## 5. Die Rust-Änderung ist nicht sichtbar
-
-Beobachtung: Source ist im Dev-Container gemountet, aber der Prozess läuft weiter.
-Aufgabe: Prüfe den konfigurierten Startbefehl und wähle den notwendigen Schritt.
-
-<details>
-<summary>Musterlösung</summary>
-
-Der Entwicklungscontainer verwendet `cargo run --locked`, keinen Watcher. Ein Neustart führt
-den Build erneut aus. Bei einer Manifeständerung muss das Image neu gebaut werden.
-
-</details>
-
-Bewerte deine Erklärung mit der [Lernrubrik](../../LEARNING_OBJECTIVES.md).
+Repeat one experiment with another language track. Which Docker observations remain the same? Which build or reload steps differ? Support your explanation with the actual configuration rather than assumptions about the programming language.

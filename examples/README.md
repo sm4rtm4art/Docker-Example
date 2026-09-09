@@ -1,13 +1,5 @@
-# Referenzbeispiele
+# Additional container exercises
 
-Die ausführbaren Referenzen werden direkt an ihrem Lehrort gepflegt:
+Complete the [Docker learning path](../docker-mastery-multitrack/index.md) before using these exercises. The runnable application images live in the three language tracks, and Compose labs are introduced alongside their lessons.
 
-- [Python-Dockerfile](../docker-mastery-multitrack/02-language-quickstart/python/Dockerfile)
-- [Rust-Dockerfile](../docker-mastery-multitrack/02-language-quickstart/rust/Dockerfile)
-- [Java-Dockerfile](../docker-mastery-multitrack/02-language-quickstart/java/Dockerfile)
-- [Runtime-Härtung](../compose.lab.yml)
-- [Volume- und Netzwerklabor](../docker-mastery-multitrack/common-resources/templates/docker-compose.database.yml)
-- [Werkzeugvergleich](podman-comparison.md)
-
-Doppelte, nicht eigenständig geprüfte Dockerfile- und Volume-Vorlagen wurden entfernt.
-Die jeweiligen Module enthalten Arbeitsordner, erwartetes Ergebnis und Aufräumweg.
+[Compare with Podman](podman-comparison.md) if you want to test how the same image behaves under another engine.

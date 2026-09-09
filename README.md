@@ -1,70 +1,35 @@
-# Docker-Lernpfad: von der ersten API bis zum lokalen Kubernetes-Cluster
+# Docker Learning Path
 
-Ein praktischer Lernpfad für Entwicklerinnen und Entwickler mit Grundkenntnissen in
-Python, Rust oder Java. Im Mittelpunkt stehen Container, Images, Netzwerke, Daten und
-Betriebsverhalten. Die Frameworks dienen als Beispiele; ein Sprachtrack genügt.
+Learn Docker by building and operating the same small Task API in **Python, Rust or Java**. Choose one language for the core path; use the others to compare how runtimes affect image builds and development workflows.
 
-## Einstieg
+The course progresses from containers and Dockerfiles to Compose networks, persistent storage, security, monitoring and CI. Each module includes an exercise and observable completion criteria. A short, optional **Beyond Docker** section introduces other container tools and Kubernetes with kind.
 
-1. [Arbeitsumgebung vorbereiten](docker-mastery-multitrack/00-prerequisites/prerequisites-overview.md).
-2. [Lernpfad und Module ansehen](docker-mastery-multitrack/docker-curriculum-guide.md).
-3. [Python, Rust oder Java auswählen](docker-mastery-multitrack/02-language-quickstart/quickstart-overview.md).
+## Start learning
 
-Die Module 00–07 bilden den Kern, 08–11 den Aufbau. Plane ungefähr 12–18 Stunden
-für einen Track einschließlich Übungen ein; Fehlersuche und Wiederholung können mehr Zeit benötigen.
+1. Clone this repository:
 
-## Was tatsächlich enthalten ist
+   ```bash
+   git clone https://github.com/sm4rtm4art/Docker-Example.git
+   cd Docker-Example
+   ```
 
-| Baustein | Ausführbarer Inhalt | Bewusste Grenze |
-| --- | --- | --- |
-| Python / Rust / Java | Derselbe Task-API-Vertrag, Dockerfiles, lokale Compose-Konfiguration | Aufgaben liegen im Arbeitsspeicher; Neustarts verlieren Daten |
-| PostgreSQL-Labor | Zwei Services, DNS, Healthcheck, Named Volume, Persistenztest | Eigenständige Datenübung; die Task API ist nicht an PostgreSQL angebunden |
-| Monitoring | Prometheus, Grafana, bereitgestelltes Dashboard | Aktuelle Aufgabenbestände und Scrape-Status; keine erfundenen Latenzmetriken |
-| CI | Syntax, interne Links, Builds, HTTP-Vertrag, Laufzeitrechte, Persistenz | Prüft technische Ergebnisse, nicht automatisch dein Verständnis |
-| kind | Lokales Deployment mit Service und Probes | Optionales Lerncluster; keine hochverfügbare Produktionsumgebung |
+2. [Prepare your environment](docker-mastery-multitrack/00-prerequisites/index.md).
+3. Follow the [learning path](docker-mastery-multitrack/docker-curriculum-guide.md) in order.
 
-Die Anwendungen besitzen keine Authentifizierung und sind ausschließlich für lokale Lernübungen
-vorgesehen. Ports werden an `127.0.0.1` gebunden. Image-Härtung und Betriebsübungen ersetzen
-keine Prüfung einer konkreten Produktionsumgebung.
+You need Git, Docker with Linux containers and Compose, Python 3.12+ for the checks, and curl. Examples use Bash; on Windows, use WSL2. Language compilers run inside the build containers.
 
-## Einen Track ausprobieren
+The Task API stores tasks in memory. The PostgreSQL lab teaches persistence separately; the monitoring lab combines the API, Prometheus and Grafana. Keep the labs local: the API has no authentication.
 
-Nach Modul 00, im Repository-Wurzelverzeichnis, in Bash / WSL:
+## Check your progress
+
+After completing a track, run from the repository root:
 
 ```bash
-git clone https://github.com/sm4rtm4art/Docker-Example.git
-cd Docker-Example
-export TASK_TRACK=python
-docker compose -p docker-learning -f compose.lab.yml up --build --wait
-curl --fail http://127.0.0.1:8080/health
-python3 scripts/api_contract.py
+python3 scripts/validate.py track --track python
 ```
 
-`TASK_TRACK` akzeptiert `python`, `rust` oder `java`. Erwarteter Health-Inhalt:
-`status: healthy`, `storage: memory`. Der API-Test legt eigene Aufgaben an und entfernt sie wieder.
-Windows-Anweisungen und Voraussetzungen stehen in [Modul 00](docker-mastery-multitrack/00-prerequisites/prerequisites-overview.md).
+Choose `rust` or `java` as appropriate. The check builds an isolated lab, exercises the API and verifies runtime protections and restart behaviour. [Module 09](docker-mastery-multitrack/09-cicd-automation/index.md) explains the remaining checks and how to evaluate your results.
 
-Aufräumen nach dieser Übung:
+## Course website and contributions
 
-```bash
-python3 scripts/cleanup.py api
-```
-
-## Dokumentation und Qualität
-
-- [Lernziele und Bewertung](LEARNING_OBJECTIVES.md)
-- [Verbindlicher API-Vertrag](TASK_API_SPECIFICATION.md)
-- [Lokale Validierung und Pflege](DEVELOPMENT_SETUP.md)
-- [Fachliche Referenzen](SOURCES.md)
-- [Überarbeitungsbefunde und verbleibende Grenzen](REVIEW_NOTES.md)
-- [Erweiterungsvorschläge](TASKLIST.md)
-
-Der Workflow [Validate curriculum](.github/workflows/validate.yml) läuft für Pull Requests und
-Änderungen auf `main`. Ein grüner Lauf bezieht sich auf den jeweiligen Commit und den Linux-Runner;
-eine allgemeine Testzusage für alle Plattformen wird daraus nicht abgeleitet.
-
-## Mitwirken und Lizenz
-
-Bitte ändere bei Anpassungen am API-Vertrag immer Implementierungen, Tests und Dokumentation gemeinsam.
-Beispiele sollen einen Arbeitsordner, ein erwartetes Ergebnis und einen Aufräumweg nennen.
-Es gilt die [Apache License 2.0](LICENSE) für dieses Repository.
+The Markdown lessons also build as a Sphinx/MyST site with search and sequential navigation. See [development setup](DEVELOPMENT_SETUP.md) to preview the site, run checks or configure GitHub Pages.

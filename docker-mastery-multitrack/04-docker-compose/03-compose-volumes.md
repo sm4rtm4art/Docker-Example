@@ -1,28 +1,22 @@
-# Volumes: Persistenz nachvollziehbar prüfen
+# Verify persistence with volumes
 
-## Lernziele
+## Learning objectives
 
-Du unterscheidest Prozessspeicher, beschreibbare Containerschicht, Bind Mount und Named Volume.
+Distinguish process memory, container layers, bind mounts, volumes and tmpfs.
 
-## Voraussetzung
+## Prerequisites
 
-Die beiden vorigen Lektionen. Verwende nur die Daten des lokalen Kurslabors.
+The networking lesson. Run from the repository root.
 
-## Konzept
+## Exercise
 
-| Speicherort | Container-Neustart | Container entfernen / neu erstellen |
+| Storage | Stop/start same container | Remove and replace container |
 | --- | --- | --- |
-| Prozessspeicher der Task API | Verloren | Verloren |
-| Beschreibbare Containerschicht | Bleibt gewöhnlich erhalten | Verloren |
-| Named Volume | Bleibt erhalten | Bleibt erhalten, solange das Volume nicht gelöscht wird |
-| Bind Mount | Daten liegen auf dem Hostpfad | Hostdateien bleiben bestehen |
-| tmpfs | Flüchtig; beim Stoppen verloren | Verloren |
-
-Ein Volume ist kein Backup. Es schützt weder vor versehentlichen SQL-Löschungen noch vor einem
-Hostausfall. Bei Bind Mounts gelten reale Dateirechte; auch Named Volumes können falsche Eigentümer haben.
-Ein Mount über ein vorhandenes Verzeichnis kann dessen Imageinhalt verdecken.
-
-## Übung
+| Task API process memory | Lost | Lost |
+| Writable container layer | Retained | Lost |
+| Named volume | Retained | Retained until the volume is deleted |
+| Bind mount | Files remain on the host | Files remain on the host |
+| tmpfs | Lost when stopped | Lost |
 
 ```bash
 export DB_COMPOSE=docker-mastery-multitrack/common-resources/templates/docker-compose.database.yml
@@ -33,37 +27,21 @@ docker compose -p docker-learning-db -f "$DB_COMPOSE" up -d --wait postgres
 docker compose -p docker-learning-db -f "$DB_COMPOSE" run --rm client -c 'SELECT * FROM progress;'
 ```
 
-Die Zeile `1 | volumes` bleibt erhalten. Vergleiche das mit einer Aufgabe in der Task API nach
-deren Prozessneustart. Das Volume macht nur die Dateien persistent, die die Anwendung tatsächlich hineinschreibt.
+Expect `1 | volumes` after replacement. PostgreSQL writes its data into the mounted volume. Adding a volume to the Task API would not persist its in-memory map.
 
-### Backup als zusätzliche Übung
-
-Während die Datenbank läuft, im Repository-Wurzelverzeichnis:
+A volume is not a backup: accidental SQL deletion or loss of the storage host can still destroy data. As an optional backup exercise, create a logical dump while PostgreSQL is running:
 
 ```bash
 mkdir -p reports
 docker compose -p docker-learning-db -f "$DB_COMPOSE" exec -T postgres pg_dump -U learner -d learning > reports/learning.sql
 ```
 
-Ein Backup ist erst belastbar, wenn ein Restore in eine getrennte Testdatenbank erfolgreich geprüft
-wurde. Kopiere nicht ungeprüft ein laufendes PostgreSQL-Datenverzeichnis als „konsistentes Backup“.
-Der Kurs fixiert PostgreSQL 17 und dessen Datenpfad; beim Major-Upgrade müssen Image-Dokumentation,
-Datenpfad und Migrationsweg erneut geprüft werden.
+A usable backup also needs a successful restore test in a separate database. Do not assume copying a live database directory produces a consistent backup. Before a PostgreSQL major upgrade, check its migration procedure and image data paths.
 
-## Erfolgskontrolle
+Stop the lab while retaining data with `python3 scripts/cleanup.py database`. To deliberately discard this exercise's data, use `python3 scripts/cleanup.py database --delete-data`.
 
-Führe `python3 scripts/validate.py database` aus. Dieser Test erstellt isolierte Daten, entfernt
-den Container ohne Volumelöschung, startet neu und prüft den erhaltenen Datensatz.
-Erkläre anschließend, warum ein einfacher `docker restart` allein diesen Nachweis nicht erbringt.
+Reading: [Docker volumes](https://docs.docker.com/engine/storage/volumes/), [pg_dump](https://www.postgresql.org/docs/17/app-pgdump.html).
 
-## Aufräumen
+## Check your understanding
 
-Daten behalten: `python3 scripts/cleanup.py database`.
-Nur wenn du die Übungsdaten bewusst löschen möchtest:
-
-```bash
-python3 scripts/cleanup.py database --delete-data
-```
-
-Quellen: [Docker Volumes](https://docs.docker.com/engine/storage/volumes/),
-[PostgreSQL pg_dump](https://www.postgresql.org/docs/17/app-pgdump.html).
+Run `python3 scripts/validate.py database`. Explain why replacing a container proves more about volume persistence than restarting it. Identify what your dump does and what remains to be verified.
