@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM maven:3.9-eclipse-temurin-21 AS builder
+FROM maven:3-eclipse-temurin-26 AS builder
 WORKDIR /app
 COPY pom.xml ./
 RUN mvn --batch-mode dependency:go-offline
