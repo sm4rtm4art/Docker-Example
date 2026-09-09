@@ -3,7 +3,7 @@ name = "task-api"
 version = "1.0.0"
 description = "In-memory Task API for the Docker learning path"
 requires-python = ">=3.12,<3.13"
-dependencies = ["fastapi==0.141.1", "uvicorn==0.41.0"]
+dependencies = ["fastapi==0.141.1", "uvicorn==0.52.4"]
 
 [dependency-groups]
 dev = ["httpx==0.28.1", "pytest==9.0.2"]
