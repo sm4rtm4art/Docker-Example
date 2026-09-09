@@ -1,61 +1,19 @@
-# Production Dockerfile for Java Task API
-# Multi-stage build for optimized image size
-
-# Build stage - using Maven image to avoid wrapper dependencies
-FROM maven:3.9-eclipse-temurin-17 AS builder
-
+# syntax=docker/dockerfile:1
+FROM maven:3.9-eclipse-temurin-21 AS builder
 WORKDIR /app
+COPY pom.xml ./
+RUN mvn --batch-mode dependency:go-offline
+COPY src/ ./src/
+RUN mvn --batch-mode verify
 
-# Copy configuration first for better caching
-COPY pom.xml .
-
-# Download dependencies (cached layer)
-RUN mvn dependency:go-offline
-
-# Copy source code
-COPY src ./src
-
-# Build the application
-RUN mvn clean package -DskipTests
-
-# Runtime stage - smaller image
-FROM eclipse-temurin:17-jre-jammy
-
-# Install curl for health checks
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Create non-root user for security (reuse host GID if it already exists — avoids failures on some macOS hosts)
-ARG UID=1000
-ARG GID=1000
-RUN set -eux; \
-    if getent group "${GID}" >/dev/null 2>&1; then \
-      EXISTING="$(getent group "${GID}" | cut -d: -f1)"; \
-      useradd -r -g "${EXISTING}" -u "${UID}" appuser; \
-    else \
-      groupadd -r -g "${GID}" appgroup; \
-      useradd -r -g appgroup -u "${UID}" appuser; \
-    fi
-
-# Set working directory
+FROM eclipse-temurin:21-jre-jammy AS runtime
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --gid 10001 app && useradd --uid 10001 --gid app --no-create-home app
 WORKDIR /app
-
-# Copy JAR from builder stage
-COPY --from=builder /app/target/*.jar app.jar
-
-# Change ownership to non-root user
-RUN chown -R "${UID}:${GID}" /app
-
-# Switch to non-root user
-USER appuser
-
-# Expose the port
+COPY --from=builder /app/target/task-api-1.0.0.jar ./app.jar
+USER 10001:10001
 EXPOSE 8080
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
-
-# Run the application
+HEALTHCHECK --interval=5s --timeout=3s --start-period=40s --retries=6 \
+    CMD ["curl", "-fsS", "--max-time", "2", "http://127.0.0.1:8080/health"]
 ENTRYPOINT ["java", "-jar", "app.jar"]

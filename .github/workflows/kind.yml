@@ -1,0 +1,43 @@
+name: Optional kind lab
+on:
+  workflow_dispatch:
+    inputs:
+      track:
+        description: Language track
+        type: choice
+        options: [python, rust, java]
+        default: python
+permissions:
+  contents: read
+jobs:
+  kind:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install versioned kind and kubectl
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/kind-tools"
+          GOBIN="$RUNNER_TEMP/kind-tools" go install sigs.k8s.io/kind@v0.33.0
+          cd "$RUNNER_TEMP/kind-tools"
+          curl --fail --location --retry 3 -o kubectl https://dl.k8s.io/release/v1.35.8/bin/linux/amd64/kubectl
+          curl --fail --location --retry 3 -o kubectl.sha256 https://dl.k8s.io/release/v1.35.8/bin/linux/amd64/kubectl.sha256
+          printf '%s  kubectl\n' "$(cat kubectl.sha256)" | sha256sum --check
+          chmod +x kubectl
+          echo "$RUNNER_TEMP/kind-tools" >> "$GITHUB_PATH"
+      - name: Validate API and Pod replacement
+        env:
+          TASK_TRACK: ${{ inputs.track }}
+        run: python3 scripts/validate_kind.py --track "$TASK_TRACK"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: kind-validation
+          path: |
+            reports/kind-*.json
+            reports/kind-*.log
+          retention-days: 14

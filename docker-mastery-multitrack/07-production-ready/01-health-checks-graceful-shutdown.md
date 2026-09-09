@@ -1,200 +1,39 @@
-# Part A: Health Checks & Graceful Shutdown
+# Health checks and graceful shutdown
 
-> **Duration**: 1 hour  
-> **Focus**: Making containers production-ready with proper health monitoring
+## Learning objectives
 
-## 🎯 Learning Objectives
+Distinguish a running process, a healthy service and a clean shutdown.
 
-By the end of this section, you will:
+## Prerequisites
 
-- Implement health checks that actually detect problems
-- Handle signals properly for zero-downtime deployments
-- Debug common health check failures
-- Understand Kubernetes readiness vs liveness probes
+Start the root API lab. Run from the repository root.
 
-## 💔 The Problem: "But It's Running!"
-
-Just because a container is running doesn't mean it's healthy:
+## Exercise
 
 ```bash
-# This container is "running" but broken
-$ docker ps
-CONTAINER ID   IMAGE     STATUS         PORTS
-abc123         myapp     Up 10 hours    8080/tcp
-
-$ curl http://localhost:8080/health
-curl: (7) Failed to connect to localhost port 8080
+CONTAINER_ID=$(docker compose -p docker-learning -f compose.lab.yml ps -q task-api)
+docker inspect --format '{{json .State.Health}}' "$CONTAINER_ID"
+curl --fail http://127.0.0.1:8080/health
+docker compose -p docker-learning -f compose.lab.yml stop task-api
+docker inspect --format '{{json .State}}' "$CONTAINER_ID"
 ```
 
-## 🏥 Health Check Patterns
+The Dockerfile health check calls `/health`. Inspect the recorded exit codes and output, not just the status label. The endpoint checks this in-memory application; it does not establish readiness of an external database.
 
-### 1. Basic HTTP Health Check
+Stopping normally sends the configured stop signal (SIGTERM by default) to the main process, waits for the grace period, then uses SIGKILL if necessary. Exec-form startup avoids an extra shell that could interfere with signal handling. The supplied frameworks handle termination and Compose allows 30 seconds to stop.
 
-```dockerfile
-# Good: Simple health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
-```
+A clean stop and `OOMKilled: false` are useful evidence, but an exit code alone does not prove that all in-flight requests completed. Investigate termination under realistic traffic before relying on it operationally. Docker health status by itself does not cause a restart; restart policies respond to process exit under their configured conditions.
 
-### 2. Application-Specific Health Check
-
-```python
-# Python/FastAPI example
-@app.get("/health")
-async def health_check():
-    # Check critical dependencies
-    try:
-        # Database check
-        await db.execute("SELECT 1")
-        # Cache check
-        await redis.ping()
-
-        return {
-            "status": "healthy",
-            "checks": {
-                "database": "ok",
-                "cache": "ok"
-            }
-        }
-    except Exception as e:
-        return JSONResponse(
-            status_code=503,
-            content={"status": "unhealthy", "error": str(e)}
-        )
-```
-
-### 3. TCP Health Check (When HTTP Isn't Available)
-
-```dockerfile
-# For databases, message queues, etc.
-HEALTHCHECK --interval=30s --timeout=3s \
-  CMD nc -z localhost 5432 || exit 1
-```
-
-## 🛑 Graceful Shutdown Patterns
-
-### The Wrong Way (Data Loss!)
-
-```python
-# BAD: Immediate shutdown
-import signal
-import sys
-
-def handle_sigterm(signum, frame):
-    print("Goodbye cruel world!")
-    sys.exit(0)  # Drops all in-flight requests!
-
-signal.signal(signal.SIGTERM, handle_sigterm)
-```
-
-### The Right Way (Zero Downtime)
-
-```python
-# GOOD: Graceful shutdown
-import signal
-import asyncio
-from contextlib import asynccontextmanager
-
-shutdown_event = asyncio.Event()
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup
-    yield
-    # Shutdown - wait for in-flight requests
-    await shutdown_event.wait()
-    print("Finishing in-flight requests...")
-    await asyncio.sleep(5)  # Grace period
-    print("Shutdown complete")
-
-def handle_sigterm(signum, frame):
-    shutdown_event.set()
-
-signal.signal(signal.SIGTERM, handle_sigterm)
-
-app = FastAPI(lifespan=lifespan)
-```
-
-## 🎯 Exercise: Break & Fix Health Checks
-
-### Step 1: Create a Broken Health Check
-
-```dockerfile
-# broken-health/Dockerfile
-FROM python:3.12-slim
-
-COPY app.py .
-
-# This health check will always pass!
-HEALTHCHECK CMD exit 0
-
-CMD ["python", "app.py"]
-```
-
-```python
-# broken-health/app.py
-import time
-import random
-
-print("Starting app...")
-time.sleep(10)  # Simulate slow startup
-
-if random.random() > 0.5:
-    print("ERROR: Failed to connect to database!")
-    # App is broken but container shows "healthy"
-    while True:
-        time.sleep(1)
-else:
-    print("App started successfully")
-    # ... rest of app
-```
-
-### Step 2: Fix It Properly
-
-```dockerfile
-# Add proper health check
-HEALTHCHECK --start-period=15s --interval=5s \
-  CMD python -c "import requests; requests.get('http://localhost:8080/health').raise_for_status()"
-```
-
-## 🔍 Debugging Health Check Failures
+Restart and check that tasks are empty:
 
 ```bash
-# See health check history
-$ docker inspect --format='{{json .State.Health}}' container_name | jq
-
-# Watch health check execution
-$ docker events --filter event=health_status
-
-# Debug failing health check
-$ docker exec container_name /bin/sh -c "curl -f http://localhost:8080/health"
+docker compose -p docker-learning -f compose.lab.yml up --wait
+curl --fail http://127.0.0.1:8080/api/tasks
+python3 scripts/cleanup.py api
 ```
 
-## ⚡ Quick Reference
+Reading: [Docker stop](https://docs.docker.com/reference/cli/docker/container/stop/), [HEALTHCHECK](https://docs.docker.com/reference/dockerfile/#healthcheck).
 
-### Health Check Options
+## Check your understanding
 
-| Option           | Default | Description                 |
-| ---------------- | ------- | --------------------------- |
-| `--interval`     | 30s     | How often to check          |
-| `--timeout`      | 30s     | Maximum time for check      |
-| `--start-period` | 0s      | Grace period during startup |
-| `--retries`      | 3       | Failures before unhealthy   |
-
-### Exit Codes
-
-- `0` = Healthy
-- `1` = Unhealthy
-- `2` = Reserved (don't use)
-
-## 🎓 Key Takeaways
-
-1. **Running ≠ Healthy** - Always implement health checks
-2. **Check Dependencies** - Database, cache, external services
-3. **Graceful Shutdown** - Handle SIGTERM properly
-4. **Start Period** - Give apps time to initialize
-5. **Be Specific** - Check actual functionality, not just "is it running"
-
-## 🚀 Next: Resource Management
-
-Now that our containers report their health correctly, let's make sure they don't consume all available resources...
+Explain why unhealthy, exited and OOM-killed require different investigations. Describe the effect of exhausting the shutdown grace period.

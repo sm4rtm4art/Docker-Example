@@ -1,0 +1,88 @@
+{
+  "modules": [
+    {
+      "id": "00",
+      "title": "Prepare your environment",
+      "path": "docker-mastery-multitrack/00-prerequisites/index.md",
+      "time": "30\u201360 min",
+      "outcome": "Verify your tools and identify the Docker daemon."
+    },
+    {
+      "id": "01",
+      "title": "Containers and images",
+      "path": "docker-mastery-multitrack/01-docker-fundamentals/index.md",
+      "time": "60\u201390 min",
+      "outcome": "Explain container lifecycle, isolation and published ports."
+    },
+    {
+      "id": "02",
+      "title": "Run a Task API",
+      "path": "docker-mastery-multitrack/02-language-quickstart/index.md",
+      "time": "60\u201390 min",
+      "outcome": "Build one language track and verify its HTTP behaviour."
+    },
+    {
+      "id": "03",
+      "title": "Dockerfiles and builds",
+      "path": "docker-mastery-multitrack/03-dockerfile-essentials/index.md",
+      "time": "90\u2013120 min",
+      "outcome": "Use build contexts, caching and multi-stage builds."
+    },
+    {
+      "id": "04",
+      "title": "Compose, networks and storage",
+      "path": "docker-mastery-multitrack/04-docker-compose/index.md",
+      "time": "90\u2013120 min",
+      "outcome": "Connect services and demonstrate data persistence."
+    },
+    {
+      "id": "05",
+      "title": "Develop inside containers",
+      "path": "docker-mastery-multitrack/05-development-workflow/index.md",
+      "time": "45\u201360 min",
+      "outcome": "Choose between reload, restart and rebuild."
+    },
+    {
+      "id": "06",
+      "title": "Container security",
+      "path": "docker-mastery-multitrack/06-security-best-practices/index.md",
+      "time": "60\u201390 min",
+      "outcome": "Apply and verify image and runtime protections."
+    },
+    {
+      "id": "07",
+      "title": "Operate containers reliably",
+      "path": "docker-mastery-multitrack/07-production-ready/index.md",
+      "time": "60\u201390 min",
+      "outcome": "Test health checks, shutdown and resource limits."
+    },
+    {
+      "id": "08",
+      "title": "Observe a Compose application",
+      "path": "docker-mastery-multitrack/08-monitoring-stack/index.md",
+      "time": "60\u201390 min",
+      "outcome": "Trace metrics from the API through Prometheus to Grafana."
+    },
+    {
+      "id": "09",
+      "title": "Validate your work in CI",
+      "path": "docker-mastery-multitrack/09-cicd-automation/index.md",
+      "time": "45\u201360 min",
+      "outcome": "Interpret automated checks and record learning evidence."
+    },
+    {
+      "id": "10",
+      "title": "Docker capstone: operate a stack",
+      "path": "docker-mastery-multitrack/10-orchestration-intro/index.md",
+      "time": "45\u201360 min",
+      "outcome": "Combine builds, networking, security and recovery in one exercise."
+    },
+    {
+      "id": "11",
+      "title": "Beyond Docker (optional)",
+      "path": "docker-mastery-multitrack/11-beyond-docker/index.md",
+      "time": "45\u201360 min",
+      "outcome": "Compare container tools and try a small local Kubernetes lab."
+    }
+  ]
+}

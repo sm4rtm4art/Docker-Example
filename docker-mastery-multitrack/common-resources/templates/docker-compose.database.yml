@@ -1,58 +1,37 @@
-# Template: Database Integration
-# Use with: docker compose -f docker-compose.yml -f docker-compose.database.yml up
-
+# Standalone persistence lab: no Task API database integration is implied.
 services:
-  # Add to your existing task-api service
-  task-api:
+  postgres:
+    image: postgres:17-bookworm
     environment:
-      # DEV ONLY: local classroom credentials for compose exercises.
-      - DATABASE_URL=postgresql://taskuser:taskpass@postgres:5432/tasks
+      POSTGRES_USER: learner
+      POSTGRES_DB: learning
+      # DEV ONLY: local, isolated exercise data. Never reuse for real data.
+      POSTGRES_PASSWORD: local-exercise-only
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks: [database]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    mem_limit: 512m
+  client:
+    image: postgres:17-bookworm
+    profiles: [tools]
+    environment:
+      PGPASSWORD: local-exercise-only # DEV ONLY
+    networks: [database]
     depends_on:
       postgres:
         condition: service_healthy
-
-  # PostgreSQL Database
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      - POSTGRES_DB=tasks
-      - POSTGRES_USER=taskuser
-      # DEV ONLY: replace with secret injection outside local exercises.
-      - POSTGRES_PASSWORD=taskpass
-      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U taskuser -d tasks"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    networks:
-      - backend
-
-  # pgAdmin - Database management (optional)
-  pgadmin:
-    image: dpage/pgadmin4:latest # Classroom shortcut; pin a tested version in production.
-    environment:
-      # DEV ONLY: local default credentials for classroom demos.
-      - PGADMIN_DEFAULT_EMAIL=admin@example.com
-      - PGADMIN_DEFAULT_PASSWORD=admin
-    ports:
-      - "5050:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    networks:
-      - backend
-    profiles:
-      - tools # Only start with: docker compose --profile tools up
-
+    entrypoint: [psql, -h, postgres, -U, learner, -d, learning, -v, ON_ERROR_STOP=1]
+    command: [-c, SELECT 1;]
+    user: postgres
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
 volumes:
-  postgres_data:
-  pgadmin_data:
-
+  postgres-data:
 networks:
-  backend:
+  database:
+    internal: true

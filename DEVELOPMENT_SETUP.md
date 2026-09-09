@@ -1,327 +1,57 @@
-# Development Setup Guide 🛠️
+# Development setup
 
-> **Setting up the perfect development environment for contributing to Docker Mastery**
+For learning Docker, start with [module 00](docker-mastery-multitrack/00-prerequisites/index.md). This page describes contributing to the repository and building the course website. Run all commands from the repository root.
 
-This guide helps contributors set up a development environment that maintains the high-quality standards students expect from this learning path.
+## Validate changes
 
-## 🎯 Why Development Standards Matter
-
-As an **educational project**, every file students see becomes a learning example:
-
-- **Code quality** teaches best practices
-- **Security practices** demonstrate real-world standards
-- **Consistency** makes content easier to follow
-- **Professional standards** prepare students for industry work
-
-## 🚀 Quick Setup
-
-### 1. Prerequisites
+Use Python 3.12+, Git and Docker with Linux containers and Compose supporting `up --wait`.
 
 ```bash
-# Ensure you have Python 3.11+ and pip
-python3 --version
-pip --version
-
-# Install pre-commit
-pip install pre-commit
-
-# For Rust examples (if contributing to Rust track)
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-source $HOME/.cargo/env
-
-# For Java examples (if contributing to Java track)
-# Install OpenJDK 17+ and Maven 3.8+
-
-# For Docker linting
-# Install Docker Desktop or Docker Engine
+python3 -m venv .venv-ci
+. .venv-ci/bin/activate
+python -m pip install -r requirements-ci.txt
+python scripts/validate.py static
+python -m unittest discover -s tests -v
+python scripts/validate.py configs
 ```
 
-### 2. Repository Setup
+Run the relevant container checks from [the script reference](scripts/scripts-utilities-guide.md). Shared API changes require all three tracks. Runtime checks use isolated projects, remove their own test volumes and write logs and JSON to `reports/`. The regular CI runner is Ubuntu 24.04; report additional platform checks separately.
+
+## Build the course website
+
+The course uses Sphinx, MyST Markdown and the Furo theme. Lessons are the single content source under `docker-mastery-multitrack/`; the website is generated, not edited separately.
 
 ```bash
-# Clone the repository
-git clone https://github.com/sm4rtm4art/Docker-Example.git
-cd Docker-Example
-cd docker-mastery-multitrack
-
-# Install pre-commit hooks
-pre-commit install
-
-# Install additional hook types
-pre-commit install --hook-type pre-push
-
-# Test the setup
-pre-commit run --all-files
+python -m pip install -r requirements-docs.txt
+python -m sphinx -n -W --keep-going -b html -c docs docker-mastery-multitrack _build/html
+python -m http.server 8000 --directory _build/html --bind 127.0.0.1
 ```
 
-### 3. Initial Secrets Baseline
+Open `http://127.0.0.1:8000`. Check the landing page, nested sidebar, previous/next links and search. Ctrl+C stops the local server. The strict build fails on warnings, including broken internal references and documents missing from the navigation. The PR workflow uploads the HTML as `course-site-preview`; download and serve it using the same HTTP server command, pointing at the extracted folder.
 
-```bash
-# Generate initial secrets baseline (first time only)
-detect-secrets scan --baseline .secrets.baseline
+## Publish with GitHub Pages
 
-# If you get secrets detected, review them carefully!
-# Only add to baseline if they're false positives
-detect-secrets audit .secrets.baseline
-```
+GitHub Pages supports public repositories on GitHub Free; Pro is not needed for this public repository. The workflow builds static HTML and does not require a paid hosting provider.
 
-## 🔍 What Pre-commit Checks
+After merging the workflow into the default branch:
 
-### Security & Safety ✅
+1. In repository **Settings → Pages**, choose **GitHub Actions** as the build source.
+2. In **Actions**, run **Publish course website** from `main`.
+3. Follow the deployment URL from the `github-pages` environment.
 
-- **🔐 Secret detection** - No API keys, passwords, or private keys
-- **📁 File size limits** - No accidentally committed large files
-- **⚠️ Merge conflicts** - No leftover conflict markers
-- **🔗 Symlink validation** - No broken symbolic links
+Publishing is manual. Pull requests build a preview artifact without publishing it. Later course changes require another manual run after merging. The same generated `_build/html` directory can be hosted by another static host if needed.
 
-### Code Quality ✅
+Reading: [GitHub Pages availability](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages), [custom Pages workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages), [MyST content organisation](https://myst-parser.readthedocs.io/en/latest/syntax/organising_content.html).
 
-- **🐍 Python**: Black formatting, isort imports, Ruff linting
-- **🦀 Rust**: rustfmt formatting, clippy linting
-- **☕ Java**: Pretty formatting with consistent style
-- **🐚 Shell scripts**: ShellCheck linting, shfmt formatting
-- **🐳 Dockerfiles**: Hadolint for best practices
+## Maintain dependencies and lessons
 
-### Documentation ✅
+- Python: update `pyproject.toml`, run `uv lock`, verify `uv sync --locked`, then regenerate `requirements.txt` with `uv export --locked --no-dev --no-emit-project --output-file requirements.txt` in the track directory.
+- Rust: maintain `Cargo.lock` and verify `cargo build --locked` through the image build.
+- Java: maintain the Maven parent/dependencies and compatible JDK/JRE together; run build verification and the HTTP contract.
+- Images: review version tags, support periods and security findings; rebuild and test updates. Digests also need an update process.
+- Actions: update commit SHAs and version comments together. Keep permissions scoped to each job's needs.
+- Documentation: keep English learner-facing text, observable exercises and inline links to primary documentation. Update `curriculum.json`, the course guide and module `index.md` navigation together.
 
-- **📝 Markdown**: Consistent formatting and style
-- **📋 YAML**: Valid syntax and structure
-- **📖 README structure**: Educational template compliance
-- **🔢 Module numbering**: Consistent XX-name format
+The API reference belongs in module 02 beside the quickstarts. Keep review discussions in pull requests and outstanding maintenance work in issues, outside the learning path. Advisory scan success does not establish that the built images are free of vulnerabilities.
 
-### Docker Best Practices ✅
-
-- **👤 Non-root users**: Enforce security practices
-- **🛡️ Security patterns**: Check for common vulnerabilities
-- **📦 Compose validation**: Valid docker-compose syntax
-
-## 🛠️ Development Workflow
-
-### Making Changes
-
-```bash
-# Create a feature branch
-git checkout -b feature/new-module
-
-# Make your changes
-# ...
-
-# Pre-commit runs automatically on commit
-git add .
-git commit -m "Add new module: XYZ"
-
-# If pre-commit fails, fix issues and try again
-# Pre-commit will auto-fix many issues
-git add .
-git commit -m "Add new module: XYZ"
-
-# Push your changes
-git push origin feature/new-module
-```
-
-### Manual Pre-commit Runs
-
-```bash
-# Run on all files
-pre-commit run --all-files
-
-# Run specific hook
-pre-commit run black --all-files
-pre-commit run hadolint-docker --all-files
-
-# Run on specific files
-pre-commit run --files path/to/file.py
-
-# Skip pre-commit (emergency only!)
-git commit -m "Emergency fix" --no-verify
-```
-
-### Common Fixes
-
-#### Markdown Issues
-
-```bash
-# Auto-fix most markdown issues
-markdownlint --fix **/*.md
-
-# Check specific rules
-markdownlint --rules MD013,MD024 README.md
-```
-
-#### Docker Issues
-
-```bash
-# Check Dockerfile with hadolint
-hadolint Dockerfile
-
-# Common fixes:
-# - Add USER instruction
-# - Pin base image versions
-# - Combine RUN commands
-# - Add HEALTHCHECK
-```
-
-#### Python Issues
-
-```bash
-# Format with black
-black .
-
-# Sort imports
-isort .
-
-# Fix linting issues
-ruff check --fix .
-```
-
-#### Rust Issues
-
-```bash
-# Format code
-cargo fmt
-
-# Check for issues
-cargo clippy --all-targets --all-features
-```
-
-## 🎓 Educational Content Standards
-
-### README Structure
-
-Every module README should include:
-
-```markdown
-# Module XX: Title
-
-> **Brief description**
-
-## 🎯 Learning Objectives
-
-- Specific, measurable goals
-
-## ⏱️ Time Investment
-
-- Breakdown of time needed
-
-## 🏃‍♂️ Hands-On Exercise N
-
-- Practical, progressive exercises
-
-## 🎓 Knowledge Check
-
-- Test understanding
-
-## 🚀 Going Further
-
-- Advanced topics
-```
-
-### Dockerfile Standards
-
-Every Dockerfile should:
-
-- Use non-root user (`USER` instruction)
-- Include health checks where appropriate
-- Follow security best practices
-- Be well-commented for educational value
-- Use multi-stage builds when beneficial
-
-### Code Example Standards
-
-- **Idiomatic**: Use language best practices
-- **Secure**: Follow security guidelines
-- **Commented**: Explain non-obvious parts
-- **Complete**: Actually runnable examples
-- **Progressive**: Build complexity gradually
-
-## 🔧 Troubleshooting
-
-### Pre-commit Issues
-
-#### "command not found: pre-commit"
-
-```bash
-# Install pre-commit
-pip install pre-commit
-
-# Or with homebrew (macOS)
-brew install pre-commit
-```
-
-#### "No module named 'detect_secrets'"
-
-```bash
-# Install detect-secrets
-pip install detect-secrets
-```
-
-#### "hadolint: command not found"
-
-Docker not installed or not in PATH:
-
-```bash
-# Install Docker Desktop
-# Or install hadolint separately
-brew install hadolint  # macOS
-```
-
-#### "cargo: command not found"
-
-Rust not installed:
-
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-source $HOME/.cargo/env
-```
-
-### Secrets Detection Issues
-
-#### False Positives
-
-If detect-secrets flags something that isn't actually a secret:
-
-```bash
-# Review the detection
-detect-secrets audit .secrets.baseline
-
-# Mark as false positive in the interactive audit
-# Commit the updated baseline
-git add .secrets.baseline
-```
-
-#### Real Secrets Detected
-
-If you accidentally committed a real secret:
-
-```bash
-# Remove the secret from the file
-# Then run
-git add .
-git commit -m "Remove secret"
-
-# For sensitive cases, consider rewriting git history
-# or rotating the compromised secret
-```
-
-## 📚 Resources
-
-### Pre-commit
-
-- [Pre-commit Documentation](https://pre-commit.com/)
-- [Supported Hooks](https://pre-commit.com/hooks.html)
-
-### Code Quality Tools
-
-- [Black](https://black.readthedocs.io/) - Python formatting
-- [Ruff](https://docs.astral.sh/ruff/) - Python linting
-- [Hadolint](https://github.com/hadolint/hadolint) - Dockerfile linting
-- [ShellCheck](https://www.shellcheck.net/) - Shell script analysis
-
-### Security
-
-- [Detect Secrets](https://github.com/Yelp/detect-secrets) - Secret detection
-- [Docker Security Best Practices](https://docs.docker.com/develop/security-best-practices/)
-
----
-
-**Remember**: Every commit is a teaching moment. Let's make sure students learn the right way from the start! 🎓
+The optional kind validation requires kind and kubectl. Its separate manual workflow can run once available on the default branch; it is not a prerequisite for the Docker course.

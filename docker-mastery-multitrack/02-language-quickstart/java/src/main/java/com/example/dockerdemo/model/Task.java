@@ -1,21 +1,8 @@
 package com.example.dockerdemo.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.Instant;
 
-import java.time.LocalDateTime;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Task {
-    private Long id;
-    private String title;
-    private String description;
-    private boolean completed;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-}
+public record Task(String id, String title, String description, boolean completed,
+                   @JsonProperty("created_at") Instant createdAt,
+                   @JsonProperty("updated_at") Instant updatedAt) {}

@@ -1,0 +1,28 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: {interval: weekly}
+  - package-ecosystem: uv
+    directory: /docker-mastery-multitrack/02-language-quickstart/python
+    schedule: {interval: weekly}
+  - package-ecosystem: pip
+    directory: /
+    schedule: {interval: weekly}
+  - package-ecosystem: cargo
+    directory: /docker-mastery-multitrack/02-language-quickstart/rust
+    schedule: {interval: weekly}
+  - package-ecosystem: maven
+    directory: /docker-mastery-multitrack/02-language-quickstart/java
+    schedule: {interval: weekly}
+  - package-ecosystem: docker
+    directories:
+      - /docker-mastery-multitrack/02-language-quickstart/python
+      - /docker-mastery-multitrack/02-language-quickstart/rust
+      - /docker-mastery-multitrack/02-language-quickstart/java
+    schedule: {interval: weekly}
+  - package-ecosystem: docker-compose
+    directories:
+      - /
+      - /docker-mastery-multitrack/common-resources/templates
+    schedule: {interval: weekly}

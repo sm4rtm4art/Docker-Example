@@ -6,6 +6,7 @@ alwaysApply: false
 
 # Docker Tutorial Markdown
 
+- Keep all learner-facing content in English.
 - Write for junior developers learning Docker. Teach Docker concepts first; use Java, Python, and Rust as examples, not as the main lesson.
 - Keep `README.md` as the landing page and `docker-mastery-multitrack/docker-curriculum-guide.md` as the canonical module overview.
 - Preserve the `00-11` learning path. When changing module names, links, or estimates, update related docs in the same change.

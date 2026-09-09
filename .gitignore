@@ -350,3 +350,12 @@ data/
 local-data/
 .cursorrules
 .local
+
+# Local validation and kind credentials
+/reports/
+/.venv-ci/
+/trivy.json
+
+# Generated course website
+_build/
+.venv-docs/

@@ -1,62 +1,21 @@
-# Production Dockerfile for Rust Task API
-# Multi-stage build for minimal image size
-
-# Build stage
-FROM rust:alpine AS builder
-
-# Install build dependencies
-RUN apk add --no-cache musl-dev
-
-WORKDIR /usr/src/app
-
-# Copy dependency files first for better caching
-COPY Cargo.toml Cargo.lock ./
-
-# Create dummy source to cache dependencies
-RUN mkdir src && echo "fn main() {}" > src/main.rs
-RUN cargo build --release
-RUN rm -rf src
-
-# Copy real source code
-COPY src ./src
-
-# Build application
-RUN cargo build --release
-
-# Runtime stage
-FROM alpine:3.18
-
-# Install runtime dependencies
-RUN apk add --no-cache ca-certificates curl
-
-# Create non-root user with configurable UID/GID
-ARG UID=1000
-ARG GID=1000
-RUN set -eux; \
-    if getent group "${GID}" >/dev/null 2>&1; then \
-      GEXIST="$(getent group "${GID}" | cut -d: -f1)"; \
-      adduser -D -s /bin/sh -u "${UID}" -G "${GEXIST}" rust; \
-    else \
-      addgroup -g "${GID}" rust; \
-      adduser -D -s /bin/sh -u "${UID}" -G rust rust; \
-    fi
-
-# Create app directory
+# syntax=docker/dockerfile:1
+FROM rust:1.98.1-bookworm AS builder
 WORKDIR /app
-RUN chown "${UID}:${GID}" /app
+COPY Cargo.toml Cargo.lock ./
+COPY src/ ./src/
+# Cache dependencies without a dummy main.rs that can produce a stale binary.
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/app/target \
+    cargo build --locked --release && cp target/release/task-api /tmp/task-api
 
-# Copy binary from builder stage
-COPY --from=builder --chown=${UID}:${GID} /usr/src/app/target/release/task-api .
-
-# Switch to non-root user
-USER rust:rust
-
-# Expose port
+FROM debian:bookworm-slim AS runtime
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --gid 10001 app && useradd --uid 10001 --gid app --no-create-home app
+WORKDIR /app
+COPY --from=builder /tmp/task-api ./task-api
+USER 10001:10001
 EXPOSE 8080
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
-
-# Run application
+HEALTHCHECK --interval=5s --timeout=3s --start-period=10s --retries=6 \
+    CMD ["curl", "-fsS", "--max-time", "2", "http://127.0.0.1:8080/health"]
 CMD ["./task-api"]

@@ -1,63 +1,15 @@
-# Docker Compose Templates 🐳
+# Find the right Compose lab
 
-Reusable Docker Compose configurations for common patterns across all modules.
+Run course commands from the repository root. Use one API project at a time on a given host port.
 
-## 🎯 How to Use
+| Configuration | Purpose | Lesson |
+| --- | --- | --- |
+| Root `compose.lab.yml` | Selected API track with runtime restrictions | [Run a Task API](../../02-language-quickstart/index.md) |
+| Track `docker-compose.yml` | Track-local runtime project | [Language quickstarts](../../02-language-quickstart/index.md) |
+| Python/Rust `compose.dev.yml` | Source-editing workflow | [Development](../../05-development-workflow/index.md) |
+| `docker-compose.database.yml` in this directory | Standalone PostgreSQL and SQL client | [Networking](../../04-docker-compose/02-compose-networking.md) |
+| Root `compose.monitoring.yml` merged with `compose.lab.yml` | API, Prometheus and Grafana | [Monitoring](../../08-monitoring-stack/02-complete-stack.md) |
 
-These templates are designed to be combined with your main `docker-compose.yml` file:
+Resolve configurations with `docker compose ... config` before starting a changed stack. `compose.dev.yml` is standalone; the monitoring file is an overlay and needs both `-f` arguments in the lesson's order.
 
-```bash
-# Base application
-docker compose up
-
-# Add database
-docker compose -f docker-compose.yml -f docker-compose.database.yml up
-
-# Add monitoring  
-docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up
-
-# Full stack
-docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.database.yml \
-  -f docker-compose.monitoring.yml \
-  up
-```
-
-> **Note**: Use `docker compose` (V2) for course commands. `docker-compose` (V1) is legacy compatibility and may be missing on modern systems.
-
-## 📁 Available Templates
-
-These are the templates currently included in this folder.
-
-### 🗄️ `docker-compose.database.yml`
-
-- **PostgreSQL** with health checks
-- **pgAdmin** for database management
-- **Volume persistence** for data
-- **Local classroom defaults** clearly marked as dev-only
-
-### 📊 `docker-compose.monitoring.yml`
-
-- **Prometheus** for metrics collection
-- **Grafana** for visualization dashboards
-- **Service discovery** configuration
-- **Volume persistence** for dashboards
-
-Future development or production-specific templates should be added here only after the files exist and their scope is clearly labeled.
-
-## 🎓 Learning Progression
-
-**Module 02**: Use base application only
-**Module 04**: Add database template
-**Module 08**: Add monitoring template
-
-## 💡 Benefits
-
-- ✅ **Consistent patterns** across all language tracks
-- ✅ **Reusable configurations** reduce duplication
-- ✅ **Educational progression** from simple to complex
-- ✅ **Teaching templates** with local classroom assumptions called out
-- ✅ **Easy testing** of different combinations
-
-Perfect for learning Docker composition patterns! 🚀
+The database's credentials are **DEV ONLY**. It is an independent persistence lab; the Task API does not connect to it. Monitoring requires a local Grafana password and retains data in its own volumes.
