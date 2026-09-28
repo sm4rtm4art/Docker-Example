@@ -3,6 +3,8 @@ FROM ghcr.io/astral-sh/uv:0.12.19 AS uv
 FROM python:3.14-slim-bookworm AS dependencies
 COPY --from=uv /uv /usr/local/bin/uv
 WORKDIR /app
+# Use the image interpreter. A downloaded CPython lives outside the copied virtualenv and is missing in the runtime stage.
+ENV UV_PYTHON_DOWNLOADS=never
 COPY pyproject.toml uv.lock ./
 RUN uv sync --locked --no-dev --no-install-project
 
