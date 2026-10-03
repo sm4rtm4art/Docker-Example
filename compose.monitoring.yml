@@ -1,7 +1,7 @@
 # Merge from repository root: -f compose.lab.yml -f compose.monitoring.yml
 services:
   prometheus:
-    image: prom/prometheus:v3.14.0
+    image: prom/prometheus:v3.15.0
     command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=2d"]
     ports:
       - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
