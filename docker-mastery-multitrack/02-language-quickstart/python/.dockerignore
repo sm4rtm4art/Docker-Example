@@ -15,8 +15,7 @@ env/
 .env
 
 # Keep these files for Docker builds:
-# pyproject.toml (UV dependencies)
-# requirements.txt (pip fallback)
+# pyproject.toml and uv.lock (uv installs from the lockfile)
 
 # IDE
 .vscode/
