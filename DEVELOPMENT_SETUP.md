@@ -45,7 +45,7 @@ Reading: [GitHub Pages availability](https://docs.github.com/en/pages/getting-st
 
 ## Maintain dependencies and lessons
 
-- Python: update `pyproject.toml`, run `uv lock`, verify `uv sync --locked`, then regenerate `requirements.txt` with `uv export --locked --no-dev --no-emit-project --output-file requirements.txt` in the track directory.
+- Python: update `pyproject.toml`, run `uv lock`, and verify `uv sync --locked` in the track directory. The image installs from `uv.lock`.
 - Rust: maintain `Cargo.lock` and verify `cargo build --locked` through the image build.
 - Java: maintain the Maven parent/dependencies and compatible JDK/JRE together; run build verification and the HTTP contract.
 - Images: review version tags, support periods and security findings; rebuild and test updates. Digests also need an update process.
