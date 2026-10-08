@@ -1,7 +1,7 @@
 # Merge from repository root: -f compose.lab.yml -f compose.monitoring.yml
 services:
   prometheus:
-    image: prom/prometheus:v3.14.0
+    image: prom/prometheus:v3.15.0
     command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=2d"]
     ports:
       - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
@@ -12,7 +12,7 @@ services:
     security_opt: [no-new-privileges:true]
     mem_limit: 512m
   grafana:
-    image: grafana/grafana:13.2.2
+    image: grafana/grafana:13.2.3
     ports:
       - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
     environment:
